@@ -1,0 +1,10 @@
+Dependencies:
+
+    - argparse
+    - pycclib
+
+Installation:
+
+    To install cctrl use 'python setup.py install'.
+    
+    Dependencies should be automatically fetched by easy_install.

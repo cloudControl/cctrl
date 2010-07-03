@@ -1,0 +1,162 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+    Copyright 2010 cloudControl UG (haftungsbeschraenkt)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+"""
+
+import argparse
+import sys
+
+import cctrl.settings as settings
+from pycclib.cclib import *
+import cctrl.common as common
+from cctrl.error import messages
+from cctrl.app import AppController, AppsController
+from cctrl.auth import read_tokenfile, get_credentials, delete_tokenfile
+
+class list_action(argparse.Action):
+    """
+        This action is needed by argparse because we use --list to get a list
+        of apps that a user has access too. This is not directly supported by
+        one of the other argpase actions. Therefore we needed to write our own.
+        
+        #TODO: Right now we do the error handling here and in common.run. It would
+        be better to use common.run here too.
+    """
+    def __init__(self, api, **kwargs):
+        super(list_action, self).__init__(**kwargs)
+        self.api = api
+    
+    def __call__(self, parser, namespace, value, option_string=None):
+        apps = AppsController(self.api)
+        while True:
+            try:
+                try:
+                    apps.list()
+                except TokenRequiredError:
+                    email, password = get_credentials()
+                    try:
+                        self.api.create_token(email, password)
+                    except UnauthorizedError:
+                        sys.exit(messages['NotAuthorized'])
+                    else:
+                        pass
+                else:
+                    break
+            except (UnauthorizedError, BadRequestError), e:
+                # Because we allow an anonymous get on /app/ to check for
+                # already taken app names this confuses cctrlapp --list
+                # if the token has expired. Therefore if cctrlapp --list get's
+                # a BadRequestError it is due to the token beeing expired and
+                # the anonymous function answering instead of the authorized one
+                if delete_tokenfile():
+                    self.api.set_token(None)
+                else:
+                    sys.exit(e)
+            except (ForbiddenError, ConnectionException, ConflictDuplicateError, GoneError,
+                    InternalServerError, NotImplementedError, ThrottledError), e:
+                sys.exit(e)
+        parser.exit()
+
+def main(api):
+    app = AppController(api)
+    parse_cmdline(app, api)
+
+def parse_cmdline(app, api):
+    """
+        We parse the commandline using argparse from http://code.google.com/p/argparse/.
+        
+        argparse works with parsers and subparsers.
+        
+        Our main parser for cctrlapp always requires a name argument. We then
+        add subparses for each action available for the app identified by name.
+        
+        Each subparser then may have it's own arguments needed for that
+        particular subparsers action to work.
+    """
+    version = settings.VERSION
+    description = "'cctrlapp' controls your cloudControl apps"
+    epilog = "And now you're in control"
+    
+    parser = argparse.ArgumentParser(description=description, epilog=epilog)
+    
+    parser.add_argument('-v', '--version', action='version', version=version)
+    
+    parser.add_argument('name', help="app_name or app_name/deployment_name")
+
+    subparsers = parser.add_subparsers()
+    
+    create_subparser = subparsers.add_parser('create', help="create a new application")
+    create_subparser.add_argument('type', help='php, java, python or ruby')
+    create_subparser.set_defaults(func=app.create)
+    
+    details_subparser = subparsers.add_parser('details', help="get application or deployment details depending on name")
+    details_subparser.set_defaults(func=app.details)
+    
+    delete_subparser = subparsers.add_parser('delete', help="delete an application")
+    delete_subparser.add_argument('--force', action="store_true", dest="force_delete", help="don't ask for confirmation")
+    delete_subparser.set_defaults(func=app.delete)
+    
+    addUser_subparser = subparsers.add_parser('addUser', help="add a new user identified by email")
+    addUser_subparser.add_argument('email')
+    addUser_subparser.set_defaults(func=app.addUser)
+    
+    removeUser_subparser = subparsers.add_parser('removeUser', help="remove an existing user identified by username")
+    removeUser_subparser.add_argument('username')
+    removeUser_subparser.set_defaults(func=app.removeUser)
+    
+    push_subparser = subparsers.add_parser('push', help="push a new version")
+    push_subparser.add_argument('folder', nargs='?', help='optionally accepts a path to your local branch')
+    push_subparser.set_defaults(func=app.push)
+    
+    deploy_subparser = subparsers.add_parser('deploy', help="deploy a new version")
+    deploy_subparser.add_argument('version', nargs='?', default=-1, help='optionally accepts a version')
+    deploy_subparser.set_defaults(func=app.deploy)
+    
+    addAlias_subparser = subparsers.add_parser('addAlias', help="add an alias to a deployment")
+    addAlias_subparser.add_argument('alias', help='the name of the alias to add e.g. www.example.com')
+    addAlias_subparser.set_defaults(func=app.addAlias)
+    
+    showAlias_subparser = subparsers.add_parser('showAlias', help="add an alias to a deployment.")
+    showAlias_subparser.add_argument('alias', help='the name of the alias to show e.g. www.example.com')
+    showAlias_subparser.set_defaults(func=app.showAlias)
+    
+    removeAlias_subparser = subparsers.add_parser('removeAlias', help="remove an alias.")
+    removeAlias_subparser.add_argument('alias', help='the name of the alias to remove e.g. www.example.com')
+    removeAlias_subparser.set_defaults(func=app.removeAlias)
+    
+    undeploy_subparser = subparsers.add_parser('undeploy', help="undeploy a currently deployed version")
+    undeploy_subparser.add_argument('--force', action="store_true", dest="force_delete", help="don't ask for confirmation")
+    undeploy_subparser.set_defaults(func=app.undeploy)
+    
+    log_subparser = subparsers.add_parser('log', help="show the log")
+    log_subparser.add_argument('type', choices=['access', 'error'])
+    log_subparser.set_defaults(func=app.log)
+    
+    parser.add_argument("--list", action=list_action, nargs=0, api=api, help="list your applications")
+    
+    args = parser.parse_args()
+        
+    common.run(args, api)
+
+if __name__ == "__main__":
+    api = API(token=read_tokenfile(), cache=settings.CACHE_DIR)
+    try:
+        main(api)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        common.shutdown(api)

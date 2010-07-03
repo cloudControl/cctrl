@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+    Copyright 2010 cloudControl UG (haftungsbeschraenkt)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+"""
+
+import argparse
+import sys
+
+from pycclib.cclib import API
+
+import cctrl.settings as settings
+import cctrl.common as common
+from cctrl.user import UserController
+from cctrl.auth import read_tokenfile
+
+def main(api):
+    user = UserController(api)
+    parse_cmdline(user)
+
+def parse_cmdline(user):
+    """
+      We parse the commandline using argparse from http://code.google.com/p/argparse/.
+    """
+    version = settings.VERSION
+    description = "'cctrluser' controls your cloudControl user account"
+    epilog = "And now you're in control"
+    
+    parser = argparse.ArgumentParser(description=description, epilog=epilog)
+    
+    parser.add_argument('-v', '--version', action='version', version=version)
+    
+    subparsers = parser.add_subparsers()
+    
+    create_subparser = subparsers.add_parser('create', help="create a new user")
+    create_subparser.add_argument("--name", action="store", dest="name", help="the username")
+    create_subparser.add_argument("--email", action="store", dest="email", help="the email")
+    create_subparser.add_argument("--password", action="store", dest="password", help="the password")
+    create_subparser.set_defaults(func=user.create)
+    
+    activate_subparser = subparsers.add_parser('activate', help="activate a user")
+    activate_subparser.add_argument('user_name', help='the username')
+    activate_subparser.add_argument('activation_code', help='the activation code sent by email')
+    activate_subparser.set_defaults(func=user.activate)
+    
+    delete_subparser = subparsers.add_parser('delete', help="delete _your_ user")
+    delete_subparser.add_argument('--force', action="store_true", dest="force_delete", help="don't ask for confirmation")
+    delete_subparser.set_defaults(func=user.delete)
+    
+    addKey_subparser = subparsers.add_parser('addKey', help="add a new public key")
+    addKey_subparser.add_argument('public_key', help='the path to your _PUBLIC_key_ file.')
+    addKey_subparser.set_defaults(func=user.addKey)
+    
+    removeKey_subparser = subparsers.add_parser('removeKey', help="remove an existing public key")
+    removeKey_subparser.add_argument('--force', action="store_true", dest="force_delete", help="don't ask for confirmation")
+    removeKey_subparser.add_argument('id', help='the key_id of the key - see listKeys')
+    removeKey_subparser.set_defaults(func=user.removeKey)
+    
+    listUsers_subparser = subparsers.add_parser('listKeys', help="list all your public keys and their key_ids")
+    listUsers_subparser.set_defaults(func=user.listKeys)
+    
+    args = parser.parse_args()
+    
+    common.run(args, api)
+
+if __name__ == "__main__":
+    api = API(token=read_tokenfile(), cache=settings.CACHE_DIR)
+    try:
+        main(api)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        common.shutdown(api)
