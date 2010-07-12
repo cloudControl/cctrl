@@ -40,7 +40,7 @@ class UserController():
             email = args.email
             password = args.password
         else:
-            name = raw_input('Name  : ')
+            name = raw_input('Username: ')
             try:
                 email, password = get_credentials(create=True)
             except PasswordsDontMatchException:

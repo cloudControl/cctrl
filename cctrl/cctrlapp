@@ -56,17 +56,12 @@ class list_action(argparse.Action):
                         pass
                 else:
                     break
-            except (UnauthorizedError, BadRequestError), e:
-                # Because we allow an anonymous get on /app/ to check for
-                # already taken app names this confuses cctrlapp --list
-                # if the token has expired. Therefore if cctrlapp --list get's
-                # a BadRequestError it is due to the token beeing expired and
-                # the anonymous function answering instead of the authorized one
+            except UnauthorizedError, e:
                 if delete_tokenfile():
                     self.api.set_token(None)
                 else:
                     sys.exit(e)
-            except (ForbiddenError, ConnectionException, ConflictDuplicateError, GoneError,
+            except (ForbiddenError, BadRequestError, ConnectionException, ConflictDuplicateError, GoneError,
                     InternalServerError, NotImplementedError, ThrottledError), e:
                 sys.exit(e)
         parser.exit()
@@ -149,7 +144,7 @@ def parse_cmdline(app, api):
     parser.add_argument("--list", action=list_action, nargs=0, api=api, help="list your applications")
     
     args = parser.parse_args()
-        
+    
     common.run(args, api)
 
 if __name__ == "__main__":
