@@ -28,11 +28,11 @@ def print_list_apps(apps):
         Print a nice table of apps.
     """
     if has_str_format:
-        print "{0:3} {1:30} {2:6} {3:10}".format('i', 'Name', 'Type', 'Owner')
+        print "{0:3} {1:30} {2:6} {3:10}".format('Nr', 'Name', 'Type', 'Owner')
         for i, app in enumerate(apps):
             print "{0:3} {1:30} {2:6} {3:10}".format(i, app['name'], app['type']['name'], app['owner']['username'])
     else:
-        print "%-3ls %-30ls %-6ls %-10ls" % ('i', 'Name', 'Type', 'Owner')
+        print "%-3ls %-30ls %-6ls %-10ls" % ('Nr', 'Name', 'Type', 'Owner')
         for i, app in enumerate(apps):
             print "%-3ls %-30ls %-6ls %-10ls" % (i, app['name'], app['type']['name'], app['owner']['username'])
 

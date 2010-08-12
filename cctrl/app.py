@@ -59,7 +59,16 @@ class AppController():
             app_name, deployment_name = self.parse_app_deployment_name(args.name)
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
-        self.api.create_app(app_name, args.type)
+        try:
+            self.api.create_app(app_name, args.type)
+            self.api.create_deployment(app_name, deployment_name=deployment_name)
+        except GoneError:
+            raise InputErrorException('WrongApplication')
+        except ForbiddenError:
+            raise InputErrorException('NotAllowed')
+        else:
+            return True
+        
         
     def delete(self, args):
         """
@@ -275,8 +284,8 @@ class AppController():
             except ForbiddenError:
                 raise InputErrorException('NotAllowed')
         
-        if args.folder:
-            cmd = ['bzr', 'push', deployment['branch'], '-d', args.folder]
+        if args.source:
+            cmd = ['bzr', 'push', deployment['branch'], '-d', args.source]
         else:
             cmd = ['bzr', 'push', deployment['branch']]
         try:

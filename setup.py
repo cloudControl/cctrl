@@ -39,11 +39,11 @@ else:
 
 setup(
     name="cctrl",
-    version='0.1',
+    version='0.1.1',
     description='cloudControl command line utilities',
     author = 'cloudControl Team',
     author_email = 'info@cloudcontrol.de',
-    url = 'http://cloudcontrol.com',
+    url = 'https://launchpad.net/cctrl',
     download_url = 'https://launchpad.net/cctrl/+download',
     license = 'Apache 2.0',
     classifiers=[

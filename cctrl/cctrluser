@@ -17,8 +17,9 @@
     limitations under the License.
 """
 
+import os
+
 import argparse
-import sys
 
 from pycclib.cclib import API
 
@@ -36,41 +37,42 @@ def parse_cmdline(user):
       We parse the commandline using argparse from http://code.google.com/p/argparse/.
     """
     version = settings.VERSION
-    description = "'cctrluser' controls your cloudControl user account"
+    usage = '%(prog)s [-h, --help] [command]'
+    description = '%(prog)s controls your user account'
     epilog = "And now you're in control"
     
-    parser = argparse.ArgumentParser(description=description, epilog=epilog)
+    parser = argparse.ArgumentParser(description=description, epilog=epilog, usage=usage)
     
     parser.add_argument('-v', '--version', action='version', version=version)
     
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(title='commands', description='available commands', metavar='')
     
-    create_subparser = subparsers.add_parser('create', help="create a new user")
+    create_subparser = subparsers.add_parser('create', help="create user")
     create_subparser.add_argument("--name", action="store", dest="name", help="the username")
     create_subparser.add_argument("--email", action="store", dest="email", help="the email")
     create_subparser.add_argument("--password", action="store", dest="password", help="the password")
     create_subparser.set_defaults(func=user.create)
     
-    activate_subparser = subparsers.add_parser('activate', help="activate a user")
-    activate_subparser.add_argument('user_name', help='the username')
-    activate_subparser.add_argument('activation_code', help='the activation code sent by email')
+    activate_subparser = subparsers.add_parser('activate', help="activate user")
+    activate_subparser.add_argument('user_name', help='your user name')
+    activate_subparser.add_argument('activation_code', help='activation code from the email')
     activate_subparser.set_defaults(func=user.activate)
     
-    delete_subparser = subparsers.add_parser('delete', help="delete _your_ user")
-    delete_subparser.add_argument('--force', action="store_true", dest="force_delete", help="don't ask for confirmation")
+    delete_subparser = subparsers.add_parser('delete', help="delete user")
+    delete_subparser.add_argument('-f', '--force', action="store_true", dest="force_delete", help="don't ask for confirmation")
     delete_subparser.set_defaults(func=user.delete)
     
-    addKey_subparser = subparsers.add_parser('addKey', help="add a new public key")
-    addKey_subparser.add_argument('public_key', help='the path to your _PUBLIC_key_ file.')
+    listUsers_subparser = subparsers.add_parser('key', help="list public keys and key ids")
+    listUsers_subparser.set_defaults(func=user.listKeys)
+    
+    addKey_subparser = subparsers.add_parser('key.add', help="add public key")
+    addKey_subparser.add_argument('public_key', nargs='?', default=os.path.expanduser('~/.ssh/id_rsa.pub'), help='path to public_key file')
     addKey_subparser.set_defaults(func=user.addKey)
     
-    removeKey_subparser = subparsers.add_parser('removeKey', help="remove an existing public key")
-    removeKey_subparser.add_argument('--force', action="store_true", dest="force_delete", help="don't ask for confirmation")
+    removeKey_subparser = subparsers.add_parser('key.remove', help="remove public key")
+    removeKey_subparser.add_argument('-f', '--force', action="store_true", dest="force_delete", help="don't ask for confirmation")
     removeKey_subparser.add_argument('id', help='the key_id of the key - see listKeys')
     removeKey_subparser.set_defaults(func=user.removeKey)
-    
-    listUsers_subparser = subparsers.add_parser('listKeys', help="list all your public keys and their key_ids")
-    listUsers_subparser.set_defaults(func=user.listKeys)
     
     args = parser.parse_args()
     
