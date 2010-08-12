@@ -39,7 +39,7 @@ else:
 
 setup(
     name="cctrl",
-    version='0.1.1',
+    version='0.2',
     description='cloudControl command line utilities',
     author = 'cloudControl Team',
     author_email = 'info@cloudcontrol.de',
