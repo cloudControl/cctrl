@@ -20,4 +20,5 @@ HOME_PATH = os.path.abspath(os.path.expanduser('~/.cloudControl'))
 TOKEN_FILE_NAME = 'token.json'
 TOKEN_FILE_PATH = os.path.join(HOME_PATH, TOKEN_FILE_NAME)
 CACHE_DIR = os.path.join(HOME_PATH, 'cache')
-VERSION = 'cctrl 0.2 using pycclib 0.1.3'
+VERSION = 'cctrl 0.2.1 using pycclib 0.1.3'
+
