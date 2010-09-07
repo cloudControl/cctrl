@@ -7,9 +7,9 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-    
+
     http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +22,7 @@ import sys
 
 import cctrl.settings as settings
 from pycclib.cclib import *
+from pycclib.version import __version__ as cclibversion
 import cctrl.common as common
 from cctrl.error import messages
 from cctrl.app import AppController, AppsController
@@ -32,14 +33,14 @@ class list_action(argparse.Action):
         This action is needed by argparse because we use --list to get a list
         of apps that a user has access too. This is not directly supported by
         one of the other argpase actions. Therefore we needed to write our own.
-        
+
         #TODO: Right now we do the error handling here and in common.run. It would
         be better to use common.run here too.
     """
     def __init__(self, api, **kwargs):
         super(list_action, self).__init__(**kwargs)
         self.api = api
-    
+
     def __call__(self, parser, namespace, value, option_string=None):
         apps = AppsController(self.api)
         while True:
@@ -73,84 +74,104 @@ def main(api):
 def parse_cmdline(app, api):
     """
         We parse the commandline using argparse from http://code.google.com/p/argparse/.
-        
+
         argparse works with parsers and subparsers.
-        
+
         Our main parser for cctrlapp always requires a name argument. We then
         add subparses for each action available for the app identified by name.
-        
+
         Each subparser then may have it's own arguments needed for that
         particular subparsers action to work.
     """
-    version = settings.VERSION
+    version = '%(prog)s {0} using pycclib {1}'.format(settings.VERSION, cclibversion)
     usage = '%(prog)s [-h, --help] app_name[/deployment_name] command [options]'
     description = "%(prog)s controls your cloudControl apps"
     epilog = "And now you're in control"
-    
+
     parser = argparse.ArgumentParser(description=description, epilog=epilog, usage=usage)
-    
+
     list_apps = parser.add_argument_group('list apps', 'get a list of all your apps')
     list_apps.add_argument('-l', '--list', action=list_action, nargs=0, api=api, help='list apps')
-    
+
     control_apps = parser.add_argument_group('control apps', 'control app or deployment')
-    
+
     control_apps.add_argument('name', help='app_name to control apps or app_name/deployment_name to control deployments', metavar='app_name[/deployment_name]')
 
     subparsers = parser.add_subparsers(title='commands', description='available commands', metavar='')
-    
+
     create_subparser = subparsers.add_parser('create', help="create new application")
     create_subparser.add_argument('type', choices=['php', 'ruby', 'java', 'python'], help='php, ruby, java or python', metavar='type')
     create_subparser.set_defaults(func=app.create)
-    
+
     details_subparser = subparsers.add_parser('details', help="app or deployment details")
     details_subparser.set_defaults(func=app.details)
-    
+
     delete_subparser = subparsers.add_parser('delete', help="delete application")
     delete_subparser.add_argument('-f', '--force', action="store_true", dest="force_delete", help="don't ask for confirmation")
     delete_subparser.set_defaults(func=app.delete)
-    
+
     push_subparser = subparsers.add_parser('push', help="push local changes")
     push_subparser.add_argument('source', nargs='?', help='path to local branch')
     push_subparser.set_defaults(func=app.push)
-    
+
     deploy_subparser = subparsers.add_parser('deploy', help="deploy version")
-    deploy_subparser.add_argument('--min', action="store", nargs=1, dest="min_boxes", help="minimum number of boxes")
-    deploy_subparser.add_argument('--max', action="store", nargs=1, dest="max_boxes", help="maximum number of boxes")
+    deploy_subparser.add_argument('--min', action="store", nargs='?', default=None, dest="min_boxes", help="minimum number of boxes")
+    deploy_subparser.add_argument('--max', action="store", nargs='?', default=None, dest="max_boxes", help="maximum number of boxes")
     deploy_subparser.add_argument('version', nargs='?', default=-1, help='optionally accepts a version')
     deploy_subparser.set_defaults(func=app.deploy)
-    
+
     undeploy_subparser = subparsers.add_parser('undeploy', help="delete deployment")
     undeploy_subparser.add_argument('-f', '--force', action="store_true", dest="force_delete", help="don't ask for confirmation")
     undeploy_subparser.set_defaults(func=app.undeploy)
-    
+
     addUser_subparser = subparsers.add_parser('user.add', help="add user by email")
     addUser_subparser.add_argument('email')
     addUser_subparser.set_defaults(func=app.addUser)
-    
+
     removeUser_subparser = subparsers.add_parser('user.remove', help="remove user by user name")
     removeUser_subparser.add_argument('username', help='user name')
     removeUser_subparser.set_defaults(func=app.removeUser)
-    
+
     showAlias_subparser = subparsers.add_parser('alias', help="show alias")
-    showAlias_subparser.add_argument('alias', help='name of the alias e.g. www.example.com')
+    showAlias_subparser.add_argument('alias', nargs='?', help='name of the alias e.g. www.example.com')
     showAlias_subparser.set_defaults(func=app.showAlias)
-    
+
     addAlias_subparser = subparsers.add_parser('alias.add', help="add alias")
     addAlias_subparser.add_argument('alias', help='name of the alias e.g. www.example.com')
     addAlias_subparser.set_defaults(func=app.addAlias)
-    
+
     removeAlias_subparser = subparsers.add_parser('alias.remove', help="remove alias.")
     removeAlias_subparser.add_argument('alias', help='name of the alias e.g. www.example.com')
     removeAlias_subparser.set_defaults(func=app.removeAlias)
-    
+
+    showAddon_subparser = subparsers.add_parser('addon', help="show addon")
+    showAddon_subparser.add_argument('addon', nargs='?', help='name of the addon e.g. mysql.standard')
+    showAddon_subparser.set_defaults(func=app.showAddon)
+
+    showAddon_subparser = subparsers.add_parser('addon.list', help="list all available addons")
+    showAddon_subparser.set_defaults(func=app.listAddons)
+
+    addAddon_subparser = subparsers.add_parser('addon.add', help="add addon")
+    addAddon_subparser.add_argument('addon', help='name of the addon e.g. mysql.standard')
+    addAddon_subparser.set_defaults(func=app.addAddon)
+
+    addAddon_subparser = subparsers.add_parser('addon.upgrade', help="add addon")
+    addAddon_subparser.add_argument('addon_old', help='current addon option')
+    addAddon_subparser.add_argument('addon_new', help='addon option to upgrade to')
+    addAddon_subparser.set_defaults(func=app.updateAddon)
+
+    removeAddon_subparser = subparsers.add_parser('addon.remove', help="remove addon.")
+    removeAddon_subparser.add_argument('addon', help='name of the addon e.g. mysql.standard')
+    removeAddon_subparser.set_defaults(func=app.removeAddon)
+
     log_subparser = subparsers.add_parser('log', help="show the log")
     log_subparser.add_argument('type', choices=['access', 'error'])
     log_subparser.set_defaults(func=app.log)
-    
+
     parser.add_argument('-v', '--version', action='version', version=version, help='show version string')
-    
+
     args = parser.parse_args()
-    
+
     common.run(args, api)
 
 if __name__ == "__main__":

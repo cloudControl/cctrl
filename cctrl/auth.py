@@ -17,10 +17,7 @@
 import getpass
 import sys
 import os
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 
 from cctrl.error import messages, PasswordsDontMatchException
 from cctrl.settings import TOKEN_FILE_PATH, HOME_PATH

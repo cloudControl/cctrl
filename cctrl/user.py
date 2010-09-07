@@ -1,12 +1,13 @@
+# -*- coding: utf-8 -*-
 """
     Copyright 2010 cloudControl UG (haftungsbeschraenkt)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-    
+
     http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,21 +25,21 @@ class UserController():
     """
         This controller handles all user related actions.
     """
-    
+
     api = None
-    
+
     def __init__(self, api):
         self.api = api
-        
+
     def create(self, args):
         """
             Create a new user.
         """
         self.api.set_token(None)
         if args.name and args.email and args.password:
-            name = args.name
-            email = args.email
-            password = args.password
+            name = args.name[0]
+            email = args.email[0]
+            password = args.password[0]
         else:
             name = raw_input('Username: ')
             try:
@@ -46,17 +47,17 @@ class UserController():
             except PasswordsDontMatchException:
                 return
         self.api.create_user(name, email, password)
-        
+
     def activate(self, args):
         """
             Activate a new user using the information from the activation email.
         """
         self.api.set_token(None)
         try:
-            self.api.update_user(args.user_name, activation_code=args.activation_code)
+            self.api.update_user(args.user_name[0], activation_code=args.activation_code[0])
         except GoneError:
             raise InputErrorException('WrongUsername')
-      
+
     def delete(self, args):
         """
             Delete your user account.
@@ -70,19 +71,23 @@ class UserController():
             self.api.delete_user(users[0]['username'])
             # After we have deleted our user we should also delete the token_file
             # to avoid confusion
-            delete_tokenfile()
+            self.api.set_token(None)
         else:
             print messages['SecurityQuestionDenied']
-    
+
     def addKey(self, args):
         """
             Add a public key to your user account.
         """
         users = self.api.read_users()
-        keyFile = open(args.public_key, 'r')
-        self.api.create_user_key(users[0]['username'], keyFile.read())
-        keyFile.close()
-      
+        try:
+            keyFile = open(args.public_key, 'r')
+        except IOError:
+            raise InputErrorException('NoSuchKeyFile')
+        else:
+            self.api.create_user_key(users[0]['username'], keyFile.read())
+            keyFile.close()
+
     def listKeys(self, args):
         """
             List your public keys.
@@ -90,11 +95,11 @@ class UserController():
         users = self.api.read_users()
         keys = self.api.read_user_keys(users[0]['username'])
         print_keys(keys)
-    
+
     def removeKey(self, args):
         """
             Remove one of your public keys specified by key_id.
-            
+
             listKeys() shows the key_ids.
         """
         users = self.api.read_users()
@@ -103,6 +108,12 @@ class UserController():
         else:
             question = 'Yes'
         if question == 'Yes':
-            self.api.delete_user_key(users[0]['username'], args.id)
+            self.api.delete_user_key(users[0]['username'], args.id[0])
         else:
             print messages['SecurityQuestionDenied']
+
+    def logout(self, args):
+        """
+            Logout a user by deleting the token.json file.
+        """
+        self.api.set_token(None)

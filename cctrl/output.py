@@ -6,9 +6,9 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-    
+
     http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,109 +18,120 @@
 import time
 import sys
 
+import pprint
+
 if sys.version_info < (2, 6):
     has_str_format = False
 else:
     has_str_format = True
-    
+
 def print_list_apps(apps):
     """
         Print a nice table of apps.
     """
+    print 'Apps'
     if has_str_format:
-        print "{0:3} {1:30} {2:6} {3:10}".format('Nr', 'Name', 'Type', 'Owner')
+        print " {0:3} {1:30} {2:6} {3:10}".format('Nr', 'Name', 'Type', 'Owner')
         for i, app in enumerate(apps):
-            print "{0:3} {1:30} {2:6} {3:10}".format(i, app['name'], app['type']['name'], app['owner']['username'])
+            print " {0:3} {1:30} {2:6} {3:10}".format(i, app['name'], app['type']['name'], app['owner']['username'])
     else:
-        print "%-3ls %-30ls %-6ls %-10ls" % ('Nr', 'Name', 'Type', 'Owner')
+        print " %-3ls %-30ls %-6ls %-10ls" % ('Nr', 'Name', 'Type', 'Owner')
         for i, app in enumerate(apps):
-            print "%-3ls %-30ls %-6ls %-10ls" % (i, app['name'], app['type']['name'], app['owner']['username'])
+            print " %-3ls %-30ls %-6ls %-10ls" % (i, app['name'], app['type']['name'], app['owner']['username'])
 
 def print_deployment_details(deployment):
     """
         Print deployment details.
     """
+    #pprint.pprint(deployment)
+    print 'Deployment'
     if has_str_format:
-        print 'name: {0}'.format(deployment['name'])
-        print 'branch: {0}'.format(deployment['branch'])
-        print 'last modified: {0}'.format(deployment['date_modified'])
-        print 'current version: {0}'.format(deployment['version'])
-        print ' '
-        print 'db user: {0}'.format(deployment['dep_id'])
-        print 'db password: {0}'.format(deployment['db_password'])
-        print ' '
-        print 'aliases:'
-        print '{0:60} {1:8} {2:8}'.format('name', 'default', 'verified')
-        for alias in deployment['aliases']:
-            print '{0:60} {1:8} {2:8}'.format(alias['name'], alias['is_default'], alias['is_verified'])
+        print ' name: {0}'.format(deployment['name'])
+        print ' branch: {0}'.format(deployment['branch'])
+        print ' static files: {0}'.format(deployment['static_files'])
+        print ' last modified: {0}'.format(deployment['date_modified'])
+        print ' current version: {0}'.format(deployment['version'])
+        print ' current state: {0}'.format(deployment['state'])
+        print ' min boxes: {0}'.format(deployment['min_boxes'])
+        print ' max boxes: {0}'.format(deployment['max_boxes'])
     else:
-        print 'name: %(name)s' % (deployment)
-        print 'branch: %(branch)s' % (deployment)
-        print 'last modified: %(date_modified)s' % (deployment)
-        print 'current version: %(version)s' % (deployment)
-        print ' '
-        print 'db user: %(dep_id)s' % (deployment)
-        print 'db password: %(db_password)s' % (deployment)
-        print ' '
-        print 'aliases:'
-        print '%-60ls %-8ls %-8ls' % ('name', 'default', 'verified')
-        for alias in deployment['aliases']:
-            print '%(name)-60ls %(is_default)-8ls %(is_verified)-8ls' % (alias)
-            
+        print ' name: %(name)s' % (deployment)
+        print ' branch: %(branch)s' % (deployment)
+        print ' static files: %(static_files)s' % (deployment)
+        print ' last modified: %(date_modified)s' % (deployment)
+        print ' current version: %(version)s' % (deployment)
+        print ' current state: %(state)s' % (deployment)
+        print ' min boxes: %(min_boxes)s' % (deployment)
+        print ' max boxes: %(min_boxes)s' % (deployment)
+
 def print_app_details(app):
     """
         Print app details.
     """
+    print 'App'
     if has_str_format:
-        print "name: {0:30} type: {1:10} owner: {2:20}".format(app['name'], app['type']['name'], app['owner']['username'])
-        print ' '
-        print 'users:'
-        print "{0:40} {1:20}".format('name', 'email')
+        print " Name: {0:30} Type: {1:10} Owner: {2:20}".format(app['name'], app['type']['name'], app['owner']['username'])
+        print ' Repository: {0}'.format(app['repository'])
+        print '\n Users'
+        print "   {0:40} {1:20}".format('Name', 'Email')
         for user in app['users']:
-            print "{0:40} {1:20}".format(user['username'], user['email'])
-        print ' '
-        print 'deployments:'
-        print "{0:60} {1:7} {2:10}".format('name', 'version', 'state')
+            print "   {0:40} {1:20}".format(user['username'], user['email'])
+        print '\n Deployments'
+        print "   {0:60} {1:7} {2:10}".format('Name', 'Version', 'State')
         for deployment in app['deployments']:
-            print "{0:60} {1:7} {2:10}".format(deployment['name'], deployment['version'], deployment['state'])
+            print "   {0:60} {1:7} {2:10}".format(deployment['name'], deployment['version'], deployment['state'])
     else:
-        print "name: %-30ls type: %-10ls owner: %-20ls" % (app['name'], app['type']['name'], app['owner']['username'])
-        print ' '
-        print 'users:'
-        print "%-40ls %-20ls" % ('name', 'email')
+        print " Name: %-30ls Type: %-10ls Owner: %-20ls" % (app['name'], app['type']['name'], app['owner']['username'])
+        print ' Repository: %s' % (app['repository'])
+        print '\n Users'
+        print "   %-40ls %-20ls" % ('Name', 'Email')
         for user in app['users']:
-            print "%(username)-40ls %(email)-20ls" % (user)
-        print ' '
-        print 'deployments:'
-        print "%-60ls %-7ls %-10ls" % ('name', 'version', 'state')
+            print "   %(username)-40ls %(email)-20ls" % (user)
+        print '\n Deployments'
+        print "   %-60ls %-7ls %-10ls" % ('Name', 'Version', 'State')
         for deployment in app['deployments']:
-            print "%(name)-60ls %(version)-7ls %(state)-10ls" % (deployment)
-            
+            print "   %(name)-60ls %(version)-7ls %(state)-10ls" % (deployment)
+
+def print_alias_list(aliases):
+    """
+        Print a list of aliases
+    """
+    if has_str_format:
+        print 'Aliases'
+        print ' {0:60} {1:8} {2:8}'.format('name', 'default', 'verified')
+        for alias in aliases:
+            print ' {0:60} {1:8} {2:8}'.format(alias['name'], alias['is_default'], alias['is_verified'])
+    else:
+        print 'Aliases'
+        print ' %-60ls %-8ls %-8ls' % ('name', 'default', 'verified')
+        for alias in aliases:
+            print ' %(name)-60ls %(is_default)-8ls %(is_verified)-8ls' % (alias)
+
 def print_alias_details(alias):
     """
         Print alias details.
     """
     if has_str_format:
-        print '{0:25}: {1}'.format('Alias', alias['name'])
-        print '{0:25}: {1}'.format('is_default', str(alias['is_default']))
-        print '{0:25}: {1}'.format('is_verified', str(alias['is_verified']))
-        print '{0:25}: {1}'.format('verification_errors', alias['verification_errors'])
-        print '{0:25}: {1}'.format('verification_code', alias['verification_code'])
-        print '{0:25}: {1}'.format('date_created', alias['date_created'])
-        print '{0:25}: {1}'.format('date_modified', alias['date_modified'])
+        print '{0:28}: {1}'.format('Alias', alias['name'])
+        print '   {0:25}: {1}'.format('is_default', str(alias['is_default']))
+        print '   {0:25}: {1}'.format('is_verified', str(alias['is_verified']))
+        print '   {0:25}: {1}'.format('verification_errors', alias['verification_errors'])
+        print '   {0:25}: {1}'.format('verification_code', alias['verification_code'])
+        print '   {0:25}: {1}'.format('date_created', alias['date_created'])
+        print '   {0:25}: {1}'.format('date_modified', alias['date_modified'])
     else:
-        print '%-25ls: %s' % ('Alias', alias['name'])
-        print '%-25ls: %s' % ('is_default', str(alias['is_default']))
-        print '%-25ls: %s' % ('is_verified', str(alias['is_verified']))
-        print '%-25ls: %s' % ('verification_errors', alias['verification_errors'])
-        print '%-25ls: %s' % ('verification_code', alias['verification_code'])
-        print '%-25ls: %s' % ('date_created', alias['date_created'])
-        print '%-25ls: %s' % ('date_modified', alias['date_modified'])
-        
+        print '%-28ls: %s' % ('Alias', alias['name'])
+        print '   %-25ls: %s' % ('is_default', str(alias['is_default']))
+        print '   %-25ls: %s' % ('is_verified', str(alias['is_verified']))
+        print '   %-25ls: %s' % ('verification_errors', alias['verification_errors'])
+        print '   %-25ls: %s' % ('verification_code', alias['verification_code'])
+        print '   %-25ls: %s' % ('date_created', alias['date_created'])
+        print '   %-25ls: %s' % ('date_modified', alias['date_modified'])
+
 def print_log_entries(logEntries, type):
     """
         Print log lines that fit the apache type.
-        
+
         Either access or error.
     """
     if type == 'access':
@@ -131,7 +142,7 @@ def print_log_entries(logEntries, type):
         else:
             for entry in logEntries:
                 entry["time"] = time.strftime('[%d/%b/%Y:%H:%M:%S +0000]', time.gmtime(float(entry["time"])))
-                print r'%s %s %s %s \"%s\" %s %s \"%s\" \"%s\"' % (entry["remote_host"], entry["remote_logname"], entry["remote_user"], entry["time"], entry["first_request_line"], entry["status"], entry["response_size_CLF"], entry["referer"], entry["user_agent"])            
+                print r'%s %s %s %s \"%s\" %s %s \"%s\" \"%s\"' % (entry["remote_host"], entry["remote_logname"], entry["remote_user"], entry["time"], entry["first_request_line"], entry["status"], entry["response_size_CLF"], entry["referer"], entry["user_agent"])
     elif type == 'error':
         if has_str_format:
             for entry in logEntries:
@@ -141,16 +152,57 @@ def print_log_entries(logEntries, type):
             for entry in logEntries:
                 entry["time"] = time.strftime('[%a %b %d %H:%M:%S %Y]', time.gmtime(float(entry["time"])))
                 print r'%s %s %s' % (entry["time"], entry["type"], entry["message"])
-                
+
 def print_keys(keys):
     """
         Print a list of keys.
     """
+    print 'Keys'
     if has_str_format:
-        print '{0:15} {1}'.format('ID', 'Public Key')
+        print ' {0:15} {1}'.format('ID', 'Public Key')
         for key in keys:
-            print '{0:15} {1}'.format(key['key_id'], key['key'])
+            print ' {0:15} {1}'.format(key['key_id'], key['key'])
     else:
-        print '%-15ls %s' % ('ID', 'Public Key')
+        print ' %-15ls %s' % ('ID', 'Public Key')
         for key in keys:
-            print '%(key_id)-15ls %(key)s' % (key)
+            print ' %(key_id)-15ls %(key)s' % (key)
+
+def print_addons(addons):
+    """
+       Print all available addons.
+    """
+    if has_str_format:
+        for addon in addons:
+            print '\nAddon: {0}'.format(addon['name'])
+            for option in addon['options']:
+                print '   {0}'.format(option['name'])
+    else:
+        for addon in addons:
+            print '\nAddon: %s' % (addon['name'])
+            for option in addon['options']:
+                print '   %s' % option['name']
+
+def print_addon_list(addons):
+    """
+        Print a list of addon details
+    """
+    for addon in addons:
+        print_addon_details(addon)
+        print '\n'
+
+def print_addon_details(addon):
+    """
+        Print addon details.
+    """
+    if has_str_format:
+        print '{0:25}: {1}'.format('Addon', addon['addon_option']['name'])
+        if len(addon['settings']) > 0:
+            print '   \n Settings'
+            for key, value in addon['settings'].items():
+                print '   {0:25}: {1}'.format(key, value)
+    else:
+        print '%-25ls: %s' % ('Addon', addon['addon_option']['name'])
+        if len(addon['settings']) > 0:
+            print '   \n Settings'
+            for key, value in addon['settings'].items():
+                print '   %-25ls: %s' % (key, value)

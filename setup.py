@@ -4,6 +4,7 @@
     usage: sudo python setup.py install
 """
 
+import os
 from shutil import copy
 import sys
 try:
@@ -12,6 +13,8 @@ except ImportError:
     import ez_setup
     ez_setup.use_setuptools()
     from setuptools import setup, find_packages
+
+execfile(os.path.join(os.path.dirname(os.path.realpath(__file__)),'cctrl', 'version.py'))
 
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser']
 
@@ -39,7 +42,7 @@ else:
 
 setup(
     name="cctrl",
-    version='0.2.1',
+    version=__version__,
     description='cloudControl command line utilities',
     author = 'cloudControl Team',
     author_email = 'info@cloudcontrol.de',
