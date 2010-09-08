@@ -1,12 +1,13 @@
+# -*- coding: utf-8 -*-
 """
     Copyright 2010 cloudControl UG (haftungsbeschraenkt)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-    
+
     http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +18,10 @@
 import getpass
 import sys
 import os
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 from cctrl.error import messages, PasswordsDontMatchException
 from cctrl.settings import TOKEN_FILE_PATH, HOME_PATH
@@ -26,7 +30,7 @@ def update_tokenfile(api):
     """
         Because it is a real pain we don't want to ask developers for their
         username and password every time they call a method.
-        
+
         Therefore we authenticate users via token for each request and only
         require email and password for a new token.
         A token is valid for a given period of time. Each successful API
@@ -53,7 +57,7 @@ def read_tokenfile():
     return token
 
 def write_tokenfile(api):
-    """ 
+    """
         This method checks, if the .cloudControl directory inside the users home
         exists or is a file. If not, we create it and then write the token file.
     """
@@ -64,12 +68,12 @@ def write_tokenfile(api):
         sys.exit(1)
     else:
         os.mkdir(HOME_PATH)
-    
+
     tokenfile = open(TOKEN_FILE_PATH, "w")
     json.dump(api.get_token(), tokenfile)
     tokenfile.close()
     return True
-    
+
 def delete_tokenfile():
     """
         We delete the tokenfile if we don't have a valid token to save.
@@ -83,8 +87,8 @@ def get_credentials(create = False):
     """
         We use this to ask the user for his credentials in case we have no
         valid token.
-        If create is true, the user is asked twice for the password, 
-        to make sure, that no typing error occurred. This is done three times 
+        If create is true, the user is asked twice for the password,
+        to make sure, that no typing error occurred. This is done three times
         after that a PasswordsDontMatchException is thrown.
     """
     email = raw_input('Email   : ')
@@ -101,4 +105,3 @@ def get_credentials(create = False):
         else:
             break
     return email, password
-        
