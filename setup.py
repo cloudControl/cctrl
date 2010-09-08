@@ -1,12 +1,14 @@
+# -*- coding: utf-8 -*-
 """
     setup script for cloudControl command line utilites
-    
+
     usage: sudo python setup.py install
 """
 
 import os
 from shutil import copy
 import sys
+
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -15,6 +17,14 @@ except ImportError:
     from setuptools import setup, find_packages
 
 execfile(os.path.join(os.path.dirname(os.path.realpath(__file__)),'cctrl', 'version.py'))
+
+if sys.version_info < (2, 6):
+   required = ['simplejson']
+else:
+   required = []
+
+required.append('pycclib')
+required.append('argparse')
 
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser']
 
@@ -62,9 +72,6 @@ setup(
           'Programming Language :: Python',
           'Topic :: Internet'
           ],
-    install_requires=[
-        'pycclib',
-        'argparse'
-    ],
+    install_requires=required,
     **extra_options
 )
