@@ -31,7 +31,7 @@ def check_for_updates(new_version, current_version=VERSION):
     current_version = current_version.split('.')
     new_version = new_version.split('.')
     for i, j in enumerate(new_version):
-        if len(current_version) >= i:
+        if len(current_version) > i:
             current = int(current_version[i])
             version = int(j)
             if version > current:
