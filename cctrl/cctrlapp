@@ -27,6 +27,7 @@ import cctrl.common as common
 from cctrl.error import messages
 from cctrl.app import AppController, AppsController
 from cctrl.auth import read_tokenfile, get_credentials, delete_tokenfile
+from cctrl.output import get_version
 
 class list_action(argparse.Action):
     """
@@ -83,7 +84,7 @@ def parse_cmdline(app, api):
         Each subparser then may have it's own arguments needed for that
         particular subparsers action to work.
     """
-    version = '%(prog)s {0} using pycclib {1}'.format(settings.VERSION, cclibversion)
+    version = get_version(settings.VERSION, cclibversion)
     usage = '%(prog)s [-h, --help] app_name[/deployment_name] command [options]'
     description = "%(prog)s controls your cloudControl apps"
     epilog = "And now you're in control"

@@ -206,3 +206,12 @@ def print_addon_details(addon):
             print '   \n Settings'
             for key, value in addon['settings'].items():
                 print '   %-25ls: %s' % (key, value)
+
+def get_version(cctrlversion, cclibversion):
+    """
+        Prepare the version string
+    """
+    if has_str_format:
+        return '%(prog)s {0} using pycclib {1}'.format(cctrlversion, cclibversion)
+    else:
+        return '%%(prog)s %s using pycclib %s' % (cctrlversion, cclibversion)

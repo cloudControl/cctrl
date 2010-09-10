@@ -28,6 +28,7 @@ import cctrl.settings as settings
 import cctrl.common as common
 from cctrl.user import UserController
 from cctrl.auth import read_tokenfile
+from cctrl.output import get_version
 
 def main(api):
     user = UserController(api)
@@ -37,7 +38,7 @@ def parse_cmdline(user):
     """
       We parse the commandline using argparse from http://code.google.com/p/argparse/.
     """
-    version = '%(prog)s {0} using pycclib {1}'.format(settings.VERSION, cclibversion)
+    version = get_version(settings.VERSION, cclibversion)
     usage = '%(prog)s [-h, --help] [command]'
     description = '%(prog)s controls your user account'
     epilog = "And now you're in control"
