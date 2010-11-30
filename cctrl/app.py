@@ -240,7 +240,10 @@ class AppController():
             raise InputErrorException('NoDeployment')
         if not args.addon:
             raise InputErrorException('NoAddonGiven')
-        self.api.create_addon(app_name, deployment_name, args.addon)
+        try:
+            self.api.create_addon(app_name, deployment_name, args.addon)
+        except ConflictDuplicateError:
+            raise InputErrorException('DuplicateAddon')
         return True
 
     def showAddon(self, args):

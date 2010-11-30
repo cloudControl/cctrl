@@ -19,6 +19,7 @@
 
 import argparse
 import sys
+from os import environ as env
 
 import cctrl.settings as settings
 from pycclib.cclib import *
@@ -49,7 +50,11 @@ class list_action(argparse.Action):
                 try:
                     apps.list()
                 except TokenRequiredError:
-                    email, password = get_credentials()
+                    try:
+                        email =  env.pop('CCTRL_EMAIL')
+                        password = env.pop('CCTRL_PASSWORD')
+                    except KeyError:
+                        email, password = get_credentials()
                     try:
                         self.api.create_token(email, password)
                     except UnauthorizedError:
@@ -141,7 +146,7 @@ def parse_cmdline(app, api):
     addAlias_subparser.add_argument('alias', help='name of the alias e.g. www.example.com')
     addAlias_subparser.set_defaults(func=app.addAlias)
 
-    removeAlias_subparser = subparsers.add_parser('alias.remove', help="remove alias.")
+    removeAlias_subparser = subparsers.add_parser('alias.remove', help="remove alias")
     removeAlias_subparser.add_argument('alias', help='name of the alias e.g. www.example.com')
     removeAlias_subparser.set_defaults(func=app.removeAlias)
 
@@ -156,12 +161,12 @@ def parse_cmdline(app, api):
     addAddon_subparser.add_argument('addon', help='name of the addon e.g. mysql.standard')
     addAddon_subparser.set_defaults(func=app.addAddon)
 
-    addAddon_subparser = subparsers.add_parser('addon.upgrade', help="add addon")
+    addAddon_subparser = subparsers.add_parser('addon.upgrade', help="up/downgrade addon")
     addAddon_subparser.add_argument('addon_old', help='current addon option')
     addAddon_subparser.add_argument('addon_new', help='addon option to upgrade to')
     addAddon_subparser.set_defaults(func=app.updateAddon)
 
-    removeAddon_subparser = subparsers.add_parser('addon.remove', help="remove addon.")
+    removeAddon_subparser = subparsers.add_parser('addon.remove', help="remove addon")
     removeAddon_subparser.add_argument('addon', help='name of the addon e.g. mysql.standard')
     removeAddon_subparser.set_defaults(func=app.removeAddon)
 

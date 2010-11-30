@@ -23,7 +23,7 @@ if sys.version_info < (2, 6):
 else:
    required = []
 
-required.append('pycclib')
+required.append('pycclib>=0.2.1')
 required.append('argparse')
 
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser']
@@ -56,7 +56,7 @@ setup(
     description='cloudControl command line utilities',
     author = 'cloudControl Team',
     author_email = 'info@cloudcontrol.de',
-    url = 'https://launchpad.net/cctrl',
+    url = 'http://cloudcontrol.com',
     download_url = 'https://launchpad.net/cctrl/+download',
     license = 'Apache 2.0',
     classifiers=[

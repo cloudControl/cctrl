@@ -16,12 +16,14 @@
 """
 
 import sys
+from os import environ as env
 
 from cctrl.settings import VERSION
 
 from pycclib.cclib import *
 from cctrl.error import InputErrorException, messages
 from cctrl.auth import get_credentials, update_tokenfile, delete_tokenfile
+from cctrl.app import ParseAppDeploymentName
 
 def check_for_updates(new_version, current_version=VERSION):
     """
@@ -72,13 +74,20 @@ def run(args, api):
             try:
                 args.func(args)
             except TokenRequiredError:
-                email, password = get_credentials()
+                # check ENV for credentials first
+                try:
+                    email =  env.pop('CCTRL_EMAIL')
+                    password = env.pop('CCTRL_PASSWORD')
+                except KeyError:
+                    email, password = get_credentials()
                 try:
                     api.create_token(email, password)
                 except UnauthorizedError:
                     sys.exit(messages['NotAuthorized'])
                 else:
                     pass
+            except ParseAppDeploymentName:
+                sys.exit(messages['InvalidAppOrDeploymentName'])
             else:
                 break
         except UnauthorizedError, e:

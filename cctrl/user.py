@@ -20,6 +20,7 @@ from cctrl.error import PasswordsDontMatchException, InputErrorException,\
 from cctrl.auth import get_credentials, delete_tokenfile
 from pycclib.cclib import GoneError
 from cctrl.output import print_keys
+from pycclib.cclib import ConflictDuplicateError
 
 class UserController():
     """
@@ -85,7 +86,10 @@ class UserController():
         except IOError:
             raise InputErrorException('NoSuchKeyFile')
         else:
-            self.api.create_user_key(users[0]['username'], keyFile.read())
+            try:
+                self.api.create_user_key(users[0]['username'], keyFile.read())
+            except ConflictDuplicateError:
+                raise InputErrorException('KeyDuplicate')
             keyFile.close()
 
     def listKeys(self, args):

@@ -18,8 +18,6 @@
 import time
 import sys
 
-import pprint
-
 if sys.version_info < (2, 6):
     has_str_format = False
 else:
@@ -54,6 +52,7 @@ def print_deployment_details(deployment):
         print ' current state: {0}'.format(deployment['state'])
         print ' min boxes: {0}'.format(deployment['min_boxes'])
         print ' max boxes: {0}'.format(deployment['max_boxes'])
+        
     else:
         print ' name: %(name)s' % (deployment)
         print ' branch: %(branch)s' % (deployment)
@@ -138,11 +137,14 @@ def print_log_entries(logEntries, type):
         if has_str_format:
             for entry in logEntries:
                 entry["time"] = time.strftime('[%d/%b/%Y:%H:%M:%S +0000]', time.gmtime(float(entry["time"])))
-                print r'{0} {1} {2} {3} \"{4}\" {5} {6} \"{7}\" \"{8}\"'.format(entry["remote_host"], entry["remote_logname"], entry["remote_user"], entry["time"], entry["first_request_line"], entry["status"], entry["response_size_CLF"], entry["referer"], entry["user_agent"])
+                try:
+                    print r'{0} {1} {2} {3} "{4}" {5} {6} "{7}" "{8}"'.format(entry["remote_host"], entry["remote_logname"], entry["remote_user"], entry["time"], entry["first_request_line"], entry["status"], entry["response_size_CLF"], entry["referer"], entry["user_agent"])
+                except KeyError:
+                    pass
         else:
             for entry in logEntries:
                 entry["time"] = time.strftime('[%d/%b/%Y:%H:%M:%S +0000]', time.gmtime(float(entry["time"])))
-                print r'%s %s %s %s \"%s\" %s %s \"%s\" \"%s\"' % (entry["remote_host"], entry["remote_logname"], entry["remote_user"], entry["time"], entry["first_request_line"], entry["status"], entry["response_size_CLF"], entry["referer"], entry["user_agent"])
+                print r'%s %s %s %s "%s" %s %s "%s" "%s"' % (entry["remote_host"], entry["remote_logname"], entry["remote_user"], entry["time"], entry["first_request_line"], entry["status"], entry["response_size_CLF"], entry["referer"], entry["user_agent"])
     elif type == 'error':
         if has_str_format:
             for entry in logEntries:

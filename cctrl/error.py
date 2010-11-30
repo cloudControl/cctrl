@@ -35,7 +35,10 @@ messages['SecurityQuestionDenied'] = r'Action canceled on user request.'
 messages['UpdateAvailable'] = r'A newer version is available. Please update.'
 messages['UpdateRequired'] = r'A newer version is required. You need to update before using this program.'
 messages['WrongAddon'] = r'This addon is unknown for this app_name/deployment_name.'
+messages['DuplicateAddon'] = r'You can not add the same addon option twice.'
 messages['NoSuchKeyFile'] = r'No such key file. Please check your input.'
+messages['InvalidAppOrDeploymentName'] = r'The application or deployment name is invalid.'
+messages['KeyDuplicate'] = r'This key was added previously.'
 
 class InputErrorException(Exception):
     """
