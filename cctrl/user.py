@@ -21,6 +21,7 @@ from cctrl.auth import get_credentials, delete_tokenfile
 from pycclib.cclib import GoneError
 from cctrl.output import print_keys
 from pycclib.cclib import ConflictDuplicateError
+from output import print_key
 
 class UserController():
     """
@@ -97,8 +98,12 @@ class UserController():
             List your public keys.
         """
         users = self.api.read_users()
-        keys = self.api.read_user_keys(users[0]['username'])
-        print_keys(keys)
+        if args.id:
+            key = self.api.read_user_key(users[0]['username'], args.id)
+            print_key(key)
+        else:
+            keys = self.api.read_user_keys(users[0]['username'])
+            print_keys(keys)
 
     def removeKey(self, args):
         """

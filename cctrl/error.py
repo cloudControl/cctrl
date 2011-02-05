@@ -39,6 +39,12 @@ messages['DuplicateAddon'] = r'You can not add the same addon option twice.'
 messages['NoSuchKeyFile'] = r'No such key file. Please check your input.'
 messages['InvalidAppOrDeploymentName'] = r'The application or deployment name is invalid.'
 messages['KeyDuplicate'] = r'This key was added previously.'
+messages['NoWorkerCommandGiven'] = r'The worker command is missing. Try the path to your PHP file relative from your repository root.'
+messages['WrongWorker'] = r'There is no such worker for this app_name/deployment_name.'
+messages['NeitherBazaarNorGitFound'] = r'Please make sure either Bazaar or Git executables are in your path.'
+messages['BazaarRequiredToPush'] = r'Please make sure the Bazaar executable is in your path.'
+messages['GitRequiredToPush'] = r'Please make sure the Git executable is in your path.'
+messages['CreatingAppAsBazaar'] = r'Neither Bazaar nor Git executables where found. Fallback Bazaar used as repository type. Overwrite using --repo [git, bzr]'
 
 class InputErrorException(Exception):
     """
@@ -46,10 +52,10 @@ class InputErrorException(Exception):
         could not understand at all.
     """
     def __init__(self, errorKey):
-        self.message = messages[errorKey]
+        self.error_message = messages[errorKey]
 
     def __str__(self):
-        return self.message
+        return '[ERROR]' + ' ' + self.error_message
 
 class PasswordsDontMatchException(Exception):
     """

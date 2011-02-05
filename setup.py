@@ -23,8 +23,8 @@ if sys.version_info < (2, 6):
 else:
    required = []
 
-required.append('pycclib>=0.2.1')
-required.append('argparse')
+required.append('pycclib>=1.0.0')
+required.append('argparse>=1.1')
 
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser']
 
@@ -60,7 +60,7 @@ setup(
     download_url = 'https://launchpad.net/cctrl/+download',
     license = 'Apache 2.0',
     classifiers=[
-          'Development Status :: 4 - Beta',
+          'Development Status :: 5 - Production/Stable',
           'Environment :: Console',
           'Intended Audience :: Developers',
           'Intended Audience :: Information Technology',

@@ -44,6 +44,13 @@ class list_action(argparse.Action):
         self.api = api
 
     def __call__(self, parser, namespace, value, option_string=None):
+        
+        # check if there is a newer version of cctrl or pycclib
+        try:
+            common.check_for_updates(self.api.check_versions()['cctrl'])
+        except KeyError:
+            pass
+        
         apps = AppsController(self.api)
         while True:
             try:
@@ -90,11 +97,10 @@ def parse_cmdline(app, api):
         particular subparsers action to work.
     """
     version = get_version(settings.VERSION, cclibversion)
-    usage = '%(prog)s [-h, --help] app_name[/deployment_name] command [options]'
     description = "%(prog)s controls your cloudControl apps"
     epilog = "And now you're in control"
 
-    parser = argparse.ArgumentParser(description=description, epilog=epilog, usage=usage)
+    parser = argparse.ArgumentParser(description=description, epilog=epilog)
 
     list_apps = parser.add_argument_group('list apps', 'get a list of all your apps')
     list_apps.add_argument('-l', '--list', action=list_action, nargs=0, api=api, help='list apps')
@@ -106,7 +112,8 @@ def parse_cmdline(app, api):
     subparsers = parser.add_subparsers(title='commands', description='available commands', metavar='')
 
     create_subparser = subparsers.add_parser('create', help="create new application")
-    create_subparser.add_argument('type', choices=['php', 'ruby', 'java', 'python'], help='php, ruby, java or python', metavar='type')
+    create_subparser.add_argument('type', choices=['php'], help='php', metavar='type')
+    create_subparser.add_argument('--repo', choices=['bzr', 'git'], help='bzr or git', default=None, metavar='repo')
     create_subparser.set_defaults(func=app.create)
 
     details_subparser = subparsers.add_parser('details', help="app or deployment details")
@@ -129,6 +136,9 @@ def parse_cmdline(app, api):
     undeploy_subparser = subparsers.add_parser('undeploy', help="delete deployment")
     undeploy_subparser.add_argument('-f', '--force', action="store_true", dest="force_delete", help="don't ask for confirmation")
     undeploy_subparser.set_defaults(func=app.undeploy)
+    
+    showUser_subparser = subparsers.add_parser('user', help="list app users")
+    showUser_subparser.set_defaults(func=app.showUser)
 
     addUser_subparser = subparsers.add_parser('user.add', help="add user by email")
     addUser_subparser.add_argument('email')
@@ -137,6 +147,31 @@ def parse_cmdline(app, api):
     removeUser_subparser = subparsers.add_parser('user.remove', help="remove user by user name")
     removeUser_subparser.add_argument('username', help='user name')
     removeUser_subparser.set_defaults(func=app.removeUser)
+
+    showAddon_subparser = subparsers.add_parser('addon', help="show addon")
+    showAddon_subparser.add_argument('addon', nargs='?', help='name of the addon e.g. mysql.free')
+    showAddon_subparser.set_defaults(func=app.showAddon)
+
+    showAddon_subparser = subparsers.add_parser('addon.list', help="list all available addons")
+    showAddon_subparser.set_defaults(func=app.listAddons)
+
+    addAddon_subparser = subparsers.add_parser('addon.add', help="add addon")
+    addAddon_subparser.add_argument('addon', help='name of the addon e.g. mysql.free')
+    addAddon_subparser.set_defaults(func=app.addAddon)
+
+    addAddon_subparser = subparsers.add_parser('addon.upgrade', help="upgrade addon")
+    addAddon_subparser.add_argument('addon_old', help='current addon option')
+    addAddon_subparser.add_argument('addon_new', help='addon option to upgrade to')
+    addAddon_subparser.set_defaults(func=app.updateAddon)
+
+    addAddon_subparser = subparsers.add_parser('addon.downgrade', help="downgrade addon")
+    addAddon_subparser.add_argument('addon_old', help='current addon option')
+    addAddon_subparser.add_argument('addon_new', help='addon option to downgrade to')
+    addAddon_subparser.set_defaults(func=app.updateAddon)
+
+    removeAddon_subparser = subparsers.add_parser('addon.remove', help="remove addon")
+    removeAddon_subparser.add_argument('addon', help='name of the addon e.g. mysql.free')
+    removeAddon_subparser.set_defaults(func=app.removeAddon)
 
     showAlias_subparser = subparsers.add_parser('alias', help="show alias")
     showAlias_subparser.add_argument('alias', nargs='?', help='name of the alias e.g. www.example.com')
@@ -150,28 +185,21 @@ def parse_cmdline(app, api):
     removeAlias_subparser.add_argument('alias', help='name of the alias e.g. www.example.com')
     removeAlias_subparser.set_defaults(func=app.removeAlias)
 
-    showAddon_subparser = subparsers.add_parser('addon', help="show addon")
-    showAddon_subparser.add_argument('addon', nargs='?', help='name of the addon e.g. mysql.standard')
-    showAddon_subparser.set_defaults(func=app.showAddon)
+    showWorker_subparser = subparsers.add_parser('worker', help="show worker")
+    showWorker_subparser.add_argument('wrk_id', nargs='?', help='optional wrk_id for single worker details')
+    showWorker_subparser.set_defaults(func=app.showWorker)
 
-    showAddon_subparser = subparsers.add_parser('addon.list', help="list all available addons")
-    showAddon_subparser.set_defaults(func=app.listAddons)
+    addWorker_subparser = subparsers.add_parser('worker.add', help="start worker")
+    addWorker_subparser.add_argument('command', help='the command to execute')
+    addWorker_subparser.add_argument('params', nargs='?', default=None, help='optional parameters to append to the command')
+    addWorker_subparser.set_defaults(func=app.addWorker)
 
-    addAddon_subparser = subparsers.add_parser('addon.add', help="add addon")
-    addAddon_subparser.add_argument('addon', help='name of the addon e.g. mysql.standard')
-    addAddon_subparser.set_defaults(func=app.addAddon)
-
-    addAddon_subparser = subparsers.add_parser('addon.upgrade', help="up/downgrade addon")
-    addAddon_subparser.add_argument('addon_old', help='current addon option')
-    addAddon_subparser.add_argument('addon_new', help='addon option to upgrade to')
-    addAddon_subparser.set_defaults(func=app.updateAddon)
-
-    removeAddon_subparser = subparsers.add_parser('addon.remove', help="remove addon")
-    removeAddon_subparser.add_argument('addon', help='name of the addon e.g. mysql.standard')
-    removeAddon_subparser.set_defaults(func=app.removeAddon)
+    removeWorker_subparser = subparsers.add_parser('worker.remove', help="stop worker")
+    removeWorker_subparser.add_argument('wrk_id', help='stop worker by wrk_id')
+    removeWorker_subparser.set_defaults(func=app.removeWorker)
 
     log_subparser = subparsers.add_parser('log', help="show the log")
-    log_subparser.add_argument('type', choices=['access', 'error'])
+    log_subparser.add_argument('type', choices=['access', 'error', 'worker'])
     log_subparser.set_defaults(func=app.log)
 
     parser.add_argument('-v', '--version', action='version', version=version, help='show version string')

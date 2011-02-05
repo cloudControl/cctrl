@@ -14,7 +14,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
-
+import os
 import time
 import re
 from subprocess import check_call, CalledProcessError
@@ -23,7 +23,9 @@ from cctrl.error import InputErrorException, messages
 from pycclib.cclib import *
 from cctrl.output import print_deployment_details, print_app_details,\
     print_alias_details, print_log_entries, print_list_apps,\
-    print_addon_details, print_addons, print_addon_list, print_alias_list
+    print_addon_details, print_addons, print_addon_list, print_alias_list, \
+    print_worker_list, print_worker_details
+from output import print_user_list
 
 class AppsController():
     """
@@ -39,6 +41,34 @@ class AppsController():
     def list(self):
         apps = self.api.read_apps()
         print_list_apps(apps)
+        
+def which(programs):
+    """
+        from http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python/377028#377028
+    """
+    import os
+    def is_exe(fpath):
+        return os.path.exists(fpath) and os.access(fpath, os.X_OK)
+
+    for program in programs:
+        fpath, fname = os.path.split(program)
+        if fpath:
+            if is_exe(program):
+                return program
+        else:
+            for path in os.environ["PATH"].split(os.pathsep):
+                exe_file = os.path.join(path, program)
+                if is_exe(exe_file):
+                    return exe_file
+
+    return None
+
+def check_installed_rcs(name):
+    rcs_executables = {
+        'bzr': ['bzr', 'bzr.exe'],
+        'git': ['git', 'git.exe', 'git.cmd']
+    }
+    return which(rcs_executables[name])
 
 class AppController():
     """
@@ -61,8 +91,23 @@ class AppController():
             app_name, deployment_name = self.parse_app_deployment_name(args.name)
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
+        # try to guess if bzr or git should be used
+        # If Bazaar is installed we take Bazaar. If not we also check for Git.
+        # If neither is installed we still use Bazaar.
+        # The user always is free to overwrite this using the --repo
+        # command line switch.
+        if not args.repo:
+            if check_installed_rcs('bzr'):
+                repo_type = 'bzr'
+            elif check_installed_rcs('git'):
+                repo_type = 'git'
+            else:
+                print messages['CreatingAppAsBazaar']
+                repo_type = 'bzr'
+        else:
+            repo_type = args.repo
         try:
-            self.api.create_app(app_name, args.type)
+            self.api.create_app(app_name, args.type, repo_type)
             self.api.create_deployment(app_name, deployment_name=deployment_name)
         except GoneError:
             raise InputErrorException('WrongApplication')
@@ -223,6 +268,59 @@ class AppController():
             raise InputErrorException('WrongAlias')
         return True
 
+    def addWorker(self, args):
+        """
+            Adds the given worker to the deployment.
+        """
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if not deployment_name:
+            raise InputErrorException('NoDeployment')
+        if not args.command:
+            raise InputErrorException('NoWorkerCommandGiven')
+        self.api.create_worker(
+            app_name,
+            deployment_name,
+            args.command,
+            args.params
+        )
+        return True
+
+    def showWorker(self, args):
+        """
+            Shows the details of an worker.
+        """
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if not deployment_name:
+            raise InputErrorException('NoDeployment')
+        if not args.wrk_id:
+            workers = self.api.read_workers(app_name, deployment_name)
+            print_worker_list(workers)
+            return True
+        else:
+            try:
+                worker = self.api.read_worker(app_name, deployment_name, args.wrk_id)
+            except GoneError:
+                raise InputErrorException('WrongWorker')
+            else:
+                print_worker_details(worker)
+                return True
+        return False
+
+    def removeWorker(self, args):
+        """
+            Removes an worker form a deployment.
+        """
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if not deployment_name:
+            raise InputErrorException('NoDeployment')
+        try:
+            self.api.delete_worker(app_name, deployment_name, args.wrk_id)
+        except GoneError:
+            raise InputErrorException('WrongWorker')
+        return True
+
+    # worker end
+
     def listAddons(self, args):
         """
             Returns a list of all available addons
@@ -296,6 +394,23 @@ class AppController():
         except GoneError:
             raise InputErrorException('WrongAddon')
         return True
+    
+    def showUser(self, args):
+        """
+            List users
+        """
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        try:
+            # This is a dirty hack because I have been to lazy to implement
+            # a GET on /app/APP_NAME/user/ for now. Promise to do in the future
+            # though.
+            app = self.api.read_app(app_name)
+            users = app['users']
+        except:
+            raise
+        else:
+            print_user_list(users)
+            return True
 
     def addUser(self, args):
         """
@@ -340,41 +455,65 @@ class AppController():
 
     def push(self, args):
         """
-            Push is actually only a shortcut for bzr push that automatically
-            takes care of using the correct repository url.
+            Push is actually only a shortcut for bzr and git push commands
+            that automatically takes care of using the correct repository url.
 
             It queries the deployment details and uses whatever is in branch.
 
             If no deployment exists we automatically create one.
         """
+        if not check_installed_rcs('bzr') and not check_installed_rcs('git'):
+            raise InputErrorException('NeitherBazaarNorGitFound')
+        
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         try:
             if deployment_name == '':
                 push_deployment_name = 'default'
             else:
                 push_deployment_name = deployment_name
-            deployment = self.api.read_deployment(app_name, push_deployment_name)
+            deployment = self.api.read_deployment(
+                app_name,
+                push_deployment_name
+            )
         except GoneError:
             push_deployment_name = ''
             if deployment_name != '':
                 push_deployment_name = deployment_name
             try:
-                deployment = self.api.create_deployment(app_name, deployment_name=push_deployment_name)
+                deployment = self.api.create_deployment(
+                    app_name,
+                    deployment_name=push_deployment_name
+                )
             except GoneError:
                 raise InputErrorException('WrongApplication')
             except ForbiddenError:
                 raise InputErrorException('NotAllowed')
-
-        if args.source:
-            cmd = ['bzr', 'push', deployment['branch'], '-d', args.source]
-        else:
-            cmd = ['bzr', 'push', deployment['branch']]
+        
+        if deployment['branch'].startswith('bzr+ssh'):
+            rcs = check_installed_rcs('bzr')
+            if not rcs:
+                raise InputErrorException('BazaarRequiredToPush')
+            if args.source:
+                cmd = [rcs, 'push', deployment['branch'], '-d', args.source]
+            else:
+                cmd = [rcs, 'push', deployment['branch']]
+        elif deployment['branch'].startswith('ssh'):
+            rcs = check_installed_rcs('git')
+            if not rcs:
+                raise InputErrorException('GitRequiredToPush')
+            if push_deployment_name == 'default':
+                git_branch = 'master'
+            else:
+                git_branch = push_deployment_name
+            if args.source:
+                git_dir = os.path.join(args.source, '.git')
+                cmd = [rcs, '--git-dir=' + git_dir,'push', deployment['branch'], git_branch]
+            else:
+                cmd = [rcs, 'push', deployment['branch'], git_branch]
         try:
             check_call(cmd)
         except CalledProcessError, e:
-            if e.returncode == 3:
-                raise InputErrorException('PermissionDenied')
-            print e
+            print str(e)
 
     def parse_app_deployment_name(self, name):
         match = re.match('^([a-z][a-z0-9]*)/((?:[a-z0-9]+\.)*[a-z0-9]+)$', name)

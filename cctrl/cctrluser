@@ -65,6 +65,7 @@ def parse_cmdline(user):
     delete_subparser.set_defaults(func=user.delete)
 
     listUsers_subparser = subparsers.add_parser('key', help="list public keys and key ids")
+    listUsers_subparser.add_argument('id', nargs='?', help='print key by id')
     listUsers_subparser.set_defaults(func=user.listKeys)
 
     addKey_subparser = subparsers.add_parser('key.add', help="add public key")
