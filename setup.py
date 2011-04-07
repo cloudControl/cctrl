@@ -23,7 +23,7 @@ if sys.version_info < (2, 6):
 else:
    required = []
 
-required.append('pycclib>=1.0.0')
+required.append('pycclib>=1.0.1')
 required.append('argparse>=1.1')
 required.append('paramiko')
 
