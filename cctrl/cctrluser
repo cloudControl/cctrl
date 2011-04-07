@@ -69,7 +69,7 @@ def parse_cmdline(user):
     listUsers_subparser.set_defaults(func=user.listKeys)
 
     addKey_subparser = subparsers.add_parser('key.add', help="add public key")
-    addKey_subparser.add_argument('public_key', nargs='?', default=os.path.expanduser('~/.ssh/id_rsa.pub'), help='path to public_key file')
+    addKey_subparser.add_argument('public_key', nargs='?', default=os.path.expanduser('~/.ssh/id_rsa.pub'), help='path to id_rsa.pub file')
     addKey_subparser.set_defaults(func=user.addKey)
 
     removeKey_subparser = subparsers.add_parser('key.remove', help="remove public key")

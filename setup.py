@@ -25,6 +25,7 @@ else:
 
 required.append('pycclib>=1.0.0')
 required.append('argparse>=1.1')
+required.append('paramiko')
 
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser']
 
@@ -39,7 +40,7 @@ if sys.platform == 'win32':
                 "compressed": 1,
                 "optimize": 2,
                 "excludes": ['_scproxy', 'email.FeedParser', 'email.Message', 'email.Utils', 'hexdump', 'isapi', 'pythoncom', 'pywintypes', 'simplejson', 'socks', 'win32com', 'win32com.client'],
-                "includes": ["argparse", "pycclib"],
+                "includes": ["argparse", "pycclib", "paramiko", "Crypto"],
                 "packages": find_packages()
             }
         }

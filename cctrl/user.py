@@ -15,6 +15,14 @@
     limitations under the License.
 """
 
+import os
+import warnings
+
+# paramiko uses pycrypto's RandomPool which throws a deprecation warning
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    from paramiko import RSAKey
+
 from cctrl.error import PasswordsDontMatchException, InputErrorException,\
     messages
 from cctrl.auth import get_credentials, delete_tokenfile
@@ -81,17 +89,54 @@ class UserController():
         """
             Add a public key to your user account.
         """
+        if os.path.basename(args.public_key) != 'id_rsa.pub':
+            raise InputErrorException('WrongPubKeyName')
+        pubkey_string = ''
+        pubkey_path = os.path.abspath(args.public_key)
+        privkey_path = os.path.abspath(args.public_key.rstrip('.pub'))
+        ssh_path = os.path.dirname(pubkey_path)
         users = self.api.read_users()
         try:
-            keyFile = open(args.public_key, 'r')
+            pubkey = open(pubkey_path, 'r')
         except IOError:
-            raise InputErrorException('NoSuchKeyFile')
+            question = raw_input('No public key found in "{0}". Type "Yes" to generate a keypair. '.format(ssh_path))
+            if question == 'Yes':
+                try:
+                    if not os.path.exists(ssh_path):
+                        os.mkdir(ssh_path, 0700)
+                except Exception, e:
+                    print str(e)
+                print 'generating key... this may take a few moments.'
+                key = RSAKey.generate(2048)
+                key.write_private_key_file(privkey_path)
+                try:
+                    username = os.getlogin()
+                except AttributeError:
+                    username = os.getenv('USERNAME', 'cloudControl')
+                try:   
+                    hostname = os.uname()[1]
+                except AttributeError:
+                    hostname = os.getenv('COMPUTERNAME', 'localhost')
+                pubkey_string = 'ssh-rsa {0} {1}@{2} \n'.format(
+                    key.get_base64(),
+                    username,
+                    hostname
+                )
+                pubkey = open(pubkey_path, 'w')
+                pubkey.write(pubkey_string)
+            else:
+                raise InputErrorException('NoSuchKeyFile')
         else:
-            try:
-                self.api.create_user_key(users[0]['username'], keyFile.read())
-            except ConflictDuplicateError:
-                raise InputErrorException('KeyDuplicate')
-            keyFile.close()
+            pubkey_string = str(pubkey.read())
+        finally:
+            if pubkey_string[:8] != 'ssh-rsa ':
+                raise InputErrorException('WrongKeyFormat')
+            if pubkey_string:
+                try:
+                    self.api.create_user_key(users[0]['username'], pubkey_string)
+                except ConflictDuplicateError:
+                    raise InputErrorException('KeyDuplicate')
+                pubkey.close()
 
     def listKeys(self, args):
         """
@@ -113,7 +158,7 @@ class UserController():
         """
         users = self.api.read_users()
         if not args.force_delete:
-            question = raw_input('Do you really want to remove your Key? Type "Yes" without the quotes to delete. ')
+            question = raw_input('Do you really want to remove your key? Type "Yes" without the quotes to remove. ')
         else:
             question = 'Yes'
         if question == 'Yes':

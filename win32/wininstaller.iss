@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{86DDE49A-CB27-4B64-A816-887A13C06D58}
 AppName=cctrl
-AppVerName=cctrl-1.0.0
+AppVerName=cctrl-1.1.0
 AppPublisher=cloudControl UG (haftungsbeschraenkt)
 AppPublisherURL=http://cloudcontrol.de
 AppSupportURL=http://cloudcontrol.de
@@ -15,12 +15,13 @@ AppUpdatesURL=http://cloudcontrol.de
 DefaultDirName={pf}\cloudControl
 DefaultGroupName=cloudControl
 AllowNoIcons=yes
-OutputDir=C:\Users\tw\Projects\cloudControl\control\win32setup
-OutputBaseFilename=cctrl-1.0.0-setup
+SourceDir=..\
+OutputDir=win32setup
+OutputBaseFilename=cctrl-1.1.0-setup
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
-InfoAfterFile=C:\Users\tw\Projects\cloudControl\control\win32\readme.txt
+InfoAfterFile=win32\readme.txt
 
 [Tasks]
 Name: modifypath; Description: &Add application directory to your system path;
@@ -29,7 +30,7 @@ Name: modifypath; Description: &Add application directory to your system path;
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "C:\Users\tw\Projects\cloudControl\control\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
