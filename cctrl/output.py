@@ -259,6 +259,33 @@ def print_worker_details(worker):
         print ' %-9ls: %s' % ('wrk_id', worker['wrk_id'])
         print ' %-9ls: %s' % ('command', worker['command'])
         print ' %-9ls: %s' % ('params', worker['params'])
+        
+def print_cronjob_list(cronjobs):
+    print 'Cronjobs'
+    if has_str_format:
+        print ' {0:3} {1:11}'.format('nr.', 'job_id')
+        for count, cronjob in enumerate(cronjobs):
+            print ' {0:3} {1:11}'.format(count+1, cronjob['job_id'])
+    else:
+        print ' %-3ls %-11ls' % ('nr.', 'job_id')
+        for count, cronjob in enumerate(cronjobs):
+            job_id = cronjob['wrk_id']
+            print ' %-3ls %-11ls' % (count+1, job_id)
+
+def print_cronjob_details(cronjob):
+    print 'Cronjob'
+    if has_str_format:
+        print ' {0:9}: {1}'.format('job_id', cronjob['job_id'])
+        print ' {0:9}: {1}'.format('url', cronjob['url'])
+        print ' {0:9}: {1}'.format('next_run', cronjob['next_run'])
+        print ' {0:9}: {1}'.format('created', cronjob['date_created'])
+        print ' {0:9}: {1}'.format('modified', cronjob['date_modified'])
+    else:
+        print ' %-9ls: %s' % ('job_id', cronjob['job_id'])
+        print ' %-9ls: %s' % ('url', cronjob['url'])
+        print ' %-9ls: %s' % ('next_run', cronjob['next_run'])
+        print ' %-9ls: %s' % ('created', cronjob['date_created'])
+        print ' %-9ls: %s' % ('modified', cronjob['date_modified'])
 
 def get_version(cctrlversion, cclibversion):
     """

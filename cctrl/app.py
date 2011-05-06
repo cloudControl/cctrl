@@ -24,7 +24,8 @@ from pycclib.cclib import *
 from cctrl.output import print_deployment_details, print_app_details,\
     print_alias_details, print_log_entries, print_list_apps,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
-    print_worker_list, print_worker_details
+    print_worker_list, print_worker_details, print_cronjob_list, \
+    print_cronjob_details
 from output import print_user_list
 
 class AppsController():
@@ -320,6 +321,56 @@ class AppController():
         return True
 
     # worker end
+    
+    def addCron(self, args):
+        """
+            Adds the given worker to the deployment.
+        """
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if not deployment_name:
+            raise InputErrorException('NoDeployment')
+        if not args.url:
+            raise InputErrorException('NoCronURLGiven')
+        self.api.create_cronjob(
+            app_name,
+            deployment_name,
+            args.url
+        )
+        return True
+
+    def showCron(self, args):
+        """
+            Shows the details of an worker.
+        """
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if not deployment_name:
+            raise InputErrorException('NoDeployment')
+        if not args.job_id:
+            cronjobs = self.api.read_cronjobs(app_name, deployment_name)
+            print_cronjob_list(cronjobs)
+            return True
+        else:
+            try:
+                cronjob = self.api.read_cronjob(app_name, deployment_name, args.job_id)
+            except GoneError:
+                raise InputErrorException('NoSuchCronJob')
+            else:
+                print_cronjob_details(cronjob)
+                return True
+        return False
+
+    def removeCron(self, args):
+        """
+            Removes an worker form a deployment.
+        """
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if not deployment_name:
+            raise InputErrorException('NoDeployment')
+        try:
+            self.api.delete_cronjob(app_name, deployment_name, args.job_id)
+        except GoneError:
+            raise InputErrorException('NoSuchCronJob')
+        return True
 
     def listAddons(self, args):
         """

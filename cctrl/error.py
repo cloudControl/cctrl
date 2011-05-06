@@ -47,6 +47,8 @@ messages['NeitherBazaarNorGitFound'] = r'Please make sure either Bazaar or Git e
 messages['BazaarRequiredToPush'] = r'Please make sure the Bazaar executable is in your path.'
 messages['GitRequiredToPush'] = r'Please make sure the Git executable is in your path.'
 messages['CreatingAppAsBazaar'] = r'Neither Bazaar nor Git executables where found. Fallback Bazaar used as repository type. Overwrite using --repo [git, bzr]'
+messages['NoCronURLGiven'] = r'You must provide a URL for cron to call.'
+messages['NoSuchCronJob'] = r'Sorry, we can not find cronjob with this ID.'
 
 class InputErrorException(Exception):
     """
