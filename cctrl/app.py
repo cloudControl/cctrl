@@ -503,6 +503,11 @@ class AppController():
                 last_time = time.gmtime(float(logEntries[-1]["time"]))
                 if args.type == 'worker' and not args.wrk_id is None:
                     logEntries = filter(lambda entry: entry['wrk_id'] == args.wrk_id, logEntries)
+                if not args.filter is None:
+                    if args.type in ["error", "worker"]:
+                        logEntries = filter(lambda entry: re.search(re.compile(args.filter, re.IGNORECASE), entry['message']), logEntries)
+                    if args.type == 'access':
+                        logEntries = filter(lambda entry: re.search(re.compile(args.filter, re.IGNORECASE), entry['first_request_line'] + entry['referer'] + entry['user_agent'] + entry['remote_host']), logEntries)
                 print_log_entries(logEntries, args.type)
             time.sleep(2)
 
