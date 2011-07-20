@@ -178,6 +178,15 @@ def print_log_entries(logEntries, type):
             for entry in logEntries:
                 entry["time"] = time.strftime('[%a %b %d %H:%M:%S %Y]', time.gmtime(float(entry["time"])))
                 print r'%s %s %s' % (entry["time"], entry["wrk_id"], entry["message"].encode('utf-8'))
+    elif type == 'deploy':
+        if has_str_format:
+            for entry in logEntries:
+                entry["time"] = time.strftime('[%a %b %d %H:%M:%S %Y]', time.gmtime(float(entry["time"])))
+                print r'{0} {1} {2} {3}'.format(entry["time"], entry['hostname'], entry["level"], entry["message"].encode('utf-8'))
+        else:
+            for entry in logEntries:
+                entry["time"] = time.strftime('[%a %b %d %H:%M:%S %Y]', time.gmtime(float(entry["time"])))
+                print r'%s %s %s %s' % (entry["time"], entry['hostname'], entry["level"], entry["message"].encode('utf-8')) 
 
 def print_keys(keys):
     """

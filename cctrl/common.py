@@ -20,7 +20,7 @@ from os import environ as env
 
 from cctrl.settings import VERSION
 
-from pycclib.cclib import *
+from pycclib.cclib import * #@UnusedWildImport
 from cctrl.error import InputErrorException, messages
 from cctrl.auth import get_credentials, update_tokenfile, delete_tokenfile
 from cctrl.app import ParseAppDeploymentName

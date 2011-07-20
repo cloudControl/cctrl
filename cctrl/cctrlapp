@@ -211,7 +211,7 @@ def parse_cmdline(app, api):
     removeCron_subparser.set_defaults(func=app.removeCron)
 
     log_subparser = subparsers.add_parser('log', help="show the log")
-    log_subparser.add_argument('type', choices=['access', 'error', 'worker'])
+    log_subparser.add_argument('type', choices=['access', 'error', 'worker', 'deploy'])
     log_subparser.add_argument('-w', '--wrk_id', action="store", nargs='?', default=None, dest="wrk_id", help="a wrk_id to filter the worker log")
     log_subparser.add_argument('-g', '--grep', action="store", nargs='?', default=None, dest="filter", help="pattern to search for within the log entry")
     log_subparser.set_defaults(func=app.log)

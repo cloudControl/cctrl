@@ -25,7 +25,7 @@ with warnings.catch_warnings():
 
 from cctrl.error import PasswordsDontMatchException, InputErrorException,\
     messages
-from cctrl.auth import get_credentials, delete_tokenfile
+from cctrl.auth import get_credentials
 from pycclib.cclib import GoneError
 from cctrl.output import print_keys
 from pycclib.cclib import ConflictDuplicateError

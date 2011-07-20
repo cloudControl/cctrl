@@ -20,7 +20,7 @@ import re
 from subprocess import check_call, CalledProcessError
 
 from cctrl.error import InputErrorException, messages
-from pycclib.cclib import *
+from pycclib.cclib import * #@UnusedWildImport
 from cctrl.output import print_deployment_details, print_app_details,\
     print_alias_details, print_log_entries, print_list_apps,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
@@ -47,12 +47,12 @@ def which(programs):
     """
         from http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python/377028#377028
     """
-    import os
+    import os #@Reimport
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
     for program in programs:
-        fpath, fname = os.path.split(program)
+        fpath, fname = os.path.split(program) #@UnusedVariable
         if fpath:
             if is_exe(program):
                 return program
@@ -450,7 +450,7 @@ class AppController():
         """
             List users
         """
-        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        app_name, deployment_name = self.parse_app_deployment_name(args.name) #@UnusedVariable
         try:
             # This is a dirty hack because I have been to lazy to implement
             # a GET on /app/APP_NAME/user/ for now. Promise to do in the future
@@ -467,7 +467,7 @@ class AppController():
         """
             Add a user specified by the e-mail address to an application.
         """
-        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        app_name, deployment_name = self.parse_app_deployment_name(args.name) #@UnusedVariable
         try:
             self.api.create_app_user(app_name, args.email)
         except ConflictDuplicateError:
@@ -478,7 +478,7 @@ class AppController():
         """
             Remove a user specified by the user name from an application.
         """
-        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        app_name, deployment_name = self.parse_app_deployment_name(args.name) #@UnusedVariable
         try:
             self.api.delete_app_user(app_name, args.username)
         except GoneError:
