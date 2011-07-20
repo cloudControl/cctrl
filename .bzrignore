@@ -17,3 +17,6 @@ cctrlapp.py.egg-info
 cctrluser.py.egg-info
 .DS_Store
 win32setup
+.project
+.pydevproject
+.settings
