@@ -255,10 +255,12 @@ def print_worker_details(worker):
         print ' {0:9}: {1}'.format('wrk_id', worker['wrk_id'])
         print ' {0:9}: {1}'.format('command', worker['command'])
         print ' {0:9}: {1}'.format('params', worker['params'])
+        print ' {0:9}: {1}'.format('created', worker['date_created'])
     else:
         print ' %-9ls: %s' % ('wrk_id', worker['wrk_id'])
         print ' %-9ls: %s' % ('command', worker['command'])
         print ' %-9ls: %s' % ('params', worker['params'])
+        print ' %-9ls: %s' % ('created', worker['date_created'])
         
 def print_cronjob_list(cronjobs):
     print 'Cronjobs'
