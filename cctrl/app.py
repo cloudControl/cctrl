@@ -501,7 +501,7 @@ class AppController():
                 raise InputErrorException('WrongApplication')
             if len(logEntries) > 0:
                 last_time = time.gmtime(float(logEntries[-1]["time"]))
-                if args.type == 'worker' and not args.wrk_id is None:
+                if args.type == 'worker' and args.wrk_id:
                     logEntries = filter(lambda entry: entry['wrk_id'] == args.wrk_id, logEntries)
                 if not args.filter is None:
                     if args.type in ["error", "worker"]:
