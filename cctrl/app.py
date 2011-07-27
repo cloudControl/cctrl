@@ -66,7 +66,7 @@ def which(programs):
 
 def check_installed_rcs(name):
     rcs_executables = {
-        'bzr': ['bzr', 'bzr.exe'],
+        'bzr': ['bzr', 'bzr.bat', 'bzr.exe'],
         'git': ['git', 'git.exe', 'git.cmd']
     }
     return which(rcs_executables[name])
