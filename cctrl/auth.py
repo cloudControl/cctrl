@@ -26,6 +26,7 @@ except ImportError:
 from cctrl.error import messages, PasswordsDontMatchException
 from cctrl.settings import TOKEN_FILE_PATH, HOME_PATH
 
+
 def update_tokenfile(api):
     """
         Because it is a real pain we don't want to ask developers for their
@@ -40,6 +41,7 @@ def update_tokenfile(api):
         write_tokenfile(api)
         return True
     return False
+
 
 def read_tokenfile():
     """
@@ -56,10 +58,12 @@ def read_tokenfile():
         token_file.close()
     return token
 
+
 def write_tokenfile(api):
     """
-        This method checks, if the .cloudControl directory inside the users home
-        exists or is a file. If not, we create it and then write the token file.
+        This method checks, if the .cloudControl directory inside the
+        users home exists or is a file. If not, we create it and then
+        write the token file.
     """
     if os.path.isdir(HOME_PATH):
         pass
@@ -74,6 +78,7 @@ def write_tokenfile(api):
     tokenfile.close()
     return True
 
+
 def delete_tokenfile():
     """
         We delete the tokenfile if we don't have a valid token to save.
@@ -83,7 +88,8 @@ def delete_tokenfile():
         return True
     return False
 
-def get_credentials(create = False):
+
+def get_credentials(create=False):
     """
         We use this to ask the user for his credentials in case we have no
         valid token.

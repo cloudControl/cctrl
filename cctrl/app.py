@@ -20,7 +20,7 @@ import re
 from subprocess import check_call, CalledProcessError
 
 from cctrl.error import InputErrorException, messages
-from pycclib.cclib import * #@UnusedWildImport
+from pycclib.cclib import *  # @UnusedWildImport
 from cctrl.output import print_deployment_details, print_app_details,\
     print_alias_details, print_log_entries, print_list_apps,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
@@ -28,10 +28,11 @@ from cctrl.output import print_deployment_details, print_app_details,\
     print_cronjob_details
 from output import print_user_list
 
+
 class AppsController():
     """
-        This controller handles the special case where you want to get a list of
-        applications.
+        This controller handles the special case where you want to get a
+        list of applications.
     """
 
     api = None
@@ -42,17 +43,20 @@ class AppsController():
     def list(self):
         apps = self.api.read_apps()
         print_list_apps(apps)
-        
+
+
 def which(programs):
     """
-        from http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python/377028#377028
+        from http://stackoverflow.com/questions/377017/ \
+        test-if-executable-exists-in-python/377028#377028
     """
-    import os #@Reimport
+    import os  # @Reimport
+
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
     for program in programs:
-        fpath, fname = os.path.split(program) #@UnusedVariable
+        fpath, fname = os.path.split(program)  # @UnusedVariable
         if fpath:
             if is_exe(program):
                 return program
@@ -64,12 +68,13 @@ def which(programs):
 
     return None
 
+
 def check_installed_rcs(name):
     rcs_executables = {
         'bzr': ['bzr', 'bzr.exe'],
-        'git': ['git', 'git.exe', 'git.cmd']
-    }
+        'git': ['git', 'git.exe', 'git.cmd']}
     return which(rcs_executables[name])
+
 
 class AppController():
     """
@@ -89,7 +94,8 @@ class AppController():
             Creates a new application.
         """
         try:
-            app_name, deployment_name = self.parse_app_deployment_name(args.name)
+            app_name, deployment_name = self.parse_app_deployment_name(
+                args.name)
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
         # try to guess if bzr or git should be used
@@ -109,14 +115,15 @@ class AppController():
             repo_type = args.repo
         try:
             self.api.create_app(app_name, args.type, repo_type)
-            self.api.create_deployment(app_name, deployment_name=deployment_name)
+            self.api.create_deployment(
+                app_name,
+                deployment_name=deployment_name)
         except GoneError:
             raise InputErrorException('WrongApplication')
         except ForbiddenError:
             raise InputErrorException('NotAllowed')
         else:
             return True
-
 
     def delete(self, args):
         """
@@ -126,15 +133,17 @@ class AppController():
             TokenRequiredError beeing raised and after getting the credentials
             and creating a token this method would be called a second time.
 
-            This would result in asking the user two times if he really wants to
-            delete the app which is a rather bad user experience.
+            This would result in asking the user two times if he really wants
+            to delete the app which is a rather bad user experience.
         """
         if self.api.check_token():
-            app_name, deployment_name = self.parse_app_deployment_name(args.name)
+            app_name, deployment_name = self.parse_app_deployment_name(
+                args.name)
             if deployment_name:
                 raise InputErrorException('DeleteOnlyApplication')
             if not args.force_delete:
-                question = raw_input('Do you really want to delete this application? Type "Yes" without the quotes to delete. ')
+                question = raw_input('Do you really want to delete this ' +
+                'application? Type "Yes" without the quotes to delete. ')
             else:
                 question = 'Yes'
             if question == 'Yes':
@@ -155,14 +164,16 @@ class AppController():
 
             e.g.:
 
-            'cctrlapp app_name details' prints application details
+            'cctrlapp APP_NAME details' prints application details
 
-            'cctrlapp app_name/deployment_name details' prints deployment details
+            'cctrlapp APP_NAME/DEP_NAME details' prints deployment details
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if deployment_name:
             try:
-                deployment = self.api.read_deployment(app_name, deployment_name)
+                deployment = self.api.read_deployment(
+                    app_name,
+                    deployment_name)
             except GoneError:
                 raise InputErrorException('WrongDeployment')
             else:
@@ -184,15 +195,26 @@ class AppController():
             other arguments were passed at the command line.
         """
         try:
-            app_name, deployment_name = self.parse_app_deployment_name(args.name)
+            app_name, deployment_name = self.parse_app_deployment_name(
+                args.name)
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
         try:
-            self.api.update_deployment(app_name, version=args.version, deployment_name=deployment_name, min_boxes=args.min_boxes, max_boxes=args.max_boxes)
+            self.api.update_deployment(
+                app_name,
+                version=args.version,
+                deployment_name=deployment_name,
+                min_boxes=args.min_boxes,
+                max_boxes=args.max_boxes)
         except GoneError:
             try:
-                self.api.create_deployment(app_name, deployment_name=deployment_name)
-                self.api.update_deployment(app_name, version=args.version, deployment_name=deployment_name)
+                self.api.create_deployment(
+                    app_name,
+                    deployment_name=deployment_name)
+                self.api.update_deployment(
+                    app_name,
+                    version=args.version,
+                    deployment_name=deployment_name)
             except GoneError:
                 raise InputErrorException('WrongApplication')
             except ForbiddenError:
@@ -208,7 +230,9 @@ class AppController():
         if not deployment_name:
             raise InputErrorException('NoDeployment')
         if not args.force_delete:
-                question = raw_input('Do you really want to delete this deployment? This will delete everything including files and the database. Type "Yes" without the quotes to delete. ')
+                question = raw_input('Do you really want to delete this ' +
+                'deployment? This will delete everything including files ' +
+                'and the database. Type "Yes" without the quotes to delete. ')
         else:
             question = 'Yes'
         if question == 'Yes':
@@ -246,7 +270,10 @@ class AppController():
             return True
         else:
             try:
-                alias = self.api.read_alias(app_name, args.alias, deployment_name)
+                alias = self.api.read_alias(
+                    app_name,
+                    args.alias,
+                    deployment_name)
             except GoneError:
                 raise InputErrorException('WrongAlias')
             else:
@@ -282,8 +309,7 @@ class AppController():
             app_name,
             deployment_name,
             args.command,
-            args.params
-        )
+            args.params)
         return True
 
     def showWorker(self, args):
@@ -299,7 +325,10 @@ class AppController():
             return True
         else:
             try:
-                worker = self.api.read_worker(app_name, deployment_name, args.wrk_id)
+                worker = self.api.read_worker(
+                    app_name,
+                    deployment_name,
+                    args.wrk_id)
             except GoneError:
                 raise InputErrorException('WrongWorker')
             else:
@@ -320,8 +349,6 @@ class AppController():
             raise InputErrorException('WrongWorker')
         return True
 
-    # worker end
-    
     def addCron(self, args):
         """
             Adds the given worker to the deployment.
@@ -334,8 +361,7 @@ class AppController():
         self.api.create_cronjob(
             app_name,
             deployment_name,
-            args.url
-        )
+            args.url)
         return True
 
     def showCron(self, args):
@@ -351,7 +377,10 @@ class AppController():
             return True
         else:
             try:
-                cronjob = self.api.read_cronjob(app_name, deployment_name, args.job_id)
+                cronjob = self.api.read_cronjob(
+                    app_name,
+                    deployment_name,
+                    args.job_id)
             except GoneError:
                 raise InputErrorException('NoSuchCronJob')
             else:
@@ -412,7 +441,10 @@ class AppController():
                 return True
         else:
             try:
-                addon = self.api.read_addon(app_name, deployment_name, args.addon)
+                addon = self.api.read_addon(
+                    app_name,
+                    deployment_name,
+                    args.addon)
             except GoneError:
                 raise InputErrorException('WrongAddon')
             else:
@@ -425,7 +457,11 @@ class AppController():
         if not deployment_name:
             raise InputErrorException('NoDeployment')
         try:
-            self.api.update_addon(app_name, deployment_name, args.addon_old, args.addon_new)
+            self.api.update_addon(
+                app_name,
+                deployment_name,
+                args.addon_old,
+                args.addon_new)
         except GoneError:
             raise InputErrorException('WrongAddon')
         else:
@@ -445,12 +481,12 @@ class AppController():
         except GoneError:
             raise InputErrorException('WrongAddon')
         return True
-    
+
     def showUser(self, args):
         """
             List users
         """
-        app_name, deployment_name = self.parse_app_deployment_name(args.name) #@UnusedVariable
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)  # @UnusedVariable
         try:
             # This is a dirty hack because I have been to lazy to implement
             # a GET on /app/APP_NAME/user/ for now. Promise to do in the future
@@ -467,7 +503,7 @@ class AppController():
         """
             Add a user specified by the e-mail address to an application.
         """
-        app_name, deployment_name = self.parse_app_deployment_name(args.name) #@UnusedVariable
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)  # @UnusedVariable
         try:
             self.api.create_app_user(app_name, args.email)
         except ConflictDuplicateError:
@@ -478,7 +514,7 @@ class AppController():
         """
             Remove a user specified by the user name from an application.
         """
-        app_name, deployment_name = self.parse_app_deployment_name(args.name) #@UnusedVariable
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)  # @UnusedVariable
         try:
             self.api.delete_app_user(app_name, args.username)
         except GoneError:
@@ -496,18 +532,34 @@ class AppController():
         while True:
             logEntries = []
             try:
-                logEntries = self.api.read_log(app_name, deployment_name, args.type, last_time=last_time)
+                logEntries = self.api.read_log(
+                    app_name,
+                    deployment_name,
+                    args.type,
+                    last_time=last_time)
             except GoneError:
                 raise InputErrorException('WrongApplication')
             if len(logEntries) > 0:
                 last_time = time.gmtime(float(logEntries[-1]["time"]))
                 if args.type == 'worker' and args.wrk_id:
-                    logEntries = filter(lambda entry: entry['wrk_id'] == args.wrk_id, logEntries)
-                if not args.filter is None:
+                    logEntries = filter(lambda entry:
+                        entry['wrk_id'] == args.wrk_id, logEntries)
+                if args.filter:
                     if args.type in ["error", "worker"]:
-                        logEntries = filter(lambda entry: re.search(re.compile(args.filter, re.IGNORECASE), entry['message']), logEntries)
+                        logEntries = filter(
+                            lambda entry: re.search(
+                                re.compile(args.filter, re.IGNORECASE),
+                                entry['message']),
+                            logEntries)
                     if args.type == 'access':
-                        logEntries = filter(lambda entry: re.search(re.compile(args.filter, re.IGNORECASE), entry['first_request_line'] + entry['referer'] + entry['user_agent'] + entry['remote_host']), logEntries)
+                        logEntries = filter(lambda entry:
+                            re.search(
+                                re.compile(args.filter, re.IGNORECASE),
+                                entry['first_request_line'] + \
+                                entry['referer'] + \
+                                entry['user_agent'] + \
+                                entry['remote_host']),
+                            logEntries)
                 print_log_entries(logEntries, args.type)
             time.sleep(2)
 
@@ -522,7 +574,7 @@ class AppController():
         """
         if not check_installed_rcs('bzr') and not check_installed_rcs('git'):
             raise InputErrorException('NeitherBazaarNorGitFound')
-        
+
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         try:
             if deployment_name == '':
@@ -531,8 +583,7 @@ class AppController():
                 push_deployment_name = deployment_name
             deployment = self.api.read_deployment(
                 app_name,
-                push_deployment_name
-            )
+                push_deployment_name)
         except GoneError:
             push_deployment_name = ''
             if deployment_name != '':
@@ -540,13 +591,12 @@ class AppController():
             try:
                 deployment = self.api.create_deployment(
                     app_name,
-                    deployment_name=push_deployment_name
-                )
+                    deployment_name=push_deployment_name)
             except GoneError:
                 raise InputErrorException('WrongApplication')
             except ForbiddenError:
                 raise InputErrorException('NotAllowed')
-        
+
         if deployment['branch'].startswith('bzr+ssh'):
             rcs = check_installed_rcs('bzr')
             if not rcs:
@@ -565,7 +615,12 @@ class AppController():
                 git_branch = push_deployment_name
             if args.source:
                 git_dir = os.path.join(args.source, '.git')
-                cmd = [rcs, '--git-dir=' + git_dir,'push', deployment['branch'], git_branch]
+                cmd = [
+                    rcs,
+                    '--git-dir=' + git_dir,
+                    'push',
+                    deployment['branch'],
+                    git_branch]
             else:
                 cmd = [rcs, 'push', deployment['branch'], git_branch]
         try:
@@ -574,7 +629,9 @@ class AppController():
             print str(e)
 
     def parse_app_deployment_name(self, name):
-        match = re.match('^([a-z][a-z0-9]*)/((?:[a-z0-9]+\.)*[a-z0-9]+)$', name)
+        match = re.match(
+            '^([a-z][a-z0-9]*)/((?:[a-z0-9]+\.)*[a-z0-9]+)$',
+            name)
         if match:
             app_name = match.group(1)
             deployment_name = match.group(2)
@@ -588,8 +645,10 @@ class AppController():
 
         raise ParseAppDeploymentName
 
+
 class ParseAppDeploymentName(Exception):
     """
-        This Exception is raised if not a valid application name nor a valid application/deployment construct is given
+        This Exception is raised if not a valid application name nor a
+        valid application/deployment construct is given
     """
     pass

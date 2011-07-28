@@ -23,6 +23,7 @@ if sys.version_info < (2, 6):
 else:
     has_str_format = True
 
+
 def print_list_apps(apps):
     """
         Print a nice table of apps.
@@ -31,11 +32,18 @@ def print_list_apps(apps):
     if has_str_format:
         print " {0:3} {1:30} {2:6}".format('Nr', 'Name', 'Type')
         for i, app in enumerate(apps):
-            print " {0:3} {1:30} {2:6}".format(i+1, app['name'], app['type']['name'])
+            print " {0:3} {1:30} {2:6}".format(
+                i + 1,
+                app['name'],
+                app['type']['name'])
     else:
         print " %-3ls %-30ls %-6ls" % ('Nr', 'Name', 'Type')
         for i, app in enumerate(apps):
-            print " %-3ls %-30ls %-6ls" % (i+1, app['name'], app['type']['name'])
+            print " %-3ls %-30ls %-6ls" % (
+                i + 1,
+                app['name'],
+                app['type']['name'])
+
 
 def print_app_details(app):
     """
@@ -43,7 +51,10 @@ def print_app_details(app):
     """
     print 'App'
     if has_str_format:
-        print " Name: {0:30} Type: {1:10} Owner: {2:20}".format(app['name'], app['type']['name'], app['owner']['username'])
+        print " Name: {0:30} Type: {1:10} Owner: {2:20}".format(
+            app['name'],
+            app['type']['name'],
+            app['owner']['username'])
         print ' Repository: {0}'.format(app['repository'])
         print '\n Users'
         print "   {0:40} {1:20}".format('Name', 'Email')
@@ -53,7 +64,10 @@ def print_app_details(app):
         for deployment in app['deployments']:
             print "   {0:60}".format(deployment['name'])
     else:
-        print " Name: %-30ls Type: %-10ls Owner: %-20ls" % (app['name'], app['type']['name'], app['owner']['username'])
+        print " Name: %-30ls Type: %-10ls Owner: %-20ls" % (
+            app['name'],
+            app['type']['name'],
+            app['owner']['username'])
         print ' Repository: %s' % (app['repository'])
         print '\n Users'
         print "   %-40ls %-20ls" % ('Name', 'Email')
@@ -62,6 +76,7 @@ def print_app_details(app):
         print '\n Deployments'
         for deployment in app['deployments']:
             print "   %(name)-60ls" % (deployment)
+
 
 def print_deployment_details(deployment):
     """
@@ -88,7 +103,8 @@ def print_deployment_details(deployment):
         print ' current state: %(state)s' % (deployment)
         print ' min boxes: %(min_boxes)s' % (deployment)
         print ' max boxes: %(min_boxes)s' % (deployment)
-   
+
+
 def print_user_list(users):
     """
         Print user list.
@@ -103,6 +119,7 @@ def print_user_list(users):
         for user in users:
             print " %(username)-40ls %(email)-20ls" % (user)
 
+
 def print_alias_list(aliases):
     """
         Print a list of aliases
@@ -111,12 +128,17 @@ def print_alias_list(aliases):
         print 'Aliases'
         print ' {0:60} {1:8} {2:8}'.format('name', 'default', 'verified')
         for alias in aliases:
-            print ' {0:60} {1:8} {2:8}'.format(alias['name'], alias['is_default'], alias['is_verified'])
+            print ' {0:60} {1:8} {2:8}'.format(
+                alias['name'],
+                alias['is_default'],
+                alias['is_verified'])
     else:
         print 'Aliases'
         print ' %-60ls %-8ls %-8ls' % ('name', 'default', 'verified')
         for alias in aliases:
-            print ' %(name)-60ls %(is_default)-8ls %(is_verified)-8ls' % (alias)
+            print ' %(name)-60ls %(is_default)-8ls %(is_verified)-8ls' % (
+                alias)
+
 
 def print_alias_details(alias):
     """
@@ -124,20 +146,47 @@ def print_alias_details(alias):
     """
     if has_str_format:
         print '{0:28}: {1}'.format('Alias', alias['name'])
-        print '   {0:25}: {1}'.format('is_default', str(alias['is_default']))
-        print '   {0:25}: {1}'.format('is_verified', str(alias['is_verified']))
-        print '   {0:25}: {1}'.format('verification_errors', alias['verification_errors'])
-        print '   {0:25}: {1}'.format('verification_code', alias['verification_code'])
-        print '   {0:25}: {1}'.format('date_created', alias['date_created'])
-        print '   {0:25}: {1}'.format('date_modified', alias['date_modified'])
+        print '   {0:25}: {1}'.format(
+            'is_default',
+            str(alias['is_default']))
+        print '   {0:25}: {1}'.format(
+            'is_verified',
+            str(alias['is_verified']))
+        print '   {0:25}: {1}'.format(
+            'verification_errors',
+            alias['verification_errors'])
+        print '   {0:25}: {1}'.format(
+            'verification_code',
+            alias['verification_code'])
+        print '   {0:25}: {1}'.format(
+            'date_created',
+            alias['date_created'])
+        print '   {0:25}: {1}'.format(
+            'date_modified',
+            alias['date_modified'])
     else:
-        print '%-28ls: %s' % ('Alias', alias['name'])
-        print '   %-25ls: %s' % ('is_default', str(alias['is_default']))
-        print '   %-25ls: %s' % ('is_verified', str(alias['is_verified']))
-        print '   %-25ls: %s' % ('verification_errors', alias['verification_errors'])
-        print '   %-25ls: %s' % ('verification_code', alias['verification_code'])
-        print '   %-25ls: %s' % ('date_created', alias['date_created'])
-        print '   %-25ls: %s' % ('date_modified', alias['date_modified'])
+        print '%-28ls: %s' % (
+            'Alias',
+            alias['name'])
+        print '   %-25ls: %s' % (
+            'is_default',
+            str(alias['is_default']))
+        print '   %-25ls: %s' % (
+            'is_verified',
+            str(alias['is_verified']))
+        print '   %-25ls: %s' % (
+            'verification_errors',
+            alias['verification_errors'])
+        print '   %-25ls: %s' % (
+            'verification_code',
+            alias['verification_code'])
+        print '   %-25ls: %s' % (
+            'date_created',
+            alias['date_created'])
+        print '   %-25ls: %s' % (
+            'date_modified',
+            alias['date_modified'])
+
 
 def print_log_entries(logEntries, type):
     """
@@ -148,45 +197,100 @@ def print_log_entries(logEntries, type):
     if type == 'access':
         if has_str_format:
             for entry in logEntries:
-                entry["time"] = time.strftime('[%d/%b/%Y:%H:%M:%S +0000]', time.gmtime(float(entry["time"])))
+                entry["time"] = time.strftime(
+                    '[%d/%b/%Y:%H:%M:%S +0000]',
+                    time.gmtime(float(entry["time"])))
                 try:
-                    print r'{0} {1} {2} {3} "{4}" {5} {6} "{7}" "{8}"'.format(entry["remote_host"], entry["remote_logname"], entry["remote_user"], entry["time"], entry["first_request_line"], entry["status"], entry["response_size_CLF"], entry["referer"], entry["user_agent"])
+                    print r'{0} {1} {2} {3} "{4}" {5} {6} "{7}" "{8}"'.format(
+                        entry["remote_host"],
+                        entry["remote_logname"],
+                        entry["remote_user"],
+                        entry["time"],
+                        entry["first_request_line"],
+                        entry["status"],
+                        entry["response_size_CLF"],
+                        entry["referer"],
+                        entry["user_agent"])
                 except KeyError:
                     pass
         else:
             for entry in logEntries:
-                entry["time"] = time.strftime('[%d/%b/%Y:%H:%M:%S +0000]', time.gmtime(float(entry["time"])))
+                entry["time"] = time.strftime(
+                    '[%d/%b/%Y:%H:%M:%S +0000]',
+                    time.gmtime(float(entry["time"])))
                 try:
-                    print r'%s %s %s %s "%s" %s %s "%s" "%s"' % (entry["remote_host"], entry["remote_logname"], entry["remote_user"], entry["time"], entry["first_request_line"], entry["status"], entry["response_size_CLF"], entry["referer"], entry["user_agent"])
+                    print r'%s %s %s %s "%s" %s %s "%s" "%s"' % (
+                        entry["remote_host"],
+                        entry["remote_logname"],
+                        entry["remote_user"],
+                        entry["time"],
+                        entry["first_request_line"],
+                        entry["status"],
+                        entry["response_size_CLF"],
+                        entry["referer"],
+                        entry["user_agent"])
                 except KeyError:
                     pass
     elif type == 'error':
         if has_str_format:
             for entry in logEntries:
-                entry["time"] = time.strftime('[%a %b %d %H:%M:%S %Y]', time.gmtime(float(entry["time"])))
-                print r'{0} {1} {2}'.format(entry["time"], entry["type"], entry["message"].encode('utf-8'))
+                entry["time"] = time.strftime(
+                    '[%a %b %d %H:%M:%S %Y]',
+                    time.gmtime(float(entry["time"])))
+                print r'{0} {1} {2}'.format(
+                    entry["time"],
+                    entry["type"],
+                    entry["message"].encode('utf-8'))
         else:
             for entry in logEntries:
-                entry["time"] = time.strftime('[%a %b %d %H:%M:%S %Y]', time.gmtime(float(entry["time"])))
-                print r'%s %s %s' % (entry["time"], entry["type"], entry["message"].encode('utf-8'))
+                entry["time"] = time.strftime(
+                    '[%a %b %d %H:%M:%S %Y]',
+                    time.gmtime(float(entry["time"])))
+                print r'%s %s %s' % (
+                    entry["time"],
+                    entry["type"],
+                    entry["message"].encode('utf-8'))
     elif type == 'worker':
         if has_str_format:
             for entry in logEntries:
-                entry["time"] = time.strftime('[%a %b %d %H:%M:%S %Y]', time.gmtime(float(entry["time"])))
-                print r'{0} {1} {2}'.format(entry["time"], entry["wrk_id"], entry["message"].encode('utf-8'))
+                entry["time"] = time.strftime(
+                    '[%a %b %d %H:%M:%S %Y]',
+                    time.gmtime(float(entry["time"])))
+                print r'{0} {1} {2}'.format(
+                    entry["time"],
+                    entry["wrk_id"],
+                    entry["message"].encode('utf-8'))
         else:
             for entry in logEntries:
-                entry["time"] = time.strftime('[%a %b %d %H:%M:%S %Y]', time.gmtime(float(entry["time"])))
-                print r'%s %s %s' % (entry["time"], entry["wrk_id"], entry["message"].encode('utf-8'))
+                entry["time"] = time.strftime(
+                    '[%a %b %d %H:%M:%S %Y]',
+                    time.gmtime(float(entry["time"])))
+                print r'%s %s %s' % (
+                    entry["time"],
+                    entry["wrk_id"],
+                    entry["message"].encode('utf-8'))
     elif type == 'deploy':
         if has_str_format:
             for entry in logEntries:
-                entry["time"] = time.strftime('[%a %b %d %H:%M:%S %Y]', time.gmtime(float(entry["time"])))
-                print r'{0} {1} {2} {3}'.format(entry["time"], entry['hostname'], entry["level"], entry["message"].encode('utf-8'))
+                entry["time"] = time.strftime(
+                    '[%a %b %d %H:%M:%S %Y]',
+                    time.gmtime(float(entry["time"])))
+                print r'{0} {1} {2} {3}'.format(
+                    entry["time"],
+                    entry['hostname'],
+                    entry["level"],
+                    entry["message"].encode('utf-8'))
         else:
             for entry in logEntries:
-                entry["time"] = time.strftime('[%a %b %d %H:%M:%S %Y]', time.gmtime(float(entry["time"])))
-                print r'%s %s %s %s' % (entry["time"], entry['hostname'], entry["level"], entry["message"].encode('utf-8')) 
+                entry["time"] = time.strftime(
+                    '[%a %b %d %H:%M:%S %Y]',
+                    time.gmtime(float(entry["time"])))
+                print r'%s %s %s %s' % (
+                    entry["time"],
+                    entry['hostname'],
+                    entry["level"],
+                    entry["message"].encode('utf-8'))
+
 
 def print_keys(keys):
     """
@@ -199,12 +303,14 @@ def print_keys(keys):
     else:
         for key in keys:
             print ' %(key_id)-15ls' % (key)
-            
+
+
 def print_key(key):
     """
         Print a users public key.
     """
     print key["key"]
+
 
 def print_addons(addons):
     """
@@ -221,6 +327,7 @@ def print_addons(addons):
             for option in addon['options']:
                 print '   %s' % option['name']
 
+
 def print_addon_list(addons):
     """
         Print a list of addon details
@@ -228,6 +335,7 @@ def print_addon_list(addons):
     for addon in addons:
         print_addon_details(addon)
         print '\n'
+
 
 def print_addon_details(addon):
     """
@@ -246,17 +354,19 @@ def print_addon_details(addon):
             for key, value in addon['settings'].items():
                 print '   %-25ls: %s' % (key, value)
 
+
 def print_worker_list(workers):
     print 'Workers'
     if has_str_format:
         print ' {0:3} {1:11}'.format('nr.', 'wrk_id')
         for count, worker in enumerate(workers):
-            print ' {0:3} {1:11}'.format(count+1, worker['wrk_id'])
+            print ' {0:3} {1:11}'.format(count + 1, worker['wrk_id'])
     else:
         print ' %-3ls %-11ls' % ('nr.', 'wrk_id')
         for count, worker in enumerate(workers):
             wrk_id = worker['wrk_id']
-            print ' %-3ls %-11ls' % (count+1, wrk_id)
+            print ' %-3ls %-11ls' % (count + 1, wrk_id)
+
 
 def print_worker_details(worker):
     print 'Worker'
@@ -270,18 +380,20 @@ def print_worker_details(worker):
         print ' %-9ls: %s' % ('command', worker['command'])
         print ' %-9ls: %s' % ('params', worker['params'])
         print ' %-9ls: %s' % ('created', worker['date_created'])
-        
+
+
 def print_cronjob_list(cronjobs):
     print 'Cronjobs'
     if has_str_format:
         print ' {0:3} {1:11}'.format('nr.', 'job_id')
         for count, cronjob in enumerate(cronjobs):
-            print ' {0:3} {1:11}'.format(count+1, cronjob['job_id'])
+            print ' {0:3} {1:11}'.format(count + 1, cronjob['job_id'])
     else:
         print ' %-3ls %-11ls' % ('nr.', 'job_id')
         for count, cronjob in enumerate(cronjobs):
             job_id = cronjob['wrk_id']
-            print ' %-3ls %-11ls' % (count+1, job_id)
+            print ' %-3ls %-11ls' % (count + 1, job_id)
+
 
 def print_cronjob_details(cronjob):
     print 'Cronjob'
@@ -298,11 +410,14 @@ def print_cronjob_details(cronjob):
         print ' %-9ls: %s' % ('created', cronjob['date_created'])
         print ' %-9ls: %s' % ('modified', cronjob['date_modified'])
 
+
 def get_version(cctrlversion, cclibversion):
     """
         Prepare the version string
     """
     if has_str_format:
-        return '%(prog)s {0} using pycclib {1}'.format(cctrlversion, cclibversion)
+        return '%(prog)s {0} using pycclib {1}'.format(
+            cctrlversion,
+            cclibversion)
     else:
         return '%%(prog)s %s using pycclib %s' % (cctrlversion, cclibversion)

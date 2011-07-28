@@ -20,10 +20,11 @@ from os import environ as env
 
 from cctrl.settings import VERSION
 
-from pycclib.cclib import * #@UnusedWildImport
+from pycclib.cclib import *  # @UnusedWildImport
 from cctrl.error import InputErrorException, messages
 from cctrl.auth import get_credentials, update_tokenfile, delete_tokenfile
 from cctrl.app import ParseAppDeploymentName
+
 
 def check_for_updates(new_version, current_version=VERSION):
     """
@@ -45,6 +46,7 @@ def check_for_updates(new_version, current_version=VERSION):
             messages['UpdateAvailable']
             return True
     return False
+
 
 def run(args, api):
     """
@@ -76,7 +78,7 @@ def run(args, api):
             except TokenRequiredError:
                 # check ENV for credentials first
                 try:
-                    email =  env.pop('CCTRL_EMAIL')
+                    email = env.pop('CCTRL_EMAIL')
                     password = env.pop('CCTRL_PASSWORD')
                 except KeyError:
                     email, password = get_credentials()
@@ -97,9 +99,11 @@ def run(args, api):
                 sys.exit(messages['NotAuthorized'])
         except ForbiddenError, e:
             sys.exit(messages['NotAllowed'])
-        except (ConnectionException, BadRequestError, ConflictDuplicateError, GoneError,
-            InternalServerError, NotImplementedError, ThrottledError, InputErrorException), e:
+        except (ConnectionException, BadRequestError, ConflictDuplicateError,
+                GoneError, InternalServerError, NotImplementedError,
+                ThrottledError, InputErrorException), e:
             sys.exit(e)
+
 
 def shutdown(api):
     """

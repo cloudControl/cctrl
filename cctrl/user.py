@@ -31,6 +31,7 @@ from cctrl.output import print_keys
 from pycclib.cclib import ConflictDuplicateError
 from output import print_key
 
+
 class UserController():
     """
         This controller handles all user related actions.
@@ -60,11 +61,14 @@ class UserController():
 
     def activate(self, args):
         """
-            Activate a new user using the information from the activation email.
+            Activate a new user using the information from the
+            activation email.
         """
         self.api.set_token(None)
         try:
-            self.api.update_user(args.user_name[0], activation_code=args.activation_code[0])
+            self.api.update_user(
+                args.user_name[0],
+                activation_code=args.activation_code[0])
         except GoneError:
             raise InputErrorException('WrongUsername')
 
@@ -74,13 +78,14 @@ class UserController():
         """
         users = self.api.read_users()
         if not args.force_delete:
-            question = raw_input('Do you really want to delete your user? Type "Yes" without the quotes to delete. ')
+            question = raw_input('Do you really want to delete your user? ' +
+                                 'Type "Yes" without the quotes to delete. ')
         else:
             question = 'Yes'
         if question == 'Yes':
             self.api.delete_user(users[0]['username'])
-            # After we have deleted our user we should also delete the token_file
-            # to avoid confusion
+            # After we have deleted our user we should also delete
+            # the token_file to avoid confusion
             self.api.set_token(None)
         else:
             print messages['SecurityQuestionDenied']
@@ -99,7 +104,9 @@ class UserController():
         try:
             pubkey = open(pubkey_path, 'r')
         except IOError:
-            question = raw_input('No public key found in "{0}". Type "Yes" to generate a keypair. '.format(ssh_path))
+            question = raw_input('No public key found in "{0}". ' +
+                                 'Type "Yes" to generate a keypair. '.format(
+                                    ssh_path))
             if question == 'Yes':
                 try:
                     if not os.path.exists(ssh_path):
@@ -113,15 +120,14 @@ class UserController():
                     username = os.getlogin()
                 except AttributeError:
                     username = os.getenv('USERNAME', 'cloudControl')
-                try:   
+                try:
                     hostname = os.uname()[1]
                 except AttributeError:
                     hostname = os.getenv('COMPUTERNAME', 'localhost')
                 pubkey_string = 'ssh-rsa {0} {1}@{2} \n'.format(
                     key.get_base64(),
                     username,
-                    hostname
-                )
+                    hostname)
                 pubkey = open(pubkey_path, 'w')
                 pubkey.write(pubkey_string)
             else:
@@ -133,7 +139,9 @@ class UserController():
                 raise InputErrorException('WrongKeyFormat')
             if pubkey_string:
                 try:
-                    self.api.create_user_key(users[0]['username'], pubkey_string)
+                    self.api.create_user_key(
+                        users[0]['username'],
+                        pubkey_string)
                 except ConflictDuplicateError:
                     raise InputErrorException('KeyDuplicate')
                 pubkey.close()
@@ -158,7 +166,8 @@ class UserController():
         """
         users = self.api.read_users()
         if not args.force_delete:
-            question = raw_input('Do you really want to remove your key? Type "Yes" without the quotes to remove. ')
+            question = raw_input('Do you really want to remove your key? ' +
+                                 'Type "Yes" without the quotes to remove. ')
         else:
             question = 'Yes'
         if question == 'Yes':
