@@ -79,7 +79,7 @@ class UserController():
         users = self.api.read_users()
         if not args.force_delete:
             question = raw_input('Do you really want to delete your user? ' +
-                                 'Type "Yes" without the quotes to delete. ')
+                                 'Type "Yes" without the quotes to delete: ')
         else:
             question = 'Yes'
         if question == 'Yes':
@@ -105,7 +105,7 @@ class UserController():
             pubkey = open(pubkey_path, 'r')
         except IOError:
             question = raw_input('No public key found in "{0}". ' +
-                                 'Type "Yes" to generate a keypair. '.format(
+                                 'Type "Yes" to generate a keypair: '.format(
                                     ssh_path))
             if question == 'Yes':
                 try:
@@ -167,7 +167,7 @@ class UserController():
         users = self.api.read_users()
         if not args.force_delete:
             question = raw_input('Do you really want to remove your key? ' +
-                                 'Type "Yes" without the quotes to remove. ')
+                                 'Type "Yes" without the quotes to remove: ')
         else:
             question = 'Yes'
         if question == 'Yes':
