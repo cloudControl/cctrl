@@ -51,6 +51,7 @@ messages['NoCronURLGiven'] = r'You must provide a URL for cron to call.'
 messages['NoSuchCronJob'] = r'Sorry, we can not find cronjob with this ID.'
 messages['FileReadOrWriteFailed'] = r'Sorry, could not read or write to file.'
 messages['FileNotFound'] = r'Sorry, file not found!'
+messages['NoPublicKeyProvided'] = r'No public SSH-key (RSA) provided.'
 
 class InputErrorException(Exception):
     """
