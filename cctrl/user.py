@@ -90,6 +90,32 @@ class UserController():
         else:
             print messages['SecurityQuestionDenied']
 
+
+    def addAnyKey(self, args):
+        """
+            Add a given public key to cloudControl user account.
+        """
+        # Check if key is valid (= valid file and RSA-encrypted)
+        # If yes, read content. Otherwise, ask if we should create a
+        # new set of SSH default keys.
+        if  self._isKeyValid(args.public_key):                                
+            public_rsa_key_content = self._readContentOf(args.public_key)
+        else:                    
+            # FIXME: This won't work for Windows users!
+            ssh_path = os.getenv("HOME") + "/.ssh"
+            public_rsa_key_content = self._createSSHKeysWithUserInPath(ssh_path)
+                                        
+        # Add public RSA-key to cloudControl user account
+        try:
+            users = self.api.read_users()
+            self.api.create_user_key(
+                users[0]['username'],
+                public_rsa_key_content)
+        except ConflictDuplicateError:
+            raise InputErrorException('KeyDuplicate')
+        
+
+        
     def addKey(self, args):
         """
             Add a public key to your user account.
@@ -104,7 +130,7 @@ class UserController():
         try:
             pubkey = open(pubkey_path, 'r')
         except IOError:
-            question = raw_input('No public key found in ' + ssh_path + ' . ' +
+            question = raw_input('No public key found in {0} . ' +
                                  'Type "Yes" to generate a keypair: '.format(
                                     ssh_path))
             if question == 'Yes':
@@ -131,7 +157,7 @@ class UserController():
                 pubkey = open(pubkey_path, 'w')
                 pubkey.write(pubkey_string)
             else:
-                raise InputErrorException('UnknownUserAnswer')
+                raise InputErrorException('SecurityQuestionDenied')
         else:
             pubkey_string = str(pubkey.read())
             
@@ -182,3 +208,136 @@ class UserController():
         self.api.set_token(None)
         
     
+    
+    # #############################################################################
+    # HELPERS
+    #
+        
+    def _isKeyValid(self, key):
+        """
+            Is the given key a valid SSH-key with RSA encryption?
+        """        
+        # check if provided SSH-key file exists ...
+        if not self._isValidFile(key):
+            return False
+                
+        # Ok, file found! Check if we can read the file's content ...
+        file_content = self._readContentOf(key)
+        if file_content == None:
+            return False
+                                      
+        # File read! Now check if it's RSA encrypted ...
+        if file_content[:8] != 'ssh-rsa ':
+            return False
+                    
+        # All Ok!
+        return True
+         
+         
+    def _isValidFile(self, filename):
+        """
+            Is the given filename a valid file?
+        """
+        return os.path.isfile(os.path.abspath(filename))
+                    
+                  
+    def _readContentOf(self, filename):
+        """
+            Read a given file's content into a string
+            
+            Returns contents of given file as string, otherwise "None"
+        """
+        file_content = ''
+        
+        # check if file exists
+        if not os.path.isfile(os.path.abspath(filename)):
+            return InputErrorException('FileNotFound')
+        
+        # open file and read into string
+        try:
+            open_file = open(os.path.abspath(filename), 'r')
+            file_content = str(open_file.read())
+        except IOError:
+            raise InputErrorException('FileReadOrWriteFailed')
+        
+        # pass back content
+        return file_content
+
+        
+
+    def _generateRSAKey(self, user_ssh_path, key_file_name="id_rsa.pub"):
+        """
+            Generate an RSA-encrypted key for the user
+            
+            Will return public key string if all went well, otherwise "None"
+        """                
+        if key_file_name == "id_rsa.pub":            
+            if not os.path.exists(user_ssh_path):
+                os.mkdir(user_ssh_path, 0700)
+
+        key_base_name = key_file_name.rstrip(".pub")
+        private_key = self._generatePrivateRSAKeyFile(user_ssh_path, key_base_name)
+    
+        # create public key from private key
+        public_key_string = self._generatePublicRSAKeyFile(private_key, user_ssh_path, key_base_name)
+            
+        return { "status" : 0, "pubkey" : public_key_string }   
+    
+    
+    def _generatePrivateRSAKeyFile(self, ssh_path, key_base_name):
+        """
+            Generate a default PRIVATE SSH key file using RSA
+        """
+        key = RSAKey.generate(2048)
+        private_key_file_name = ssh_path + "/" + key_base_name
+        key.write_private_key_file(private_key_file_name)
+        
+        # Ok, pass back private key object
+        return key
+        
+        
+    def _generatePublicRSAKeyFile(self, private_key, ssh_path, key_base_name):
+        """
+            Generate a default PUBLIC SSH key file using RSA
+        """
+        try:
+            username = os.getlogin()
+        except AttributeError:
+            username = os.getenv('USERNAME', 'cloudControl')
+            
+        try:
+            hostname = os.uname()[1]
+        except AttributeError:
+            hostname = os.getenv('COMPUTERNAME', 'localhost')
+            
+        # Create the content of the public key as string
+        pubkey_string = 'ssh-rsa {0} {1}@{2} \n'.format(
+            private_key.get_base64(),
+            username,
+            hostname)
+        
+        # Write the public key to file system
+        public_key_filename = ssh_path + "/" + key_base_name + ".pub"
+        pubkey = open(public_key_filename, 'w')
+        pubkey.write(pubkey_string)
+        pubkey.close()
+        
+        # Ok, pass back public key file name
+        return pubkey_string
+        
+        
+    def _createSSHKeysWithUserInPath(self, ssh_path):
+        """
+            Generate a set of private and public keys for user
+            
+            Returns content of public key if all went well. Otherwise,
+            return "None"
+        """
+        question = raw_input('No public key found in {0} . ' +
+                             'Type "Yes" to generate a keypair: '.format(ssh_path))
+
+        if question != 'Yes':            
+            raise InputErrorException('SecurityQuestionDenied')
+                
+        return self._generateRSAKey()["pubkey"]
+                
