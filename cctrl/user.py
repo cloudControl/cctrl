@@ -104,7 +104,7 @@ class UserController():
         try:
             pubkey = open(pubkey_path, 'r')
         except IOError:
-            question = raw_input('No public key found in "{0}". ' +
+            question = raw_input('No public key found in ' + ssh_path + ' . ' +
                                  'Type "Yes" to generate a keypair: '.format(
                                     ssh_path))
             if question == 'Yes':
@@ -131,20 +131,20 @@ class UserController():
                 pubkey = open(pubkey_path, 'w')
                 pubkey.write(pubkey_string)
             else:
-                raise InputErrorException('NoSuchKeyFile')
+                raise InputErrorException('UnknownUserAnswer')
         else:
             pubkey_string = str(pubkey.read())
-        finally:
-            if pubkey_string[:8] != 'ssh-rsa ':
-                raise InputErrorException('WrongKeyFormat')
-            if pubkey_string:
-                try:
-                    self.api.create_user_key(
-                        users[0]['username'],
-                        pubkey_string)
-                except ConflictDuplicateError:
-                    raise InputErrorException('KeyDuplicate')
-                pubkey.close()
+            
+        if pubkey_string[:8] != 'ssh-rsa ':
+            raise InputErrorException('WrongKeyFormat')
+        if pubkey_string:
+            try:
+                self.api.create_user_key(
+                    users[0]['username'],
+                    pubkey_string)
+            except ConflictDuplicateError:
+                raise InputErrorException('KeyDuplicate')
+            pubkey.close()
 
     def listKeys(self, args):
         """
@@ -180,3 +180,5 @@ class UserController():
             Logout a user by deleting the token.json file.
         """
         self.api.set_token(None)
+        
+    
