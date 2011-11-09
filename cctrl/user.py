@@ -91,19 +91,28 @@ class UserController():
             print messages['SecurityQuestionDenied']
 
 
-    def addAnyKey(self, args):
+    def addKey(self, args):
         """
             Add a given public key to cloudControl user account.
         """
         # Check if key is valid (= valid file and RSA-encrypted)
-        # If yes, read content. Otherwise, ask if we should create a
-        # new set of SSH default keys.
+        # If yes, read content ...
         if  self._isKeyValid(args.public_key):                                
             public_rsa_key_content = self._readContentOf(args.public_key)
-        else:                    
-            # FIXME: This won't work for Windows users!
+        else:
+            print "Key seemed to be invalid! "
             ssh_path = os.getenv("HOME") + "/.ssh"
-            public_rsa_key_content = self._createSSHKeysWithUserInPath(ssh_path)
+            
+            # Given key is not valid! Then, let's ask user if we should
+            # try to use the default RSA public key ...                                                                            
+            default_public_key = self._askUserToUserDefaultSSHPublicKey(ssh_path) 
+            if self._isKeyValid(default_public_key):
+                # Default RSA SSH public key found! Read it!                
+                public_rsa_key_content = self._readContentOf(default_public_key)
+            else:
+                # We can't even find a default key! Then let's create one
+                # if the user accepts ...
+                public_rsa_key_content = self._createSSHKeysWithUserInPath(ssh_path)
                                         
         # Add public RSA-key to cloudControl user account
         try:
@@ -111,12 +120,12 @@ class UserController():
             self.api.create_user_key(
                 users[0]['username'],
                 public_rsa_key_content)
+            
+            print "Note: Please make sure to add newly created keys to your SSH configuration!"
         except ConflictDuplicateError:
             raise InputErrorException('KeyDuplicate')
         
-
-        
-    def addKey(self, args):
+    def addKeyOriginal(self, args):
         """
             Add a public key to your user account.
         """
@@ -130,9 +139,8 @@ class UserController():
         try:
             pubkey = open(pubkey_path, 'r')
         except IOError:
-            question = raw_input('No public key found in {0} . ' +
-                                 'Type "Yes" to generate a keypair: '.format(
-                                    ssh_path))
+            question = raw_input('No public key found in ' + ssh_path + ' . ' +
+                                 'Type "Yes" to generate a keypair: ')
             if question == 'Yes':
                 try:
                     if not os.path.exists(ssh_path):
@@ -275,10 +283,11 @@ class UserController():
             if not os.path.exists(user_ssh_path):
                 os.mkdir(user_ssh_path, 0700)
 
+        # Create the private key, first.
         key_base_name = key_file_name.rstrip(".pub")
         private_key = self._generatePrivateRSAKeyFile(user_ssh_path, key_base_name)
     
-        # create public key from private key
+        # Now, create the public key (using the private key) ...
         public_key_string = self._generatePublicRSAKeyFile(private_key, user_ssh_path, key_base_name)
             
         return { "status" : 0, "pubkey" : public_key_string }   
@@ -333,11 +342,25 @@ class UserController():
             Returns content of public key if all went well. Otherwise,
             return "None"
         """
-        question = raw_input('No public key found in {0} . ' +
-                             'Type "Yes" to generate a keypair: '.format(ssh_path))
-
+        question = raw_input('No valid SSH public key (RSA) found! ' +
+                             'Type "Yes" to generate a keypair: ')
         if question != 'Yes':            
             raise InputErrorException('SecurityQuestionDenied')
+                        
+        return self._generateRSAKey(ssh_path)["pubkey"]
+        
                 
-        return self._generateRSAKey()["pubkey"]
-                
+    def _askUserToUserDefaultSSHPublicKey(self, ssh_path):
+        """
+            Ask the user if the default public SSH-key (RSA)
+            shall be used. If yes, return the full path to
+            the public key file.
+        """
+        default_rsa_public_key = ssh_path + "/id_rsa.pub" 
+        question = raw_input('Found default key {0} . '.format(default_rsa_public_key) +
+                             'Type "Yes" to use the default key: ')
+        if question != "Yes":
+            raise InputErrorException('NoPublicKeyProvided')
+        
+        return default_rsa_public_key
+        
