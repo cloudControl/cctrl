@@ -49,6 +49,7 @@ messages['GitRequiredToPush'] = r'Please make sure the Git executable is in your
 messages['CreatingAppAsBazaar'] = r'Neither Bazaar nor Git executables where found. Fallback Bazaar used as repository type. Overwrite using --repo [git, bzr]'
 messages['NoCronURLGiven'] = r'You must provide a URL for cron to call.'
 messages['NoSuchCronJob'] = r'Sorry, we can not find cronjob with this ID.'
+messages['UnknownUserAnswer'] = r'Unknown answer. Please make sure your answer has correct spelling and case.'
 
 class InputErrorException(Exception):
     """
