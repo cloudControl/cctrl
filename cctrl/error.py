@@ -46,12 +46,15 @@ messages['WrongWorker'] = r'There is no such worker for this app_name/deployment
 messages['NeitherBazaarNorGitFound'] = r'Please make sure either Bazaar or Git executables are in your path.'
 messages['BazaarRequiredToPush'] = r'Please make sure the Bazaar executable is in your path.'
 messages['GitRequiredToPush'] = r'Please make sure the Git executable is in your path.'
-messages['CreatingAppAsBazaar'] = r'Neither Bazaar nor Git executables where found. Fallback Bazaar used as repository type. Overwrite using --repo [git, bzr]'
 messages['NoCronURLGiven'] = r'You must provide a URL for cron to call.'
 messages['NoSuchCronJob'] = r'Sorry, we can not find cronjob with this ID.'
 messages['FileReadOrWriteFailed'] = r'Sorry, could not read or write to file.'
 messages['FileNotFound'] = r'Sorry, file not found!'
 messages['UserShouldCreateKey'] = r'Sorry, something went wrong when creating a key. Please create a key on your system, then run the command again.'
+messages['BazaarConfigFound'] = r'Bazaar configuration found! Using "Bazaar" as repository type. Overwrite using --repo [git, bzr]'
+messages['GitConfigFound'] = r'Git configuration found! Using "Git" as repository type. Overwrite using --repo [git, bzr]'
+messages['CreatingAppAsDefaultRepoType'] = r'Using default "Git" as repository type.'
+
 
 class InputErrorException(Exception):
     """
@@ -63,6 +66,7 @@ class InputErrorException(Exception):
 
     def __str__(self):
         return '[ERROR]' + ' ' + self.error_message
+
 
 class PasswordsDontMatchException(Exception):
     """

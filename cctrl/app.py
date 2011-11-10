@@ -98,21 +98,23 @@ class AppController():
                 args.name)
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
-        # try to guess if bzr or git should be used
-        # If Bazaar is installed we take Bazaar. If not we also check for Git.
-        # If neither is installed we still use Bazaar.
-        # The user always is free to overwrite this using the --repo
-        # command line switch.
+
+        # Setting default repository type to "Git"
+        repo_type = "git"
+
         if not args.repo:
-            if check_installed_rcs('bzr'):
-                repo_type = 'bzr'
-            elif check_installed_rcs('git'):
-                repo_type = 'git'
-            else:
-                print messages['CreatingAppAsBazaar']
-                repo_type = 'bzr'
-        else:
-            repo_type = args.repo
+            # Check if current working directory contains ".git" or ".bzr" 
+            # configuration directory (because we are already in the 
+            # application directory).            
+            if os.path.exists(os.getcwd() + "/.bzr"):
+                print messages['BazaarConfigFound']
+                repo_type = "bzr"
+            elif os.path.exists(os.getcwd() + "/.git"):
+                print messages['GitConfigFound']
+                repo_type = "git"                            
+            else:            
+                print messages['CreatingAppAsDefaultRepoType']                    
+                
         try:
             self.api.create_app(app_name, args.type, repo_type)
             self.api.create_deployment(
@@ -123,8 +125,8 @@ class AppController():
         except ForbiddenError:
             raise InputErrorException('NotAllowed')
         else:
-            return True        
-        
+            return True                           
+
     def delete(self, args):
         """
             Delete an application. If we wouldn't check the token here it could

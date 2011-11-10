@@ -27,6 +27,7 @@ from oshelpers import readContentOf
 from keyhelpers import is_key_valid, ask_user_to_use_default_ssh_public_key, \
     create_new_default_ssh_keys
 
+
 class UserController():
     """
         This controller handles all user related actions.
@@ -85,40 +86,39 @@ class UserController():
         else:            
             raise InputErrorException('SecurityQuestionDenied')
 
-
     def addKey(self, args):
         """
             Add a given public key to cloudControl user account.
         """        
         default_key_path = os.getenv("HOME") + "/.ssh/id_rsa.pub"
-        
+
         # Possibility #1: User is providing a non-default SSH key                
         key_to_read = args.public_key                                        
         if not is_key_valid(key_to_read):
-            
+
             # Possibility #2: Try the default RSA public key
             print "Key '{0}' seems to be invalid or not found!".format(key_to_read)                                
             ask_user_to_use_default_ssh_public_key()                
-            
+
             # Possibility #3: All failed! Let's just create new keys for user!
             if not is_key_valid(default_key_path):
                 if key_to_read != default_key_path:                                                                                                        
                     print "Default key '{0}' seems to be invalid or not found!".format(default_key_path)
                 create_new_default_ssh_keys()
-                
+
             # We've filtered all cases: the key must be the default one!
             key_to_read = default_key_path
-                    
+
         # Good, we have the key! Now, read the content of the key!                    
         public_rsa_key_content = readContentOf(key_to_read)
-                                                    
+
         # Add public RSA-key to cloudControl user account
         try:
             users = self.api.read_users()
             self.api.create_user_key(
                 users[0]['username'],
                 public_rsa_key_content)
-            
+
         except ConflictDuplicateError:
             raise InputErrorException('KeyDuplicate')        
 
@@ -155,5 +155,4 @@ class UserController():
         """
             Logout a user by deleting the token.json file.
         """
-        self.api.set_token(None)
-        
+        self.api.set_token(None)        

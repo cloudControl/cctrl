@@ -18,32 +18,32 @@
 import os
 from cctrl.error import InputErrorException
 
+
 def isValidFile(filename):
         """
             Is the given filename a valid file?
         """
         return os.path.isfile(os.path.abspath(filename))
-                    
-                  
+
+
 def readContentOf(filename):
     """
-        Read a given file's content into a string
-        
+        Read a given file's content into a string        
         Returns contents of given file as string, otherwise "None"
     """
     file_content = ''
-    
+
     # check if file exists
     if not os.path.isfile(os.path.abspath(filename)):
         raise InputErrorException('FileNotFound')
-    
+
     # open file and read into string
     try:
         open_file = open(os.path.abspath(filename), 'r')
         file_content = str(open_file.read())
     except IOError:
         raise InputErrorException('FileReadOrWriteFailed')
-    
+
     # pass back content
     return file_content
 
@@ -54,13 +54,13 @@ def repository_type(self, repo_path):
         We can only identify (and use) GIT and BAZAAR.
     """
     repository_type = ""
-    
+
     # Check the current directory for .git or .bzr
     absolute_repo_path = os.path.abspath(repo_path)        
-            
+
     if os.path.exists(absolute_repo_path + "/.git"):
         repository_type = 'git'
     elif os.path.exists(absolute_repo_path + "/.bzr"):
         repository_type = 'bzr'
-    
+
     return repository_type                            
