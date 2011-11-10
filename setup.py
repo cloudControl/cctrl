@@ -6,7 +6,6 @@
 """
 
 import os
-from shutil import copy
 import sys
 
 try:
@@ -19,9 +18,9 @@ except ImportError:
 execfile(os.path.join(os.path.dirname(os.path.realpath(__file__)),'cctrl', 'version.py'))
 
 if sys.version_info < (2, 6):
-   required = ['simplejson']
+    required = ['simplejson']
 else:
-   required = []
+    required = []
 
 required.append('pycclib>=1.0.1')
 required.append('argparse>=1.1')
