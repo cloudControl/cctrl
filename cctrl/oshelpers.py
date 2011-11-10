@@ -35,7 +35,7 @@ def readContentOf(filename):
     
     # check if file exists
     if not os.path.isfile(os.path.abspath(filename)):
-        return InputErrorException('FileNotFound')
+        raise InputErrorException('FileNotFound')
     
     # open file and read into string
     try:
