@@ -123,15 +123,7 @@ class AppController():
         except ForbiddenError:
             raise InputErrorException('NotAllowed')
         else:
-            return True
-
-    def _repository_type(self, repo_path):
-        """
-            Found out which repository type the given directory/repo has.
-            We can only identify (and use) GIT and BAZAAR.
-        """
-        # TODO: Work here!
-        
+            return True        
         
     def delete(self, args):
         """
