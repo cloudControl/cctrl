@@ -125,6 +125,14 @@ class AppController():
         else:
             return True
 
+    def _repository_type(self, repo_path):
+        """
+            Found out which repository type the given directory/repo has.
+            We can only identify (and use) GIT and BAZAAR.
+        """
+        # TODO: Work here!
+        
+        
     def delete(self, args):
         """
             Delete an application. If we wouldn't check the token here it could
@@ -146,7 +154,7 @@ class AppController():
                 'application? Type "Yes" without the quotes to delete: ')
             else:
                 question = 'Yes'
-            if question == 'Yes':
+            if question.lower() == 'yes':
                 try:
                     self.api.delete_app(app_name)
                 except ForbiddenError:
@@ -235,7 +243,7 @@ class AppController():
                 'and the database. Type "Yes" without the quotes to delete: ')
         else:
             question = 'Yes'
-        if question == 'Yes':
+        if question.lower() == 'yes':
             args.force_delete = True
             try:
                 self.api.delete_deployment(app_name, deployment_name)
@@ -568,7 +576,7 @@ class AppController():
             Push is actually only a shortcut for bzr and git push commands
             that automatically takes care of using the correct repository url.
 
-            It queries the deployment details and uses whatever is in branch.
+            It queries the deployment details and usess whatever is in branch.
 
             If no deployment exists we automatically create one.
         """

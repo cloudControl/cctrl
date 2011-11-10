@@ -28,7 +28,7 @@ from oshelpers import readContentOf, isValidFile
 
 
 
-def isKeyValid(key):
+def is_key_valid(key):
     """
         Is the given key a valid SSH-key with RSA encryption?
     """        
@@ -50,7 +50,7 @@ def isKeyValid(key):
      
     
 
-def generateRSAKey(user_ssh_path, key_file_name="id_rsa.pub"):
+def generate_rsa_key(user_ssh_path, key_file_name="id_rsa.pub"):
     """
         Generate an RSA-encrypted key for the user
         
@@ -62,15 +62,15 @@ def generateRSAKey(user_ssh_path, key_file_name="id_rsa.pub"):
 
     # Create the private key, first.
     key_base_name = key_file_name.rstrip(".pub")
-    private_key = generatePrivateRSAKeyFile(user_ssh_path, key_base_name)
+    private_key = generate_private_rsa_key_file(user_ssh_path, key_base_name)
 
     # Now, create the public key (using the private key) ...
-    public_key_string = generatePublicRSAKeyFile(private_key, user_ssh_path, key_base_name)
+    public_key_string = generate_public_rsa_key_file(private_key, user_ssh_path, key_base_name)
         
     return { "status" : 0, "pubkey" : public_key_string }   
 
 
-def generatePrivateRSAKeyFile(ssh_path, key_base_name):
+def generate_private_rsa_key_file(ssh_path, key_base_name):
     """
         Generate a default PRIVATE SSH key file using RSA
     """
@@ -82,7 +82,7 @@ def generatePrivateRSAKeyFile(ssh_path, key_base_name):
     return key
     
     
-def generatePublicRSAKeyFile(private_key, ssh_path, key_base_name):
+def generate_public_rsa_key_file(private_key, ssh_path, key_base_name):
     """
         Generate a default PUBLIC SSH key file using RSA
     """
@@ -112,7 +112,7 @@ def generatePublicRSAKeyFile(private_key, ssh_path, key_base_name):
     return pubkey_string
     
     
-def createSSHKeysWithUserInPath(ssh_path):
+def create_ssh_keys_with_user_in_path(ssh_path):
     """
         Generate a set of private and public keys for user
         
@@ -121,22 +121,29 @@ def createSSHKeysWithUserInPath(ssh_path):
     """
     question = raw_input('No valid SSH public key (RSA) found! ' +
                          'Type "Yes" to generate a keypair: ')
-    if question != 'Yes':            
+    if question.lower() != 'yes':            
         raise InputErrorException('SecurityQuestionDenied')
                     
-    return generateRSAKey(ssh_path)["pubkey"]
+    return generate_rsa_key(ssh_path)["pubkey"]
     
             
-def askUserToUseDefaultSSHPublicKey(ssh_path):
+def ask_user_to_use_default_ssh_public_key(ssh_path):
     """
         Ask the user if the default public SSH-key (RSA)
         shall be used. If yes, return the full path to
         the public key file.
     """
     default_rsa_public_key = ssh_path + "/id_rsa.pub" 
+    
+    # Check first if we actually have a default SSH public key.
+    # If we don't then simply return nothing ("")
+    if not isValidFile(default_rsa_public_key):
+        return ""
+    
+    # Ok, found! Ask user if we should use this one ...
     question = raw_input('Found default key {0} . '.format(default_rsa_public_key) +
                          'Type "Yes" to use the default key: ')
-    if question != "Yes":
+    if question.lower() != 'yes':
         raise InputErrorException('SecurityQuestionDenied')
     
     return default_rsa_public_key
