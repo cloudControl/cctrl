@@ -25,7 +25,7 @@ from pycclib.cclib import ConflictDuplicateError
 from output import print_key
 from oshelpers import readContentOf
 from keyhelpers import is_key_valid, ask_user_to_use_default_ssh_public_key, \
-    create_ssh_keys_with_user_in_path
+    create_new_default_ssh_keys
 
 class UserController():
     """
@@ -89,26 +89,29 @@ class UserController():
     def addKey(self, args):
         """
             Add a given public key to cloudControl user account.
-        """
-        # Check if key is valid (= valid file and RSA-encrypted)
-        # If yes, read content ...
-        if is_key_valid(args.public_key):                                
-            public_rsa_key_content = readContentOf(args.public_key)
-        else:
-            print "Key seems to be invalid! Make sure to provide a valid SSH public key!"
-            ssh_path = os.getenv("HOME") + "/.ssh"
+        """        
+        default_key_path = os.getenv("HOME") + "/.ssh/id_rsa.pub"
+        
+        # Possibility #1: User is providing a non-default SSH key                
+        key_to_read = args.public_key                                        
+        if not is_key_valid(key_to_read):
             
-            # Given key is not valid! Then, let's ask user if we should
-            # try to use the default RSA public key ...                                                                            
-            default_public_key = ask_user_to_use_default_ssh_public_key(ssh_path) 
-            if is_key_valid(default_public_key):
-                # Default RSA SSH public key found! Read it!                
-                public_rsa_key_content = readContentOf(default_public_key)
-            else:
-                # We can't even find a default key! Then let's create one
-                # if the user accepts ...
-                public_rsa_key_content = create_ssh_keys_with_user_in_path(ssh_path)
-                                        
+            # Possibility #2: Try the default RSA public key
+            print "Key '{0}' seems to be invalid or not found!".format(key_to_read)                                
+            ask_user_to_use_default_ssh_public_key()                
+            
+            # Possibility #3: All failed! Let's just create new keys for user!
+            if not is_key_valid(default_key_path):
+                if key_to_read != default_key_path:                                                                                                        
+                    print "Default key '{0}' seems to be invalid or not found!".format(default_key_path)
+                create_new_default_ssh_keys()
+                
+            # We've filtered all cases: the key must be the default one!
+            key_to_read = default_key_path
+                    
+        # Good, we have the key! Now, read the content of the key!                    
+        public_rsa_key_content = readContentOf(key_to_read)
+                                                    
         # Add public RSA-key to cloudControl user account
         try:
             users = self.api.read_users()

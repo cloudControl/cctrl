@@ -24,7 +24,6 @@ else:
 
 required.append('pycclib>=1.0.1')
 required.append('argparse>=1.1')
-required.append('paramiko')
 
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/cctrltunnel']
 
