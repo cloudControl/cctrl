@@ -72,6 +72,10 @@ class UserController():
         """
             Delete your user account.
         """
+        apps = self.api.read_apps()
+        if len(apps) > 0:
+            raise InputErrorException('DeleteAppsBeforeUser')
+        
         users = self.api.read_users()
         if not args.force_delete:
             question = raw_input('Do you really want to delete your user? ' +

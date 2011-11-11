@@ -54,6 +54,7 @@ messages['UserShouldCreateKey'] = r'Sorry, something went wrong when creating a 
 messages['BazaarConfigFound'] = r'Bazaar configuration found! Using "Bazaar" as repository type. Overwrite using --repo [git, bzr]'
 messages['GitConfigFound'] = r'Git configuration found! Using "Git" as repository type. Overwrite using --repo [git, bzr]'
 messages['CreatingAppAsDefaultRepoType'] = r'Using default "Git" as repository type.'
+messages['DeleteAppsBeforeUser'] = r'There are still applications associated with this user account. Undeploy and/or delete applications before deleting user.'
 
 
 class InputErrorException(Exception):
