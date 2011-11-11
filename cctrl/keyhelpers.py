@@ -48,23 +48,23 @@ def generate_rsa_keys_via_shell():
     """
     # If we're on Windows, we should not execute this function!        
     if sys.platform == 'win32':
-        return -1
+        return False
 
     # Check if default keys already exist. If yes, bail out!
     ssh_path = os.getenv("HOME") + "/.ssh"
     if os.path.exists(ssh_path + "/id_rsa.pub"):
-        return -1 
+        return False 
 
     # Check if "ssh-keygen" is installed. If not, stop right here!
     error_code = commands.getstatusoutput("which ssh-keygen")[0]
     if error_code != 0:
-        return -1
+        return False
 
     # Call "ssh-keygen" to let the users create his/her keys ...    
     call(["ssh-keygen", "-t", "rsa", "-b", "2048", "-f", ssh_path + "/id_rsa"])
 
     # 0 if everything went fine!
-    return 0
+    return True
 
 
 def create_new_default_ssh_keys():
@@ -76,11 +76,11 @@ def create_new_default_ssh_keys():
         raise InputErrorException('SecurityQuestionDenied')
 
     # Let user create key, then check if everything went fine!
-    if generate_rsa_keys_via_shell() == -1:
+    if not generate_rsa_keys_via_shell():
         raise InputErrorException('UserShouldCreateKey')
 
     # Ok, new SSH default keys seemed to be created.    
-    return 0 
+    return True 
 
 
 def ask_user_to_use_default_ssh_public_key():

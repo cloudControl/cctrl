@@ -111,9 +111,14 @@ class AppController():
                 repo_type = "bzr"
             elif os.path.exists(os.getcwd() + "/.git"):
                 print messages['GitConfigFound']
-                repo_type = "git"                            
+                repo_type = "git"                                                          
             else:            
-                print messages['CreatingAppAsDefaultRepoType']                    
+                if check_installed_rcs('git'):
+                    repo_type = 'git'
+                elif check_installed_rcs('bzr'):
+                    repo_type = 'bzr'
+                else:
+                    print messages['CreatingAppAsDefaultRepoType']                    
                 
         try:
             self.api.create_app(app_name, args.type, repo_type)

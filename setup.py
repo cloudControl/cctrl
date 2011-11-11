@@ -27,8 +27,9 @@ required.append('argparse>=1.1')
 
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/cctrltunnel']
 
-if sys.platform == 'win32':
-    import py2exe
+if sys.platform == 'win32':        
+    import py2exe    
+    required.append('paramiko')    
     extra_options = dict(
         setup_requires=['py2exe'],
         console = srcscripts,

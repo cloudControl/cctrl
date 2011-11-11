@@ -75,7 +75,7 @@ class UserController():
         apps = self.api.read_apps()
         if len(apps) > 0:
             raise InputErrorException('DeleteAppsBeforeUser')
-        
+
         users = self.api.read_users()
         if not args.force_delete:
             question = raw_input('Do you really want to delete your user? ' +
@@ -87,33 +87,33 @@ class UserController():
             # After we have deleted our user we should also delete
             # the token_file to avoid confusion
             self.api.set_token(None)
-        else:            
+        else:
             raise InputErrorException('SecurityQuestionDenied')
 
     def addKey(self, args):
         """
             Add a given public key to cloudControl user account.
-        """        
+        """
         default_key_path = os.getenv("HOME") + "/.ssh/id_rsa.pub"
 
-        # Possibility #1: User is providing a non-default SSH key                
-        key_to_read = args.public_key                                        
+        # Possibility #1: User is providing a non-default SSH key
+        key_to_read = args.public_key
         if not is_key_valid(key_to_read):
 
             # Possibility #2: Try the default RSA public key
-            print "Key '{0}' seems to be invalid or not found!".format(key_to_read)                                
-            ask_user_to_use_default_ssh_public_key()                
+            print "Key '{0}' seems to be invalid or not found!".format(key_to_read)
+            ask_user_to_use_default_ssh_public_key()
 
             # Possibility #3: All failed! Let's just create new keys for user!
             if not is_key_valid(default_key_path):
-                if key_to_read != default_key_path:                                                                                                        
+                if key_to_read != default_key_path:
                     print "Default key '{0}' seems to be invalid or not found!".format(default_key_path)
                 create_new_default_ssh_keys()
 
             # We've filtered all cases: the key must be the default one!
             key_to_read = default_key_path
 
-        # Good, we have the key! Now, read the content of the key!                    
+        # Good, we have the key! Now, read the content of the key!
         public_rsa_key_content = readContentOf(key_to_read)
 
         # Add public RSA-key to cloudControl user account
@@ -124,7 +124,7 @@ class UserController():
                 public_rsa_key_content)
 
         except ConflictDuplicateError:
-            raise InputErrorException('KeyDuplicate')        
+            raise InputErrorException('KeyDuplicate')
 
     def listKeys(self, args):
         """
@@ -159,4 +159,4 @@ class UserController():
         """
             Logout a user by deleting the token.json file.
         """
-        self.api.set_token(None)        
+        self.api.set_token(None)
