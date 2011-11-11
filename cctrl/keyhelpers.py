@@ -51,7 +51,7 @@ def generate_rsa_keys():
     
     # If we're on Windows, we need to take a different approach        
     if sys.platform == 'win32':
-        return generate_rsa_key_for_windows(ssh_path)                
+        return generate_rsa_key_manually(ssh_path)                
 
     # Check if default keys already exist. If yes, bail out!    
     if os.path.exists(ssh_path + "/id_rsa.pub"):
@@ -67,7 +67,7 @@ def generate_rsa_keys():
     
     return True
     
-def generate_rsa_key_for_windows(user_ssh_path, key_file_name="id_rsa.pub"):
+def generate_rsa_key_manually(user_ssh_path, key_file_name="id_rsa.pub"):
     """
         Generate an RSA-encrypted key for the user
         
