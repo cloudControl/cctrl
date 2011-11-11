@@ -42,16 +42,18 @@ def is_key_valid(key):
     return True
 
 
-def generate_rsa_keys_via_shell():
+def generate_rsa_keys():
     """
-        Create new set of SSH keys via shell with 'ssh-keygen'            
+        Create new set of SSH keys via shell with 'ssh-keygen'
+        or, for win32, via paramiko            
     """
-    # If we're on Windows, we should not execute this function!        
-    if sys.platform == 'win32':
-        return False
-
-    # Check if default keys already exist. If yes, bail out!
     ssh_path = os.getenv("HOME") + "/.ssh"
+    
+    # If we're on Windows, we need to take a different approach        
+    if sys.platform == 'win32':
+        return generate_rsa_key_for_windows(ssh_path)                
+
+    # Check if default keys already exist. If yes, bail out!    
     if os.path.exists(ssh_path + "/id_rsa.pub"):
         return False 
 
@@ -62,9 +64,75 @@ def generate_rsa_keys_via_shell():
 
     # Call "ssh-keygen" to let the users create his/her keys ...    
     call(["ssh-keygen", "-t", "rsa", "-b", "2048", "-f", ssh_path + "/id_rsa"])
-
-    # 0 if everything went fine!
+    
     return True
+    
+def generate_rsa_key_for_windows(user_ssh_path, key_file_name="id_rsa.pub"):
+    """
+        Generate an RSA-encrypted key for the user
+        
+        Will return public key string if all went well, otherwise "None"
+    """                
+    if key_file_name == "id_rsa.pub":            
+        if not os.path.exists(user_ssh_path):
+            os.mkdir(user_ssh_path, 0700)
+
+    # Create the private key, first.
+    key_base_name = key_file_name.rstrip(".pub")
+    private_key = generate_private_rsa_key_file(user_ssh_path, key_base_name)
+
+    # Now, create the public key (using the private key) ...
+    generate_public_rsa_key_file(private_key, user_ssh_path, key_base_name)
+        
+    return True   
+
+
+def generate_private_rsa_key_file(ssh_path, key_base_name):
+    """
+        Generate a default PRIVATE SSH key file using RSA
+    """
+    # paramiko uses pycrypto's RandomPool which throws a deprecation warning
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        from paramiko import RSAKey
+
+    key = RSAKey.generate(2048)
+    private_key_file_name = ssh_path + "/" + key_base_name
+    key.write_private_key_file(private_key_file_name)
+    
+    # Ok, pass back private key object
+    return key
+    
+    
+def generate_public_rsa_key_file(private_key, ssh_path, key_base_name):
+    """
+        Generate a default PUBLIC SSH key file using RSA
+    """
+    try:
+        username = os.getlogin()
+    except AttributeError:
+        username = os.getenv('USERNAME', 'cloudControl')
+        
+    try:
+        hostname = os.uname()[1]
+    except AttributeError:
+        hostname = os.getenv('COMPUTERNAME', 'localhost')
+        
+    # Create the content of the public key as string
+    pubkey_string = 'ssh-rsa {0} {1}@{2} \n'.format(
+        private_key.get_base64(),
+        username,
+        hostname)
+    
+    # Write the public key to file system
+    public_key_filename = ssh_path + "/" + key_base_name + ".pub"
+    pubkey = open(public_key_filename, 'w')
+    pubkey.write(pubkey_string)
+    pubkey.close()
+        
+    return True
+
 
 
 def create_new_default_ssh_keys():
@@ -76,7 +144,7 @@ def create_new_default_ssh_keys():
         raise InputErrorException('SecurityQuestionDenied')
 
     # Let user create key, then check if everything went fine!
-    if not generate_rsa_keys_via_shell():
+    if not generate_rsa_keys():
         raise InputErrorException('UserShouldCreateKey')
 
     # Ok, new SSH default keys seemed to be created.    
