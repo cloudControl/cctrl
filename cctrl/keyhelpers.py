@@ -27,7 +27,7 @@ from oshelpers import readContentOf, isValidFile
 def is_key_valid(key):
     """
         Is the given key a valid SSH-key with RSA encryption?
-    """        
+    """
     if not isValidFile(key):
         return False
 
@@ -45,35 +45,35 @@ def is_key_valid(key):
 def generate_rsa_keys():
     """
         Create new set of SSH keys via shell with 'ssh-keygen'
-        or, for win32, via paramiko            
+        or, for win32, via paramiko
     """
     ssh_path = os.getenv("HOME") + "/.ssh"
-    
-    # If we're on Windows, we need to take a different approach        
-    if sys.platform == 'win32':
-        return generate_rsa_key_manually(ssh_path)                
 
-    # Check if default keys already exist. If yes, bail out!    
+    # If we're on Windows, we need to take a different approach
+    if sys.platform == 'win32':
+        return generate_rsa_key_manually(ssh_path)
+
+    # Check if default keys already exist. If yes, bail out!
     if os.path.exists(ssh_path + "/id_rsa.pub"):
-        return False 
+        return False
 
     # Check if "ssh-keygen" is installed. If not, stop right here!
     error_code = commands.getstatusoutput("which ssh-keygen")[0]
     if error_code != 0:
         return False
 
-    # Call "ssh-keygen" to let the users create his/her keys ...    
+    # Call "ssh-keygen" to let the users create his/her keys ...
     call(["ssh-keygen", "-t", "rsa", "-b", "2048", "-f", ssh_path + "/id_rsa"])
-    
+
     return True
-    
+
+
 def generate_rsa_key_manually(user_ssh_path, key_file_name="id_rsa.pub"):
     """
         Generate an RSA-encrypted key for the user
-        
         Will return public key string if all went well, otherwise "None"
-    """                
-    if key_file_name == "id_rsa.pub":            
+    """
+    if key_file_name == "id_rsa.pub":
         if not os.path.exists(user_ssh_path):
             os.mkdir(user_ssh_path, 0700)
 
@@ -83,8 +83,8 @@ def generate_rsa_key_manually(user_ssh_path, key_file_name="id_rsa.pub"):
 
     # Now, create the public key (using the private key) ...
     generate_public_rsa_key_file(private_key, user_ssh_path, key_base_name)
-        
-    return True   
+
+    return True
 
 
 def generate_private_rsa_key_file(ssh_path, key_base_name):
@@ -100,11 +100,11 @@ def generate_private_rsa_key_file(ssh_path, key_base_name):
     key = RSAKey.generate(2048)
     private_key_file_name = ssh_path + "/" + key_base_name
     key.write_private_key_file(private_key_file_name)
-    
+
     # Ok, pass back private key object
     return key
-    
-    
+
+
 def generate_public_rsa_key_file(private_key, ssh_path, key_base_name):
     """
         Generate a default PUBLIC SSH key file using RSA
@@ -113,42 +113,41 @@ def generate_public_rsa_key_file(private_key, ssh_path, key_base_name):
         username = os.getlogin()
     except AttributeError:
         username = os.getenv('USERNAME', 'cloudControl')
-        
+
     try:
         hostname = os.uname()[1]
     except AttributeError:
         hostname = os.getenv('COMPUTERNAME', 'localhost')
-        
+
     # Create the content of the public key as string
     pubkey_string = 'ssh-rsa {0} {1}@{2} \n'.format(
         private_key.get_base64(),
         username,
         hostname)
-    
+
     # Write the public key to file system
     public_key_filename = ssh_path + "/" + key_base_name + ".pub"
     pubkey = open(public_key_filename, 'w')
     pubkey.write(pubkey_string)
     pubkey.close()
-        
-    return True
 
+    return True
 
 
 def create_new_default_ssh_keys():
     """
-        Generate a set of private and public keys for user                
+        Generate a set of private and public keys for user
     """
     question = raw_input('Type "Yes" to generate a new default SSH-key pair: ')
-    if question.lower() != 'yes':            
+    if question.lower() != 'yes':
         raise InputErrorException('SecurityQuestionDenied')
 
     # Let user create key, then check if everything went fine!
     if not generate_rsa_keys():
         raise InputErrorException('UserShouldCreateKey')
 
-    # Ok, new SSH default keys seemed to be created.    
-    return True 
+    # Ok, new SSH default keys seemed to be created.
+    return True
 
 
 def ask_user_to_use_default_ssh_public_key():
@@ -156,7 +155,7 @@ def ask_user_to_use_default_ssh_public_key():
         Ask the user if the default public SSH-key (RSA)
         shall be used.
     """
-    default_rsa_public_key = os.getenv("HOME") + "/.ssh/id_rsa.pub" 
+    default_rsa_public_key = os.getenv("HOME") + "/.ssh/id_rsa.pub"
 
     # Check first if we actually have a default SSH public key.
     # If we don't then simply return nothing ("")

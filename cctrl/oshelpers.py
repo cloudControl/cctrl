@@ -28,7 +28,7 @@ def isValidFile(filename):
 
 def readContentOf(filename):
     """
-        Read a given file's content into a string        
+        Read a given file's content into a string
         Returns contents of given file as string, otherwise "None"
     """
     file_content = ''
@@ -56,11 +56,11 @@ def repository_type(self, repo_path):
     repository_type = ""
 
     # Check the current directory for .git or .bzr
-    absolute_repo_path = os.path.abspath(repo_path)        
+    absolute_repo_path = os.path.abspath(repo_path)
 
     if os.path.exists(absolute_repo_path + "/.git"):
         repository_type = 'git'
     elif os.path.exists(absolute_repo_path + "/.bzr"):
         repository_type = 'bzr'
 
-    return repository_type                            
+    return repository_type

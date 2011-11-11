@@ -103,23 +103,23 @@ class AppController():
         repo_type = "git"
 
         if not args.repo:
-            # Check if current working directory contains ".git" or ".bzr" 
-            # configuration directory (because we are already in the 
-            # application directory).            
+            # Check if current working directory contains ".git" or ".bzr"
+            # configuration directory (because we are already in the
+            # application directory).
             if os.path.exists(os.getcwd() + "/.bzr"):
                 print messages['BazaarConfigFound']
                 repo_type = "bzr"
             elif os.path.exists(os.getcwd() + "/.git"):
                 print messages['GitConfigFound']
-                repo_type = "git"                                                          
-            else:            
+                repo_type = "git"
+            else:
                 if check_installed_rcs('git'):
                     repo_type = 'git'
                 elif check_installed_rcs('bzr'):
                     repo_type = 'bzr'
                 else:
-                    print messages['CreatingAppAsDefaultRepoType']                    
-                
+                    print messages['CreatingAppAsDefaultRepoType']
+
         try:
             self.api.create_app(app_name, args.type, repo_type)
             self.api.create_deployment(
@@ -130,7 +130,7 @@ class AppController():
         except ForbiddenError:
             raise InputErrorException('NotAllowed')
         else:
-            return True                           
+            return True
 
     def delete(self, args):
         """
