@@ -16,6 +16,7 @@
 """
 
 import os
+import sys
 
 from cctrl.error import PasswordsDontMatchException, InputErrorException
 from cctrl.auth import get_credentials
@@ -94,7 +95,10 @@ class UserController():
         """
             Add a given public key to cloudControl user account.
         """
-        default_key_path = os.getenv("HOME") + "/.ssh/id_rsa.pub"
+        if sys.platform == 'win32':
+            default_key_path = os.path.expanduser('~')
+        else: 
+            default_key_path = os.getenv("HOME") + "/.ssh/id_rsa.pub"
 
         # Possibility #1: User is providing a non-default SSH key
         key_to_read = args.public_key
