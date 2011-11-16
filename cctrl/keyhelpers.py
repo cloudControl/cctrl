@@ -159,10 +159,9 @@ def ask_user_to_use_default_ssh_public_key():
         shall be used.
     """
     if sys.platform == 'win32':
-            default_rsa_public_key = os.path.expanduser('~')
-        else: 
-            default_rsa_public_key = os.getenv("HOME") + "/.ssh/id_rsa.pub"
-    default_rsa_public_key = os.getenv("HOME") + "/.ssh/id_rsa.pub"
+        default_rsa_public_key = os.path.expanduser('~')
+    else: 
+        default_rsa_public_key = os.getenv("HOME") + "/.ssh/id_rsa.pub"
 
     # Check first if we actually have a default SSH public key.
     # If we don't then simply return nothing ("")
