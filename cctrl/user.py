@@ -96,7 +96,7 @@ class UserController():
             Add a given public key to cloudControl user account.
         """
         if sys.platform == 'win32':
-            default_key_path = os.path.expanduser('~')
+            default_key_path = os.path.expanduser('~') + "/.ssh/id_rsa.pub"
         else: 
             default_key_path = os.getenv("HOME") + "/.ssh/id_rsa.pub"
 

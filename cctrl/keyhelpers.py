@@ -47,7 +47,10 @@ def generate_rsa_keys():
         Create new set of SSH keys via shell with 'ssh-keygen'
         or, for win32, via paramiko
     """
-    ssh_path = os.getenv("HOME") + "/.ssh"
+    if sys.platform == 'win32':
+        ssh_path = os.path.expanduser('~') + "/.ssh"
+    else: 
+        ssh_path = os.getenv("HOME") + "/.ssh"
 
     # If we're on Windows, we need to take a different approach
     if sys.platform == 'win32':
@@ -155,6 +158,10 @@ def ask_user_to_use_default_ssh_public_key():
         Ask the user if the default public SSH-key (RSA)
         shall be used.
     """
+    if sys.platform == 'win32':
+            default_rsa_public_key = os.path.expanduser('~')
+        else: 
+            default_rsa_public_key = os.getenv("HOME") + "/.ssh/id_rsa.pub"
     default_rsa_public_key = os.getenv("HOME") + "/.ssh/id_rsa.pub"
 
     # Check first if we actually have a default SSH public key.
