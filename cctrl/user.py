@@ -16,20 +16,17 @@
 """
 
 import os
-import warnings
+import sys
 
-# paramiko uses pycrypto's RandomPool which throws a deprecation warning
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    from paramiko import RSAKey
-
-from cctrl.error import PasswordsDontMatchException, InputErrorException,\
-    messages
+from cctrl.error import PasswordsDontMatchException, InputErrorException
 from cctrl.auth import get_credentials
 from pycclib.cclib import GoneError
 from cctrl.output import print_keys
 from pycclib.cclib import ConflictDuplicateError
 from output import print_key
+from oshelpers import readContentOf
+from keyhelpers import is_key_valid, ask_user_to_use_default_ssh_public_key, \
+    create_new_default_ssh_keys
 
 
 class UserController():
@@ -76,75 +73,62 @@ class UserController():
         """
             Delete your user account.
         """
+        apps = self.api.read_apps()
+        if len(apps) > 0:
+            raise InputErrorException('DeleteAppsBeforeUser')
+
         users = self.api.read_users()
         if not args.force_delete:
             question = raw_input('Do you really want to delete your user? ' +
-                                 'Type "Yes" without the quotes to delete. ')
+                                 'Type "Yes" without the quotes to delete: ')
         else:
             question = 'Yes'
-        if question == 'Yes':
+        if question.lower() == 'yes':
             self.api.delete_user(users[0]['username'])
             # After we have deleted our user we should also delete
             # the token_file to avoid confusion
             self.api.set_token(None)
         else:
-            print messages['SecurityQuestionDenied']
+            raise InputErrorException('SecurityQuestionDenied')
 
     def addKey(self, args):
         """
-            Add a public key to your user account.
+            Add a given public key to cloudControl user account.
         """
-        if os.path.basename(args.public_key) != 'id_rsa.pub':
-            raise InputErrorException('WrongPubKeyName')
-        pubkey_string = ''
-        pubkey_path = os.path.abspath(args.public_key)
-        privkey_path = os.path.abspath(args.public_key.rstrip('.pub'))
-        ssh_path = os.path.dirname(pubkey_path)
-        users = self.api.read_users()
+        if sys.platform == 'win32':
+            default_key_path = os.path.expanduser('~') + "/.ssh/id_rsa.pub"
+        else: 
+            default_key_path = os.getenv("HOME") + "/.ssh/id_rsa.pub"
+
+        # Possibility #1: User is providing a non-default SSH key
+        key_to_read = args.public_key
+        if not is_key_valid(key_to_read):
+
+            # Possibility #2: Try the default RSA public key
+            print "Key '{0}' seems to be invalid or not found!".format(key_to_read)
+            ask_user_to_use_default_ssh_public_key()
+
+            # Possibility #3: All failed! Let's just create new keys for user!
+            if not is_key_valid(default_key_path):
+                if key_to_read != default_key_path:
+                    print "Default key '{0}' seems to be invalid or not found!".format(default_key_path)
+                create_new_default_ssh_keys()
+
+            # We've filtered all cases: the key must be the default one!
+            key_to_read = default_key_path
+
+        # Good, we have the key! Now, read the content of the key!
+        public_rsa_key_content = readContentOf(key_to_read)
+
+        # Add public RSA-key to cloudControl user account
         try:
-            pubkey = open(pubkey_path, 'r')
-        except IOError:
-            question = raw_input('No public key found in "{0}". ' +
-                                 'Type "Yes" to generate a keypair. '.format(
-                                    ssh_path))
-            if question == 'Yes':
-                try:
-                    if not os.path.exists(ssh_path):
-                        os.mkdir(ssh_path, 0700)
-                except Exception, e:
-                    print str(e)
-                print 'generating key... this may take a few moments.'
-                key = RSAKey.generate(2048)
-                key.write_private_key_file(privkey_path)
-                try:
-                    username = os.getlogin()
-                except AttributeError:
-                    username = os.getenv('USERNAME', 'cloudControl')
-                try:
-                    hostname = os.uname()[1]
-                except AttributeError:
-                    hostname = os.getenv('COMPUTERNAME', 'localhost')
-                pubkey_string = 'ssh-rsa {0} {1}@{2} \n'.format(
-                    key.get_base64(),
-                    username,
-                    hostname)
-                pubkey = open(pubkey_path, 'w')
-                pubkey.write(pubkey_string)
-            else:
-                raise InputErrorException('NoSuchKeyFile')
-        else:
-            pubkey_string = str(pubkey.read())
-        finally:
-            if pubkey_string[:8] != 'ssh-rsa ':
-                raise InputErrorException('WrongKeyFormat')
-            if pubkey_string:
-                try:
-                    self.api.create_user_key(
-                        users[0]['username'],
-                        pubkey_string)
-                except ConflictDuplicateError:
-                    raise InputErrorException('KeyDuplicate')
-                pubkey.close()
+            users = self.api.read_users()
+            self.api.create_user_key(
+                users[0]['username'],
+                public_rsa_key_content)
+
+        except ConflictDuplicateError:
+            raise InputErrorException('KeyDuplicate')
 
     def listKeys(self, args):
         """
@@ -167,13 +151,13 @@ class UserController():
         users = self.api.read_users()
         if not args.force_delete:
             question = raw_input('Do you really want to remove your key? ' +
-                                 'Type "Yes" without the quotes to remove. ')
+                                 'Type "Yes" without the quotes to remove: ')
         else:
             question = 'Yes'
-        if question == 'Yes':
+        if question.lower() == 'yes':
             self.api.delete_user_key(users[0]['username'], args.id[0])
         else:
-            print messages['SecurityQuestionDenied']
+            raise InputErrorException('SecurityQuestionDenied')
 
     def logout(self, args):
         """

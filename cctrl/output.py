@@ -188,13 +188,13 @@ def print_alias_details(alias):
             alias['date_modified'])
 
 
-def print_log_entries(logEntries, type):
+def print_log_entries(logEntries, apache_type):
     """
         Print log lines that fit the apache type.
 
         Either access or error.
     """
-    if type == 'access':
+    if apache_type == 'access':
         if has_str_format:
             for entry in logEntries:
                 entry["time"] = time.strftime(
@@ -231,7 +231,7 @@ def print_log_entries(logEntries, type):
                         entry["user_agent"])
                 except KeyError:
                     pass
-    elif type == 'error':
+    elif apache_type == 'error':
         if has_str_format:
             for entry in logEntries:
                 entry["time"] = time.strftime(
@@ -250,7 +250,7 @@ def print_log_entries(logEntries, type):
                     entry["time"],
                     entry["type"],
                     entry["message"].encode('utf-8'))
-    elif type == 'worker':
+    elif apache_type == 'worker':
         if has_str_format:
             for entry in logEntries:
                 entry["time"] = time.strftime(
@@ -269,7 +269,7 @@ def print_log_entries(logEntries, type):
                     entry["time"],
                     entry["wrk_id"],
                     entry["message"].encode('utf-8'))
-    elif type == 'deploy':
+    elif apache_type == 'deploy':
         if has_str_format:
             for entry in logEntries:
                 entry["time"] = time.strftime(

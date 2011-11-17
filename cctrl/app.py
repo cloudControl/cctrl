@@ -98,21 +98,28 @@ class AppController():
                 args.name)
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
-        # try to guess if bzr or git should be used
-        # If Bazaar is installed we take Bazaar. If not we also check for Git.
-        # If neither is installed we still use Bazaar.
-        # The user always is free to overwrite this using the --repo
-        # command line switch.
+
+        # Setting default repository type to "Git"
+        repo_type = "git"
+
         if not args.repo:
-            if check_installed_rcs('bzr'):
-                repo_type = 'bzr'
-            elif check_installed_rcs('git'):
-                repo_type = 'git'
+            # Check if current working directory contains ".git" or ".bzr"
+            # configuration directory (because we are already in the
+            # application directory).
+            if os.path.exists(os.getcwd() + "/.bzr"):
+                print messages['BazaarConfigFound']
+                repo_type = "bzr"
+            elif os.path.exists(os.getcwd() + "/.git"):
+                print messages['GitConfigFound']
+                repo_type = "git"
             else:
-                print messages['CreatingAppAsBazaar']
-                repo_type = 'bzr'
-        else:
-            repo_type = args.repo
+                if check_installed_rcs('git'):
+                    repo_type = 'git'
+                elif check_installed_rcs('bzr'):
+                    repo_type = 'bzr'
+                else:
+                    print messages['CreatingAppAsDefaultRepoType']
+
         try:
             self.api.create_app(app_name, args.type, repo_type)
             self.api.create_deployment(
@@ -143,10 +150,10 @@ class AppController():
                 raise InputErrorException('DeleteOnlyApplication')
             if not args.force_delete:
                 question = raw_input('Do you really want to delete this ' +
-                'application? Type "Yes" without the quotes to delete. ')
+                'application? Type "Yes" without the quotes to delete: ')
             else:
                 question = 'Yes'
-            if question == 'Yes':
+            if question.lower() == 'yes':
                 try:
                     self.api.delete_app(app_name)
                 except ForbiddenError:
@@ -232,10 +239,10 @@ class AppController():
         if not args.force_delete:
                 question = raw_input('Do you really want to delete this ' +
                 'deployment? This will delete everything including files ' +
-                'and the database. Type "Yes" without the quotes to delete. ')
+                'and the database. Type "Yes" without the quotes to delete: ')
         else:
             question = 'Yes'
-        if question == 'Yes':
+        if question.lower() == 'yes':
             args.force_delete = True
             try:
                 self.api.delete_deployment(app_name, deployment_name)
@@ -568,7 +575,7 @@ class AppController():
             Push is actually only a shortcut for bzr and git push commands
             that automatically takes care of using the correct repository url.
 
-            It queries the deployment details and uses whatever is in branch.
+            It queries the deployment details and usess whatever is in branch.
 
             If no deployment exists we automatically create one.
         """
