@@ -18,7 +18,7 @@
 import os
 import sys
 
-from cctrl.error import PasswordsDontMatchException, InputErrorException
+from cctrl.error import PasswordsDontMatchException, InputErrorException, messages
 from cctrl.auth import get_credentials
 from pycclib.cclib import GoneError
 from cctrl.output import print_keys
@@ -55,6 +55,7 @@ class UserController():
             except PasswordsDontMatchException:
                 return
         self.api.create_user(name, email, password)
+        print messages['UserCreatedNowCheckEmail']
 
     def activate(self, args):
         """
