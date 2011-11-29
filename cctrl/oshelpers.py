@@ -48,7 +48,7 @@ def readContentOf(filename):
     return file_content
 
 
-def repository_type(self, repo_path):
+def repository_type(repo_path):
     """
         Find out which repository type the given directory/repo has.
         We can only identify (and use) GIT and BAZAAR.
