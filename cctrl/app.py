@@ -17,10 +17,11 @@
 import os
 import time
 import re
-from subprocess import check_call, CalledProcessError
 
+from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, BadRequestError, ConflictDuplicateError
+from subprocess import check_call, CalledProcessError
 from cctrl.error import InputErrorException, messages
-from pycclib.cclib import *  # @UnusedWildImport
+from cctrl.oshelpers import check_installed_rcs
 from cctrl.output import print_deployment_details, print_app_details,\
     print_alias_details, print_log_entries, print_list_apps,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
@@ -43,37 +44,6 @@ class AppsController():
     def list(self):
         apps = self.api.read_apps()
         print_list_apps(apps)
-
-
-def which(programs):
-    """
-        from http://stackoverflow.com/questions/377017/ \
-        test-if-executable-exists-in-python/377028#377028
-    """
-    import os  # @Reimport
-
-    def is_exe(fpath):
-        return os.path.exists(fpath) and os.access(fpath, os.X_OK)
-
-    for program in programs:
-        fpath, fname = os.path.split(program)  # @UnusedVariable
-        if fpath:
-            if is_exe(program):
-                return program
-        else:
-            for path in os.environ["PATH"].split(os.pathsep):
-                exe_file = os.path.join(path, program)
-                if is_exe(exe_file):
-                    return exe_file
-
-    return None
-
-
-def check_installed_rcs(name):
-    rcs_executables = {
-        'bzr': ['bzr.exe', 'bzr.bat', 'bzr'],
-        'git': ['git', 'git.exe', 'git.cmd']}
-    return which(rcs_executables[name])
 
 
 class AppController():
@@ -112,13 +82,17 @@ class AppController():
             elif os.path.exists(os.getcwd() + "/.git"):
                 print messages['GitConfigFound']
                 repo_type = "git"
+            # Nothing found! Then, at least, check if the user has either
+            # "git" or "bzr" installed
+            elif check_installed_rcs('git'):
+                repo_type = 'git'
+                print messages['GitExecutableFound']
+            elif check_installed_rcs('bzr'):
+                repo_type = 'bzr'
+                print messages['BazaarExecutableFound']
             else:
-                if check_installed_rcs('git'):
-                    repo_type = 'git'
-                elif check_installed_rcs('bzr'):
-                    repo_type = 'bzr'
-                else:
-                    print messages['CreatingAppAsDefaultRepoType']
+                repo_type = 'git'
+                print messages['CreatingAppAsDefaultRepoType']
 
         try:
             self.api.create_app(app_name, args.type, repo_type)
@@ -286,7 +260,6 @@ class AppController():
             else:
                 print_alias_details(alias)
                 return True
-        return False
 
     def removeAlias(self, args):
         """
@@ -341,7 +314,6 @@ class AppController():
             else:
                 print_worker_details(worker)
                 return True
-        return False
 
     def removeWorker(self, args):
         """
@@ -393,7 +365,6 @@ class AppController():
             else:
                 print_cronjob_details(cronjob)
                 return True
-        return False
 
     def removeCron(self, args):
         """
@@ -408,7 +379,7 @@ class AppController():
             raise InputErrorException('NoSuchCronJob')
         return True
 
-    def listAddons(self, args):
+    def listAddons(self):
         """
             Returns a list of all available addons
         """
@@ -457,7 +428,6 @@ class AppController():
             else:
                 print_addon_details(addon)
                 return True
-        return False
 
     def updateAddon(self, args):
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
@@ -604,6 +574,7 @@ class AppController():
             except ForbiddenError:
                 raise InputErrorException('NotAllowed')
 
+        cmd = None
         if deployment['branch'].startswith('bzr+ssh'):
             rcs = check_installed_rcs('bzr')
             if not rcs:
