@@ -38,7 +38,7 @@ def check_for_updates(new_version, current_version=VERSION):
             current = int(current_version[i])
             version = int(j)
             if version > current:
-                if i == 0:
+                if not i:
                     sys.exit(messages['UpdateRequired'])
                 messages['UpdateAvailable']
                 return True
@@ -107,8 +107,8 @@ def run(args, api):
 
 def shutdown(api):
     """
-        shutdown handles updating or deleting the tokenfile on disk each time
-        cctrl finishes or get's interrupted.
+        shutdown handles updating or deleting the token file on disk each time
+        cctrl finishes or gets interrupted.
     """
     if api.check_token():
         update_tokenfile(api)

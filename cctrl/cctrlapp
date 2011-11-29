@@ -40,6 +40,7 @@ class list_action(argparse.Action):
         #TODO: Right now we do the error handling here and in common.run.
         It would be better to use common.run here too.
     """
+
     def __init__(self, api, **kwargs):
         super(list_action, self).__init__(**kwargs)
         self.api = api
