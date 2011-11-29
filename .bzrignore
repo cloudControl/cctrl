@@ -20,3 +20,4 @@ win32setup
 .project
 .pydevproject
 .settings
+.idea
