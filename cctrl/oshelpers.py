@@ -64,3 +64,36 @@ def repository_type(repo_path):
         repository_type = 'bzr'
 
     return repository_type
+
+def which(programs):
+    """
+        from http://stackoverflow.com/questions/377017/ \
+        test-if-executable-exists-in-python/377028#377028
+    """
+    def is_exe(file_path):
+        return os.path.exists(file_path) and os.access(file_path, os.X_OK)
+
+    for program in programs:
+        file_path, file_name = os.path.split(program)  # @UnusedVariable
+        if file_path:
+            if is_exe(program):
+                return program
+        else:
+            for path in os.environ["PATH"].split(os.pathsep):
+                exe_file = os.path.join(path, program)
+                if is_exe(exe_file):
+                    return exe_file
+
+    return None
+
+def check_installed_rcs(name):
+    """
+        Check if either "bzr" or "git" is installed (and can be found
+        via PATH variable)
+    """
+    rcs_executables = {
+        'bzr': ['bzr.exe', 'bzr.bat', 'bzr'],
+        'git': ['git', 'git.exe', 'git.cmd']}
+    return which(rcs_executables[name])
+
+
