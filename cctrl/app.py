@@ -78,10 +78,10 @@ class AppController():
             # application directory).
             if os.path.exists(os.getcwd() + "/.bzr"):
                 print messages['BazaarConfigFound']
-                repo_type = "bzr"
-            elif os.path.exists(os.getcwd() + "/.git"):
+                repo_type = 'bzr'
+            elif os.path.exists("{0:>s}/.git".format(os.getcwd())):
                 print messages['GitConfigFound']
-                repo_type = "git"
+                repo_type = 'git'
             # Nothing found! Then, at least, check if the user has either
             # "git" or "bzr" installed
             elif check_installed_rcs('git'):
@@ -90,8 +90,10 @@ class AppController():
             elif check_installed_rcs('bzr'):
                 repo_type = 'bzr'
                 print messages['BazaarExecutableFound']
+            # Ok, I'm spent! Tell the user we haven't found any of both
+            # but we'll use the default repository type 'git'
             else:
-                repo_type = 'git'
+                print messages['NeitherBazaarNorGitFound']
                 print messages['CreatingAppAsDefaultRepoType']
 
         try:
