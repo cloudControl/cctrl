@@ -96,7 +96,7 @@ def main_thread(args):
     while True:
         int_sock = loc_sock.accept()[0]
         ext_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        ssl_sock = ssl.wrap_socket(ext_sock)
+        ssl_sock = ssl.wrap_socket(ext_sock, ssl_version=ssl.PROTOCOL_SSLv3)
         dest_host = '%s.cloudcontrolled.com' % args.type
         if args.type == 'mysql':
             dest_port = 3307
