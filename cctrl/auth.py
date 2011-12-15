@@ -14,6 +14,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
+from __builtin__ import open, raw_input, range
+from exceptions import ImportError, ValueError
 
 import getpass
 import sys
@@ -21,6 +23,7 @@ import os
 try:
     import json
 except ImportError:
+    #noinspection PyUnresolvedReferences
     import simplejson as json
 
 from cctrl.error import messages, PasswordsDontMatchException
@@ -98,13 +101,16 @@ def get_credentials(create=False):
         after that a PasswordsDontMatchException is thrown.
     """
     email = raw_input('Email   : ')
+    password = None
     for i in range(3):
+        #noinspection PyArgumentEqualDefault
         password = getpass.getpass('Password: ')
         if create:
             password2 = getpass.getpass('Password (again): ')
             if password != password2:
                 print messages['PasswordsDontMatch']
                 if i == 2:
+                    #noinspection PyExceptionInherit
                     raise PasswordsDontMatchException()
             else:
                 break
