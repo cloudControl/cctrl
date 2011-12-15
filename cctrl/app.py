@@ -23,7 +23,7 @@ from subprocess import check_call, CalledProcessError
 from cctrl.error import InputErrorException, messages
 from cctrl.oshelpers import check_installed_rcs
 from cctrl.output import print_deployment_details, print_app_details,\
-    print_alias_details, print_log_entries, print_list_apps,\
+    print_alias_details, print_log_entries, print_Add_apps,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
     print_worker_list, print_worker_details, print_cronjob_list, \
     print_cronjob_details
@@ -383,7 +383,7 @@ class AppController():
             raise InputErrorException('NoSuchCronJob')
         return True
 
-    def listAddons(self):
+    def listAddons(self, args):
         """
             Returns a list of all available addons
         """
