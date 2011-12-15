@@ -41,7 +41,7 @@ class AppsController():
     def __init__(self, api):
         self.api = api
 
-    def list(self):
+    def list(self):  # @ReservedAssignment
         apps = self.api.read_apps()
         print_list_apps(apps)
 
@@ -72,7 +72,9 @@ class AppController():
         # Setting default repository type to "Git"
         repo_type = "git"
 
-        if not args.repo:
+        if args.repo:
+            repo_type = args.repo
+        else:
             # Check if current working directory contains ".git" or ".bzr"
             # configuration directory (because we are already in the
             # application directory).

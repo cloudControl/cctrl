@@ -24,11 +24,9 @@ import thread
 
 import argparse
 
-from pycclib.cclib import API
 from pycclib.version import __version__ as cclibversion
 
 import cctrl.settings as settings
-import cctrl.common as common
 from cctrl.output import get_version
 
 
