@@ -65,6 +65,7 @@ def repository_type(repo_path):
 
     return repository_type
 
+
 def which(programs):
     """
         from http://stackoverflow.com/questions/377017/ \
@@ -86,6 +87,7 @@ def which(programs):
 
     return None
 
+
 def check_installed_rcs(name):
     """
         Check if either "bzr" or "git" is installed (and can be found
@@ -95,5 +97,3 @@ def check_installed_rcs(name):
         'bzr': ['bzr.exe', 'bzr.bat', 'bzr'],
         'git': ['git', 'git.exe', 'git.cmd']}
     return which(rcs_executables[name])
-
-

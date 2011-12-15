@@ -49,7 +49,7 @@ def generate_rsa_keys():
     """
     if sys.platform == 'win32':
         ssh_path = os.path.expanduser('~') + "/.ssh"
-    else: 
+    else:
         ssh_path = os.getenv("HOME") + "/.ssh"
 
     # If we're on Windows, we need to take a different approach
@@ -160,7 +160,7 @@ def ask_user_to_use_default_ssh_public_key():
     """
     if sys.platform == 'win32':
         default_rsa_public_key = os.path.expanduser('~')
-    else: 
+    else:
         default_rsa_public_key = os.getenv("HOME") + "/.ssh/id_rsa.pub"
 
     # Check first if we actually have a default SSH public key.

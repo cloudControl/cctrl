@@ -98,7 +98,7 @@ class UserController():
         """
         if sys.platform == 'win32':
             default_key_path = os.path.expanduser('~') + "/.ssh/id_rsa.pub"
-        else: 
+        else:
             default_key_path = os.getenv("HOME") + "/.ssh/id_rsa.pub"
 
         # Possibility #1: User is providing a non-default SSH key
