@@ -7,17 +7,17 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{86DDE49A-CB27-4B64-A816-887A13C06D58}
 AppName=cctrl
-AppVerName=cctrl-1.2.3.3
-AppPublisher=cloudControl UG (haftungsbeschraenkt)
-AppPublisherURL=http://cloudcontrol.de
-AppSupportURL=http://cloudcontrol.de
-AppUpdatesURL=http://cloudcontrol.de
+AppVerName=cctrl-1.2.4
+AppPublisher=cloudControl GmbH
+AppPublisherURL=https://www.cloudcontrol.com
+AppSupportURL=https://www.cloudcontrol.com
+AppUpdatesURL=https://www.cloudcontrol.com
 DefaultDirName={pf}\cloudControl
 DefaultGroupName=cloudControl
 AllowNoIcons=yes
 SourceDir=..\
 OutputDir=win32setup
-OutputBaseFilename=cctrl-1.2.3.3-setup
+OutputBaseFilename=cctrl-1.2.4-setup
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
