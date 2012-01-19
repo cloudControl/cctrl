@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    setup script for cloudControl command line utilites
+    setup script for cloudControl command line utilities
 
     usage: sudo python setup.py install
 """
@@ -56,7 +56,7 @@ setup(
     description='cloudControl command line utilities',
     author = 'cloudControl Team',
     author_email = 'info@cloudcontrol.de',
-    url = 'http://cloudcontrol.com',
+    url = 'https://www.cloudcontrol.com',
     download_url = 'https://launchpad.net/cctrl/+download',
     license = 'Apache 2.0',
     classifiers=[
