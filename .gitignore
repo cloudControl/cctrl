@@ -4,3 +4,4 @@
 cctrl.egg-info/
 .idea/
 .bzr/
+.bzrignore
