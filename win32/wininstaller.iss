@@ -34,7 +34,7 @@ Source: "dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createal
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\{cm:ProgramOnTheWeb,control}"; Filename: "http://cloudcontrol.de"
+Name: "{group}\{cm:ProgramOnTheWeb,control}"; Filename: "https://www.cloudcontrol.com"
 Name: "{group}\{cm:UninstallProgram,control}"; Filename: "{uninstallexe}"
 
 [Code]

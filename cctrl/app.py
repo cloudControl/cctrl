@@ -61,13 +61,13 @@ class CVSType():
             Provides the cvs (repo) type by checking if given directory
             contains a ".git" or ".bzr" configuration directory.
         """
-        if os.path.exists(application_path + "/.bzr"):
-            print messages['BazaarConfigFound']             # Terrible side-effect programming! Yuck! All of these!
-            return CVSType.BZR
-
         if os.path.exists(application_path + "/.git"):
             print messages['GitConfigFound']
             return CVSType.GIT
+
+        if os.path.exists(application_path + "/.bzr"):
+            print messages['BazaarConfigFound']             # Terrible side-effect programming! Yuck! All of these!
+            return CVSType.BZR
 
         return None
 
@@ -128,7 +128,6 @@ class AppController():
                 # Hmm, also nothing installed! Ok, we give up and set default = GIT and hope for better times ...
                 print messages['CreatingAppAsDefaultRepoType']
                 repo_type = CVSType.GIT
-
 
         try:
             self.api.create_app(app_name, args.type, repo_type)
