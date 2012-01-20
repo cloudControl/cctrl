@@ -3,3 +3,4 @@
 **/*.pyc
 cctrl.egg-info/
 .idea/
+.bzr/
