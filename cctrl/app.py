@@ -121,11 +121,11 @@ class AppController():
             repo_type = CVSType.by_path(os.getcwd())
 
             if repo_type is None:
-                # Hmm, current directory was nothing. Let's check if either 'bzr' or 'git' are installed ...
+                # Hmm, current directory was nothing. Let's check if either 'bzr' or 'git' is installed ...
                 repo_type = CVSType.by_env()
 
             if repo_type is None:
-                # Hmm, also nothing installed! Ok, we give up and set default = GIT ...
+                # Hmm, also nothing installed! Ok, we give up and set default = GIT and hope for better times ...
                 print messages['CreatingAppAsDefaultRepoType']
                 repo_type = CVSType.GIT
 
