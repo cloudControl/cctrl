@@ -7,6 +7,9 @@
 
 import os
 import sys
+from cctrl.version import __version__
+
+DOWNLOAD_URL = 'https://github.com/downloads/cloudControl/cctrl/cctrl-{}.tar.gz'.format(__version__)
 
 try:
     from setuptools import setup, find_packages
@@ -57,7 +60,7 @@ setup(
     author = 'cloudControl Team',
     author_email = 'info@cloudcontrol.de',
     url = 'https://www.cloudcontrol.com',
-    download_url = 'https://github.com/downloads/cloudControl/cctrl',
+    download_url = DOWNLOAD_URL,
     license = 'Apache 2.0',
     classifiers=[
           'Development Status :: 5 - Production/Stable',
