@@ -57,7 +57,7 @@ setup(
     author = 'cloudControl Team',
     author_email = 'info@cloudcontrol.de',
     url = 'https://www.cloudcontrol.com',
-    download_url = 'https://launchpad.net/cctrl/+download',
+    download_url = 'https://github.com/cloudControl/cctrl/tags',
     license = 'Apache 2.0',
     classifiers=[
           'Development Status :: 5 - Production/Stable',
