@@ -9,7 +9,7 @@ import os
 import sys
 from cctrl.version import __version__
 
-DOWNLOAD_URL = 'https://github.com/downloads/cloudControl/cctrl/cctrl-{}.tar.gz'.format(__version__)
+DOWNLOAD_URL = 'https://github.com/downloads/cloudControl/cctrl/cctrl-{0}.tar.gz'.format(__version__)
 
 try:
     from setuptools import setup, find_packages
@@ -31,7 +31,8 @@ required.append('argparse>=1.1')
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/cctrltunnel']
 
 if sys.platform == 'win32':        
-    import py2exe    
+    #noinspection PyUnresolvedReferences
+    import py2exe
     required.append('paramiko')    
     extra_options = dict(
         setup_requires=['py2exe'],
