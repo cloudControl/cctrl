@@ -58,6 +58,7 @@ messages['BazaarExecutableFound'] = r'Bazaar seems to be installed! Using "Bazaa
 messages['GitExecutableFound'] = r'Git seems to be installed! Using "Git" as repository type.'
 messages['CreatingAppAsDefaultRepoType'] = r'Using default "Git" as repository type.'
 messages['DeleteAppsBeforeUser'] = r'There are still applications associated with this user account. Undeploy and/or delete applications before deleting user.'
+messages['NoSuchFile'] = r'File not found.'
 
 
 class InputErrorException(Exception):

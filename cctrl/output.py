@@ -17,6 +17,7 @@
 """
 import time
 import sys
+import json
 
 if sys.version_info < (2, 6):
     has_str_format = False
@@ -326,6 +327,15 @@ def print_addons(addons):
             print '\nAddon: %s' % (addon['name'])
             for option in addon['options']:
                 print '   %s' % option['name']
+
+
+def print_addon_creds(addons):
+    creds_format = {}
+    for addon in addons:
+        if len(addon['settings']):
+            name = addon['addon_option']['name'].split('.')[0].upper()
+            creds_format[name] = addon['settings']
+    print json.dumps(creds_format, indent=4, sort_keys=True)
 
 
 def print_addon_list(addons):

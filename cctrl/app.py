@@ -28,8 +28,9 @@ from cctrl.output import print_deployment_details, print_app_details,\
     print_alias_details, print_log_entries, print_list_apps,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
     print_worker_list, print_worker_details, print_cronjob_list, \
-    print_cronjob_details
+    print_cronjob_details, print_addon_creds
 from output import print_user_list
+from cctrl.addonoptionhelpers import parse_additional_addon_options
 
 
 class AppsController():
@@ -444,8 +445,11 @@ class AppController():
             raise InputErrorException('NoDeployment')
         if not args.addon:
             raise InputErrorException('NoAddonGiven')
-        try:
-            self.api.create_addon(app_name, deployment_name, args.addon)
+        options = None
+        if args.options:
+            options = parse_additional_addon_options(args.options)
+        try:    
+            self.api.create_addon(app_name, deployment_name, args.addon, options)
         except ConflictDuplicateError:
             raise InputErrorException('DuplicateAddon')
         return True
@@ -476,6 +480,33 @@ class AppController():
                 raise InputErrorException('WrongAddon')
             else:
                 print_addon_details(addon)
+                return True
+
+    def showAddonCreds(self, args):
+        """
+            Print the creds.json of all Add-ons
+        """
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if not deployment_name:
+            raise InputErrorException('NoDeployment')
+        if not args.addon:
+            try:
+                addons = self.api.read_addons(app_name, deployment_name)
+            except:
+                raise
+            else:
+                print_addon_creds(addons)
+                return True
+        else:
+            try:
+                addon = self.api.read_addon(
+                    app_name,
+                    deployment_name,
+                    args.addon)
+            except GoneError:
+                raise InputErrorException('WrongAddon')
+            else:
+                print_addon_creds([addon])
                 return True
 
     def updateAddon(self, args):

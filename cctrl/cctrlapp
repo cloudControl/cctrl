@@ -233,12 +233,25 @@ def parse_cmdline(app, api):
         help="list all available addons")
     showAddon_subparser.set_defaults(func=app.listAddons)
 
+    showAddon_subparser = subparsers.add_parser(
+        'addon.creds',
+        help="print creds.json format to stdout")
+    showAddon_subparser.add_argument(
+        'addon',
+        nargs='?',
+        help='name of the addon e.g. mysql.free')
+    showAddon_subparser.set_defaults(func=app.showAddonCreds)
+
     addAddon_subparser = subparsers.add_parser(
         'addon.add',
         help="add addon")
     addAddon_subparser.add_argument(
         'addon',
         help='name of the addon e.g. mysql.free')
+    addAddon_subparser.add_argument(
+        'options',
+        nargs=argparse.REMAINDER,
+        help='options passed through to the add-on - if path to file the content is sent')
     addAddon_subparser.set_defaults(func=app.addAddon)
 
     addAddon_subparser = subparsers.add_parser(
