@@ -189,6 +189,13 @@ def parse_cmdline(app, api):
         dest="max_boxes",
         help="maximum number of boxes")
     deploy_subparser.add_argument(
+        '--stack',
+        action="store",
+        nargs='?',
+        default=None,
+        dest="stack",
+        help="desired stack name")
+    deploy_subparser.add_argument(
         'version',
         nargs='?',
         default=-1,
