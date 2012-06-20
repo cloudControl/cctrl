@@ -25,9 +25,9 @@ import cctrl.settings as settings
 from pycclib.cclib import *
 from pycclib.version import __version__ as cclibversion
 import cctrl.common as common
-from cctrl.error import messages
-from cctrl.app import AppController, AppsController
-from cctrl.auth import read_tokenfile, get_credentials, delete_tokenfile
+from cctrl.error import InputErrorException, messages
+from cctrl.app import AppController, AppsController, ParseAppDeploymentName
+from cctrl.auth import get_credentials, delete_tokenfile
 from cctrl.output import get_version
 
 
@@ -51,6 +51,8 @@ class list_action(argparse.Action):
             common.check_for_updates(self.api.check_versions()['cctrl'])
         except KeyError:
             pass
+        except ConnectionException:
+            pass
 
         apps = AppsController(self.api)
         while True:
@@ -58,11 +60,11 @@ class list_action(argparse.Action):
                 try:
                     apps.list()
                 except TokenRequiredError:
+                    # check ENV for credentials first
                     try:
                         email = env.pop('CCTRL_EMAIL')
                         password = env.pop('CCTRL_PASSWORD')
                     except KeyError:
-                        #noinspection PyTupleAssignmentBalance
                         email, password = get_credentials()
                     try:
                         self.api.create_token(email, password)
@@ -70,16 +72,20 @@ class list_action(argparse.Action):
                         sys.exit(messages['NotAuthorized'])
                     else:
                         pass
+                except ParseAppDeploymentName:
+                    sys.exit(messages['InvalidAppOrDeploymentName'])
                 else:
                     break
             except UnauthorizedError, e:
                 if delete_tokenfile():
                     self.api.set_token(None)
                 else:
-                    sys.exit(e)
-            except (ForbiddenError, BadRequestError, ConnectionException,
+                    sys.exit(messages['NotAuthorized'])
+            except ForbiddenError, e:
+                sys.exit(messages['NotAllowed'])
+            except (ConnectionException, BadRequestError, 
                     ConflictDuplicateError, GoneError, InternalServerError,
-                    NotImplementedError, ThrottledError), e:
+                    NotImplementedError, ThrottledError, InputErrorException), e:
                 sys.exit(e)
         #noinspection PyUnreachableCode,PyUnboundLocalVariable
         parser.exit()
@@ -396,7 +402,7 @@ def parse_cmdline(app, api):
 
 
 if __name__ == "__main__":
-    api = API(token=read_tokenfile(), cache=settings.CACHE_DIR)
+    api = common.init_api()
     try:
         main(api)
     except KeyboardInterrupt:

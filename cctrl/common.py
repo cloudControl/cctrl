@@ -20,9 +20,9 @@ from os import environ as env
 
 from cctrl.settings import VERSION
 
-from pycclib.cclib import *  # @UnusedWildImport
+from pycclib import cclib
 from cctrl.error import InputErrorException, messages
-from cctrl.auth import get_credentials, update_tokenfile, delete_tokenfile
+from cctrl.auth import get_credentials, update_tokenfile, delete_tokenfile, read_tokenfile
 from cctrl.app import ParseAppDeploymentName
 
 
@@ -48,6 +48,21 @@ def check_for_updates(new_version, current_version=VERSION):
     return False
 
 
+def init_api():
+    """
+        This methods initializes the API but first checks for a
+        CCTRL_API_URL environment variable and uses it if found
+    """
+    try:
+        api_url = env.pop('CCTRL_API_URL')
+    except KeyError:
+        pass
+    else:
+        cclib.API_URL = api_url
+        cclib.DISABLE_SSL_CHECK = True
+    return cclib.API(token=read_tokenfile())
+
+
 def run(args, api):
     """
         run takes care of calling the action with the needed arguments parsed
@@ -65,17 +80,11 @@ def run(args, api):
         user.
     """
 
-    # check if there is a newer version of cctrl or pycclib
-    try:
-        check_for_updates(api.check_versions()['cctrl'])
-    except KeyError:
-        pass
-
     while True:
         try:
             try:
                 args.func(args)
-            except TokenRequiredError:
+            except cclib.TokenRequiredError:
                 # check ENV for credentials first
                 try:
                     email = env.pop('CCTRL_EMAIL')
@@ -84,7 +93,7 @@ def run(args, api):
                     email, password = get_credentials()
                 try:
                     api.create_token(email, password)
-                except UnauthorizedError:
+                except cclib.UnauthorizedError:
                     sys.exit(messages['NotAuthorized'])
                 else:
                     pass
@@ -92,16 +101,18 @@ def run(args, api):
                 sys.exit(messages['InvalidAppOrDeploymentName'])
             else:
                 break
-        except UnauthorizedError, e:
+        except cclib.UnauthorizedError, e:
             if delete_tokenfile():
                 api.set_token(None)
             else:
                 sys.exit(messages['NotAuthorized'])
-        except ForbiddenError, e:
+        except cclib.ForbiddenError, e:
             sys.exit(messages['NotAllowed'])
-        except (ConnectionException, BadRequestError, ConflictDuplicateError,
-                GoneError, InternalServerError, NotImplementedError,
-                ThrottledError, InputErrorException), e:
+        except cclib.ConnectionException:
+            sys.exit(messages['APIUnreachable'])
+        except (cclib.BadRequestError, cclib.ConflictDuplicateError, cclib.GoneError,
+                cclib.InternalServerError, cclib.NotImplementedError, cclib.ThrottledError,
+                InputErrorException), e:
             sys.exit(e)
 
 

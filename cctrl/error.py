@@ -59,6 +59,8 @@ messages['GitExecutableFound'] = r'Git seems to be installed! Using "Git" as rep
 messages['CreatingAppAsDefaultRepoType'] = r'Using default "Git" as repository type.'
 messages['DeleteAppsBeforeUser'] = r'There are still applications associated with this user account. Undeploy and/or delete applications before deleting user.'
 messages['NoSuchFile'] = r'File not found.'
+messages['APIUnreachable'] = r'Could not connect to API...'
+
 
 
 class InputErrorException(Exception):

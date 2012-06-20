@@ -21,13 +21,11 @@ import os
 
 import argparse
 
-from pycclib.cclib import API
 from pycclib.version import __version__ as cclibversion
 
 import cctrl.settings as settings
 import cctrl.common as common
 from cctrl.user import UserController
-from cctrl.auth import read_tokenfile
 from cctrl.output import get_version
 
 
@@ -144,7 +142,7 @@ def parse_cmdline(user):
 
 
 if __name__ == "__main__":
-    api = API(token=read_tokenfile(), cache=settings.CACHE_DIR)
+    api = common.init_api()
     try:
         main(api)
     except KeyboardInterrupt:
