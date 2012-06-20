@@ -234,7 +234,10 @@ class AppController():
                 self.api.update_deployment(
                     app_name,
                     version=args.version,
-                    deployment_name=deployment_name)
+                    deployment_name=deployment_name,
+                    min_boxes=args.min_boxes,
+                    max_boxes=args.max_boxes,
+                    stack=args.stack)
             except GoneError:
                 raise InputErrorException('WrongApplication')
             except ForbiddenError:
