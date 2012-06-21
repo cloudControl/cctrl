@@ -37,12 +37,26 @@ if sys.platform == 'win32':
     extra_options = dict(
         setup_requires=['py2exe'],
         console = srcscripts,
-        zipfile = "lib/library.zip",
+        zipfile = None,#"lib/library.zip",
+        data_files=[("",["cacerts.txt",])],
         options = {
             "py2exe": {
-                "compressed": 1,
+                "compressed": True,
                 "optimize": 2,
-                "excludes": ['_scproxy', 'email.FeedParser', 'email.Message', 'email.Utils', 'hexdump', 'isapi', 'pythoncom', 'pywintypes', 'simplejson', 'socks', 'win32com', 'win32com.client'],
+                "excludes": [
+                    '_scproxy',
+                    'hexdump',
+                    'isapi',
+                    'pythoncom',
+                    'pywintypes',
+                    'simplejson',
+                    'socks',
+                    'win32com',
+                    'win32com.client',
+                    'doctest',
+                    'pickle',
+                    'difflib',
+                    'unittest'],
                 "includes": ["argparse", "pycclib", "paramiko", "Crypto"],
                 "packages": find_packages()
             }

@@ -6,3 +6,6 @@ cctrl.egg-info/
 .bzr/
 .bzrignore
 *.swp
+build/
+dist/
+win32setup/

@@ -1,0 +1,59 @@
+(1) PRE-INSTALLATION STEPS
+============================
+
+1. Install Python 2.6.6
+
+  http://www.python.org/download/releases/2.6.6
+
+2. Download and install setuptools:
+
+  http://pypi.python.org/packages/2.6/s/setuptools/setuptools-0.6c11.win32-py2.6.exe#md5=1509752c3c2e64b5d0f9589aafe053dc
+
+3. Install libraries
+
+  c:\> \Python26\Scripts\easy_install.exe -Z --upgrade httplib2
+  c:\> \Python26\Scripts\easy_install.exe -Z --upgrade argparse
+
+4. Get py2exe
+
+  http://sourceforge.net/projects/py2exe/files/py2exe/0.6.9/py2exe-0.6.9.win32-py2.6.exe/download?use_mirror=switch
+
+5. Download and install pycrypto
+
+  http://www.voidspace.org.uk/downloads/pycrypto-2.3.win32-py2.6.zip
+
+6. Install py2exe via Windows Installer
+
+  http://sourceforge.net/projects/py2exe/files/latest/download?source=files
+
+7. Download paramiko
+
+  http://www.lag.net/paramiko
+
+8. Install paramiko
+
+  c:\> cd <paramiko_download_folder>
+  c:\> c:\Python26\python.exe setup.py install_lib
+
+9. Download and Install Inno Setup
+
+  http://www.jrsoftware.org/isdl.php
+
+
+
+(2) Building cctrlapp
+=======================
+
+1. Run Script "win32/build_installer.bat"
+  - will git clone cctrl and pycclib
+  - will install pycclib with install_lib
+  - will py2exe cctrl
+  - will compile pycclib/cctrl with Inno Setup and create Windows Installer
+
+2. Make sure that you have the same version in:
+
+  cctrl/win32/wininstaller.iss
+
+and
+
+  cctrl/version.py

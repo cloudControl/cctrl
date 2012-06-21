@@ -16,7 +16,7 @@
 """
 
 import sys
-from os import environ as env
+import os
 
 from cctrl.settings import VERSION
 
@@ -51,15 +51,21 @@ def check_for_updates(new_version, current_version=VERSION):
 def init_api():
     """
         This methods initializes the API but first checks for a
-        CCTRL_API_URL environment variable and uses it if found
+        CCTRL_API_URL environment variable and uses it if found.
+        For Windows we also need to load ca_certs differently,
+        because the httplib2 provided ones are not included due to
+        py2exe.
     """
     try:
-        api_url = env.pop('CCTRL_API_URL')
+        api_url = os.environ.pop('CCTRL_API_URL')
     except KeyError:
         pass
     else:
         cclib.API_URL = api_url
         cclib.DISABLE_SSL_CHECK = True
+    if sys.platform == 'win32':
+        cclib.CA_CERTS = os.path.join(
+            os.path.dirname(os.path.abspath(__file__ )), "../../cacerts.txt")
     return cclib.API(token=read_tokenfile())
 
 
@@ -87,8 +93,8 @@ def run(args, api):
             except cclib.TokenRequiredError:
                 # check ENV for credentials first
                 try:
-                    email = env.pop('CCTRL_EMAIL')
-                    password = env.pop('CCTRL_PASSWORD')
+                    email = os.environ.pop('CCTRL_EMAIL')
+                    password = os.environ.pop('CCTRL_PASSWORD')
                 except KeyError:
                     email, password = get_credentials()
                 try:
