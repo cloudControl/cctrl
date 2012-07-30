@@ -9,3 +9,4 @@ cctrl.egg-info/
 build/
 dist/
 win32setup/
+*.nja
