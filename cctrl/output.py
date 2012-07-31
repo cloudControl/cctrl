@@ -101,7 +101,7 @@ def print_deployment_details(deployment):
 
     else:
         print ' name: %(name)s' % (deployment)
-        print ' stack: %(name)s' % (stack)
+        print ' stack: %s' % (stack)
         print ' branch: %(branch)s' % (deployment)
         print ' private files: %(static_files)s' % (deployment)
         print ' last modified: %(date_modified)s' % (deployment)
