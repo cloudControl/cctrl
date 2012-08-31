@@ -83,12 +83,16 @@ def print_deployment_details(deployment):
     """
         Print deployment details.
     """
-    #pprint.pprint(deployment)
+    if deployment['stack']:
+        stack = deployment['stack']['name']
+    else:
+        stack = None
     print 'Deployment'
     if has_str_format:
         print ' name: {0}'.format(deployment['name'])
+        print ' stack: {0}'.format(stack)
         print ' branch: {0}'.format(deployment['branch'])
-        print ' static files: {0}'.format(deployment['static_files'])
+        print ' private files: {0}'.format(deployment['static_files'])
         print ' last modified: {0}'.format(deployment['date_modified'])
         print ' current version: {0}'.format(deployment['version'])
         print ' current state: {0}'.format(deployment['state'])
@@ -97,8 +101,9 @@ def print_deployment_details(deployment):
 
     else:
         print ' name: %(name)s' % (deployment)
+        print ' stack: %s' % (stack)
         print ' branch: %(branch)s' % (deployment)
-        print ' static files: %(static_files)s' % (deployment)
+        print ' private files: %(static_files)s' % (deployment)
         print ' last modified: %(date_modified)s' % (deployment)
         print ' current version: %(version)s' % (deployment)
         print ' current state: %(state)s' % (deployment)
