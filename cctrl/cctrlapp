@@ -83,7 +83,7 @@ class list_action(argparse.Action):
                     sys.exit(messages['NotAuthorized'])
             except ForbiddenError, e:
                 sys.exit(messages['NotAllowed'])
-            except (ConnectionException, BadRequestError, 
+            except (ConnectionException, BadRequestError,
                     ConflictDuplicateError, GoneError, InternalServerError,
                     NotImplementedError, ThrottledError, InputErrorException), e:
                 sys.exit(e)
@@ -145,8 +145,7 @@ def parse_cmdline(app, api):
         help="create new application")
     create_subparser.add_argument(
         'type',
-        choices=['php'],
-        help='php',
+        help='app-type (language)',
         metavar='type')
     create_subparser.add_argument(
         '--repo',
