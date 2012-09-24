@@ -72,7 +72,6 @@ class CVSType():
 
         return None
 
-
     @staticmethod
     def by_env():
         """
@@ -102,7 +101,6 @@ class AppController():
 
     def __init__(self, api):
         self.api = api
-
 
     def create(self, args):
         """
@@ -156,6 +154,8 @@ class AppController():
         if self.api.check_token():
             #noinspection PyTupleAssignmentBalance
             app_name, deployment_name = self.parse_app_deployment_name(args.name)
+            if not self.does_app_exist(app_name):
+                raise InputErrorException('WrongApplication')
             if deployment_name:
                 raise InputErrorException('DeleteOnlyApplication')
             if not args.force_delete:
@@ -170,6 +170,8 @@ class AppController():
                     raise InputErrorException('NotAllowed')
                 except BadRequestError:
                     raise InputErrorException('CannotDeleteDeploymentExist')
+                except GoneError:
+                    raise InputErrorException('WrongApplication')
             else:
                 print messages['SecurityQuestionDenied']
         else:
@@ -253,6 +255,8 @@ class AppController():
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
             raise InputErrorException('NoDeployment')
+        if not self.does_app_exist(app_name):
+            raise InputErrorException('WrongApplication')
         if not args.force_delete:
                 question = raw_input('Do you really want to delete this ' +
                 'deployment? This will delete everything including files ' +
@@ -453,7 +457,7 @@ class AppController():
         options = None
         if args.options:
             options = parse_additional_addon_options(args.options)
-        try:    
+        try:
             self.api.create_addon(app_name, deployment_name, args.addon, options)
         except ConflictDuplicateError:
             raise InputErrorException('DuplicateAddon')
@@ -716,6 +720,12 @@ class AppController():
             return app_name, deployment_name
 
         raise ParseAppDeploymentName
+
+    def does_app_exist(self, app_name):
+        for app in self.api.read_apps():
+            if app_name == app['name']:
+                return True
+        return False
 
 
 class ParseAppDeploymentName(exceptions.Exception):
