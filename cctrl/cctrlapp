@@ -337,6 +337,13 @@ def parse_cmdline(app, api):
         nargs='?',
         default=None,
         help='optional parameters to append to the command')
+    addWorker_subparser.add_argument(
+        '--size',
+        action="store",
+        nargs='?',
+        default=None,
+        dest="size",
+        help="worker container size")
     addWorker_subparser.set_defaults(func=app.addWorker)
 
     removeWorker_subparser = subparsers.add_parser(

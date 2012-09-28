@@ -340,7 +340,8 @@ class AppController():
             app_name,
             deployment_name,
             args.command,
-            args.params)
+            params=args.params,
+            size=args.size)
         return True
 
     def showWorker(self, args):
