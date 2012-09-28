@@ -26,26 +26,26 @@ from cctrl.auth import get_credentials, update_tokenfile, delete_tokenfile, read
 from cctrl.app import ParseAppDeploymentName
 
 
-def check_for_updates(new_version, current_version=VERSION):
+def check_for_updates(latest_version_str, our_version_str=VERSION):
     """
         check if the API reports a version that is greater then our currently
         installed one
     """
-    current_version = current_version.split('.')
-    new_version = new_version.split('.')
-    for i, j in enumerate(new_version):
-        if len(current_version) > i:
-            current = int(current_version[i])
-            version = int(j)
-            if version > current:
-                if not i:
-                    sys.exit(messages['UpdateRequired'])
-                messages['UpdateAvailable']
-                return True
-        else:
-            messages['UpdateAvailable']
-            return True
-    return False
+    our = dict()
+    latest = dict()
+    for version, suffix in ((our, our_version_str), (latest, latest_version_str)):
+        for part in ['major', 'minor', 'patch']:
+            version[part], _, suffix = suffix.partition('.')
+            version[part] = int(version[part])
+        version['suffix'] = suffix
+
+    for part in ['major', 'minor', 'patch', 'suffix']:
+        if latest[part] > our[part]:
+            if part == 'major':
+                sys.exit(messages['UpdateRequired'])
+            else:
+                print >> sys.stderr, messages['UpdateAvailable']
+            return
 
 
 def init_api():
