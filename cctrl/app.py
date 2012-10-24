@@ -19,6 +19,8 @@ import exceptions
 import os
 import time
 import re
+import subprocess
+from settings import SSH_FORWARDER, SSH_FORWARDER_PORT
 
 from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, BadRequestError, ConflictDuplicateError
 from subprocess import check_call, CalledProcessError
@@ -102,6 +104,28 @@ class AppController():
     def __init__(self, api):
         self.api = api
 
+    def run_cmd(self, args):
+        try:
+            app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        except ParseAppDeploymentName:
+            raise InputErrorException('InvalidApplicationName')
+
+        if len(args.command) > 0:
+            conn_user = '{app}_{dep}'.format(app=app_name, dep=deployment_name)
+            user_host = '{user}@{host}'.format(user=conn_user, host=SSH_FORWARDER)
+            if not self.api.get_token():
+                raise TokenRequiredError
+            env = 'TOKEN={token}'.format(token=self.api.get_token()['token'])
+            ssh_cmd = ['ssh', '-t', '-p', SSH_FORWARDER_PORT, user_host, 'env', env, args.command]
+            pr = subprocess.Popen(
+                ssh_cmd,
+                shell=False
+            )
+            pr.wait()
+            return True
+        else:
+            InputErrorException('Empty command')
+
     def create(self, args):
         """
             Creates a new application.
@@ -160,7 +184,7 @@ class AppController():
                 raise InputErrorException('DeleteOnlyApplication')
             if not args.force_delete:
                 question = raw_input('Do you really want to delete this ' +
-                'application? Type "Yes" without the quotes to delete: ')
+                                     'application? Type "Yes" without the quotes to delete: ')
             else:
                 question = 'Yes'
             if question.lower() == 'yes':
@@ -259,8 +283,8 @@ class AppController():
             raise InputErrorException('WrongApplication')
         if not args.force_delete:
                 question = raw_input('Do you really want to delete this ' +
-                'deployment? This will delete everything including files ' +
-                'and the database. Type "Yes" without the quotes to delete: ')
+                                     'deployment? This will delete everything including files ' +
+                                     'and the database. Type "Yes" without the quotes to delete: ')
         else:
             question = 'Yes'
         if question.lower() == 'yes':
@@ -617,7 +641,7 @@ class AppController():
                 last_time = time.gmtime(float(logEntries[-1]["time"]))
                 if args.type == 'worker' and args.wrk_id:
                     logEntries = filter(lambda entry:
-                        entry['wrk_id'] == args.wrk_id, logEntries)
+                                        entry['wrk_id'] == args.wrk_id, logEntries)
                 if args.filter:
                     if args.type in ["error", "worker"]:
                         logEntries = filter(
@@ -627,13 +651,13 @@ class AppController():
                             logEntries)
                     if args.type == 'access':
                         logEntries = filter(lambda entry:
-                            re.search(
-                                re.compile(args.filter, re.IGNORECASE),
-                                entry['first_request_line'] + \
-                                entry['referer'] + \
-                                entry['user_agent'] + \
-                                entry['remote_host']),
-                            logEntries)
+                                            re.search(
+                                            re.compile(args.filter, re.IGNORECASE),
+                                            entry['first_request_line'] +
+                                            entry['referer'] +
+                                            entry['user_agent'] +
+                                            entry['remote_host']),
+                                            logEntries)
                 print_log_entries(logEntries, args.type)
             time.sleep(2)
 

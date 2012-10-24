@@ -140,6 +140,14 @@ def parse_cmdline(app, api):
         description='available commands',
         metavar='')
 
+    run_cmd_subparser = subparsers.add_parser(
+        'run',
+        help="run command")
+    run_cmd_subparser.add_argument(
+        'command',
+        help='command to execute')
+    run_cmd_subparser.set_defaults(func=app.run_cmd)
+
     create_subparser = subparsers.add_parser(
         'create',
         help="create new application")
