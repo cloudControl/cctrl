@@ -43,6 +43,7 @@ messages['WrongKeyFormat'] = r'Your id_rsa.pub public key file seems to be in th
 messages['InvalidAppOrDeploymentName'] = r'The application or deployment name is invalid.'
 messages['KeyDuplicate'] = r'This key was added previously.'
 messages['NoWorkerCommandGiven'] = r'The worker command is missing. Try the path to your PHP file relative from your repository root.'
+messages['NoRunCommandGiven'] = r'Run command is missing.'
 messages['WrongWorker'] = r'There is no such worker for this app_name/deployment_name.'
 messages['NeitherBazaarNorGitFound'] = r'Cannot find "git" nor "bzr"! Please make sure either Bazaar or Git executables are in your path.'
 messages['BazaarRequiredToPush'] = r'Please make sure the Bazaar executable is in your path.'

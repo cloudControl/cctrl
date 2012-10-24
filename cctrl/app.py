@@ -110,22 +110,25 @@ class AppController():
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
 
+        if deployment_name == '':
+            raise InputErrorException('NoDeployment')
+
         if len(args.command) > 0:
-            conn_user = '{app}_{dep}'.format(app=app_name, dep=deployment_name)
+            conn_user = '{app}-{dep}'.format(app=app_name, dep=deployment_name)
             user_host = '{user}@{host}'.format(user=conn_user, host=SSH_FORWARDER)
-            if not self.api.get_token():
-                raise TokenRequiredError
+
+            try:
+                self.api.read_app(app_name)
+            except GoneError:
+                raise InputErrorException('WrongApplication')
+
             env = 'TOKEN={token}'.format(token=self.api.get_token()['token'])
             command = '{env} {command}'.format(env=env, command=args.command)
             ssh_cmd = ['ssh', '-t', '-p', SSH_FORWARDER_PORT, user_host, command]
-            pr = subprocess.Popen(
-                ssh_cmd,
-                shell=False
-            )
-            pr.wait()
+            subprocess.Popen(ssh_cmd, shell=False).wait()
             return True
         else:
-            InputErrorException('Empty command')
+            raise InputErrorException('NoRunCommandGiven')
 
     def create(self, args):
         """

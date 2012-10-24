@@ -23,5 +23,5 @@ TOKEN_FILE_NAME = 'token.json'
 TOKEN_FILE_PATH = os.path.join(HOME_PATH, TOKEN_FILE_NAME)
 CACHE_DIR = None
 VERSION = __version__
-SSH_FORWARDER = os.environ.pop('SSH_FORWARDER', 'sshdevcctrl.cloudcontrolled.net')
+SSH_FORWARDER = os.environ.pop('SSH_FORWARDER', 'ssh.cloudcontrolled.net')
 SSH_FORWARDER_PORT = '2222'
