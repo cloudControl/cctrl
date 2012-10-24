@@ -116,7 +116,8 @@ class AppController():
             if not self.api.get_token():
                 raise TokenRequiredError
             env = 'TOKEN={token}'.format(token=self.api.get_token()['token'])
-            ssh_cmd = ['ssh', '-t', '-p', SSH_FORWARDER_PORT, user_host, 'env', env, args.command]
+            command = '{env} {command}'.format(env=env, command=args.command)
+            ssh_cmd = ['ssh', '-t', '-p', SSH_FORWARDER_PORT, user_host, command]
             pr = subprocess.Popen(
                 ssh_cmd,
                 shell=False
