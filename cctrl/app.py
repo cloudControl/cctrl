@@ -20,6 +20,7 @@ import os
 import time
 import re
 import subprocess
+import shlex
 from settings import SSH_FORWARDER, SSH_FORWARDER_PORT
 
 from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, BadRequestError, ConflictDuplicateError
@@ -122,7 +123,8 @@ class AppController():
             command = '{env} {command}'.format(env=env, command=args.command)
         else:
             raise InputErrorException('NoRunCommandGiven')
-        ssh_cmd = ['ssh', '-t', '-p', SSH_FORWARDER_PORT, user_host, command]
+        sshopts = shlex.split(os.environ.get('CCTRL_SSHOPTS', ''))
+        ssh_cmd = ['ssh', '-t'] + sshopts + ['-p', SSH_FORWARDER_PORT, '--', user_host, command]
         subprocess.call(ssh_cmd)
 
     def create(self, args):
