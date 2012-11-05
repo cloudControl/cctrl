@@ -98,9 +98,6 @@ class AppController():
         pycclib to fire a request and handles the response showing it to the
         user if needed.
     """
-
-    api = None
-
     def __init__(self, api):
         self.api = api
 
@@ -113,22 +110,20 @@ class AppController():
         if deployment_name == '':
             raise InputErrorException('NoDeployment')
 
+        user_host = '{app}-{dep}@{host}'.format(app=app_name, dep=deployment_name, host=SSH_FORWARDER)
+
+        # Refresh our token before sending it to the forwarder.
+        try:
+            self.api.read_deployment(app_name, deployment_name)
+        except GoneError:
+            raise InputErrorException('WrongApplication')
+        env = 'TOKEN={token}'.format(token=self.api.get_token()['token'])
         if len(args.command) > 0:
-            conn_user = '{app}-{dep}'.format(app=app_name, dep=deployment_name)
-            user_host = '{user}@{host}'.format(user=conn_user, host=SSH_FORWARDER)
-
-            try:
-                self.api.read_app(app_name)
-            except GoneError:
-                raise InputErrorException('WrongApplication')
-
-            env = 'TOKEN={token}'.format(token=self.api.get_token()['token'])
             command = '{env} {command}'.format(env=env, command=args.command)
-            ssh_cmd = ['ssh', '-t', '-p', SSH_FORWARDER_PORT, user_host, command]
-            subprocess.Popen(ssh_cmd, shell=False).wait()
-            return True
         else:
             raise InputErrorException('NoRunCommandGiven')
+        ssh_cmd = ['ssh', '-t', '-p', SSH_FORWARDER_PORT, user_host, command]
+        subprocess.call(ssh_cmd)
 
     def create(self, args):
         """
