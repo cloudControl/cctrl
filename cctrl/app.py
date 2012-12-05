@@ -22,6 +22,7 @@ import re
 import subprocess
 import shlex
 from settings import SSH_FORWARDER, SSH_FORWARDER_PORT
+from datetime import datetime
 
 from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, BadRequestError, ConflictDuplicateError
 from subprocess import check_call, CalledProcessError
@@ -639,7 +640,7 @@ class AppController():
             except GoneError:
                 raise InputErrorException('WrongApplication')
             if len(logEntries) > 0:
-                last_time = time.gmtime(float(logEntries[-1]["time"]))
+                last_time = datetime.fromtimestamp(float(logEntries[-1]["time"]))
                 if args.type == 'worker' and args.wrk_id:
                     logEntries = filter(lambda entry:
                                         entry['wrk_id'] == args.wrk_id, logEntries)

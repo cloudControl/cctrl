@@ -15,7 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
-import time
+from datetime import datetime
 import sys
 import json
 
@@ -203,9 +203,8 @@ def print_log_entries(logEntries, apache_type):
     if apache_type == 'access':
         if has_str_format:
             for entry in logEntries:
-                entry["time"] = time.strftime(
-                    '[%d/%b/%Y:%H:%M:%S +0000]',
-                    time.gmtime(float(entry["time"])))
+                dt = datetime.fromtimestamp(float(entry["time"]))
+                entry["time"] = dt.strftime('[%d/%b/%Y:%H:%M:%S +0000]')
                 try:
                     print r'{0} {1} {2} {3} "{4}" {5} {6} "{7}" "{8}"'.format(
                         entry["remote_host"],
@@ -221,9 +220,8 @@ def print_log_entries(logEntries, apache_type):
                     pass
         else:
             for entry in logEntries:
-                entry["time"] = time.strftime(
-                    '[%d/%b/%Y:%H:%M:%S +0000]',
-                    time.gmtime(float(entry["time"])))
+                dt = datetime.fromtimestamp(float(entry["time"]))
+                entry["time"] = dt.strftime('[%d/%b/%Y:%H:%M:%S +0000]')
                 try:
                     print r'%s %s %s %s "%s" %s %s "%s" "%s"' % (
                         entry["remote_host"],
@@ -240,18 +238,16 @@ def print_log_entries(logEntries, apache_type):
     elif apache_type == 'error':
         if has_str_format:
             for entry in logEntries:
-                entry["time"] = time.strftime(
-                    '[%a %b %d %H:%M:%S %Y]',
-                    time.gmtime(float(entry["time"])))
+                dt = datetime.fromtimestamp(float(entry["time"]))
+                entry["time"] = dt.strftime('[%a %b %d %H:%M:%S %Y]')
                 print r'{0} {1} {2}'.format(
                     entry["time"],
                     entry["type"],
                     entry["message"].encode('utf-8'))
         else:
             for entry in logEntries:
-                entry["time"] = time.strftime(
-                    '[%a %b %d %H:%M:%S %Y]',
-                    time.gmtime(float(entry["time"])))
+                dt = datetime.fromtimestamp(float(entry["time"]))
+                entry["time"] = dt.strftime('[%a %b %d %H:%M:%S %Y]')
                 print r'%s %s %s' % (
                     entry["time"],
                     entry["type"],
@@ -259,18 +255,16 @@ def print_log_entries(logEntries, apache_type):
     elif apache_type == 'worker':
         if has_str_format:
             for entry in logEntries:
-                entry["time"] = time.strftime(
-                    '[%a %b %d %H:%M:%S %Y]',
-                    time.gmtime(float(entry["time"])))
+                dt = datetime.fromtimestamp(float(entry["time"]))
+                entry["time"] = dt.strftime('[%a %b %d %H:%M:%S %Y]')
                 print r'{0} {1} {2}'.format(
                     entry["time"],
                     entry["wrk_id"],
                     entry["message"].encode('utf-8'))
         else:
             for entry in logEntries:
-                entry["time"] = time.strftime(
-                    '[%a %b %d %H:%M:%S %Y]',
-                    time.gmtime(float(entry["time"])))
+                dt = datetime.fromtimestamp(float(entry["time"]))
+                entry["time"] = dt.strftime('[%a %b %d %H:%M:%S %Y]')
                 print r'%s %s %s' % (
                     entry["time"],
                     entry["wrk_id"],
@@ -278,9 +272,8 @@ def print_log_entries(logEntries, apache_type):
     elif apache_type == 'deploy':
         if has_str_format:
             for entry in logEntries:
-                entry["time"] = time.strftime(
-                    '[%a %b %d %H:%M:%S %Y]',
-                    time.gmtime(float(entry["time"])))
+                dt = datetime.fromtimestamp(float(entry["time"]))
+                entry["time"] = dt.strftime('[%a %b %d %H:%M:%S %Y]')
                 print r'{0} {1} {2} {3}'.format(
                     entry["time"],
                     entry['hostname'],
@@ -288,9 +281,8 @@ def print_log_entries(logEntries, apache_type):
                     entry["message"].encode('utf-8'))
         else:
             for entry in logEntries:
-                entry["time"] = time.strftime(
-                    '[%a %b %d %H:%M:%S %Y]',
-                    time.gmtime(float(entry["time"])))
+                dt = datetime.fromtimestamp(float(entry["time"]))
+                entry["time"] = dt.strftime('[%a %b %d %H:%M:%S %Y]')
                 print r'%s %s %s %s' % (
                     entry["time"],
                     entry['hostname'],
