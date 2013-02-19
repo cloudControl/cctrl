@@ -233,6 +233,13 @@ def parse_cmdline(app, api):
         'user.add',
         help="add user by email")
     addUser_subparser.add_argument('email')
+    addUser_subparser.add_argument(
+        '--role',
+        action="store",
+        nargs='?',
+        default=None,
+        dest="role",
+        help="role")
     addUser_subparser.set_defaults(func=app.addUser)
 
     removeUser_subparser = subparsers.add_parser(

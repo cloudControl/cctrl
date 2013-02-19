@@ -25,15 +25,15 @@ if sys.version_info < (2, 6):
 else:
     required = []
 
-required.append('pycclib>=1.2.1')
+required.append('pycclib>=1.2.2')
 required.append('argparse>=1.1')
 
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/cctrltunnel']
 
-if sys.platform == 'win32':        
+if sys.platform == 'win32':
     #noinspection PyUnresolvedReferences
     import py2exe
-    required.append('paramiko')    
+    required.append('paramiko')
     extra_options = dict(
         setup_requires=['py2exe'],
         console = srcscripts,

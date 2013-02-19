@@ -24,7 +24,7 @@ import shlex
 from settings import SSH_FORWARDER, SSH_FORWARDER_PORT
 from datetime import datetime
 
-from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, BadRequestError, ConflictDuplicateError
+from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, BadRequestError, ConflictDuplicateError, UnauthorizedError, NotImplementedError
 from subprocess import check_call, CalledProcessError
 from cctrl.error import InputErrorException, messages
 from cctrl.oshelpers import check_installed_rcs
@@ -220,6 +220,19 @@ class AppController():
                 deployment = self.api.read_deployment(
                     app_name,
                     deployment_name)
+
+                try:
+                    app_users = self.api.read_app_users(app_name)
+                except (UnauthorizedError, ForbiddenError, NotImplementedError):
+                    # ok since possibly I am not allowed to see users at all
+                    pass
+
+                else:
+                    deployment['users'] = [
+                        dict(au, app=True)
+                        for au in app_users
+                    ] + deployment['users']
+
             except GoneError:
                 raise InputErrorException('WrongDeployment')
             else:
@@ -227,6 +240,22 @@ class AppController():
         else:
             try:
                 app = self.api.read_app(app_name)
+
+                # only get deployment-users if i can see app-users
+                if len(app['users']):
+                    try:
+                        for deployment in app['deployments']:
+                            appname, depname = self.parse_app_deployment_name(deployment['name'])
+
+                            depusers = self.api.read_deployment_users(appname, depname)
+
+                            app['users'].extend(
+                                dict(du, deployment=depname)
+                                for du in depusers
+                            )
+                    except (NotImplementedError, BadRequestError):  # for old api-servers
+                        pass
+
             except GoneError:
                 raise InputErrorException('WrongApplication')
             else:
@@ -602,7 +631,12 @@ class AppController():
         #noinspection PyTupleAssignmentBalance
         app_name, deployment_name = self.parse_app_deployment_name(args.name)  # @UnusedVariable
         try:
-            self.api.create_app_user(app_name, args.email)
+            if deployment_name:
+                self.api.create_deployment_user(app_name, deployment_name, args.email, args.role)
+
+            else:
+                self.api.create_app_user(app_name, args.email, args.role)
+
         except ConflictDuplicateError:
             raise InputErrorException('UserBelongsToApp')
         return True
@@ -614,7 +648,12 @@ class AppController():
         #noinspection PyTupleAssignmentBalance
         app_name, deployment_name = self.parse_app_deployment_name(args.name)  # @UnusedVariable
         try:
-            self.api.delete_app_user(app_name, args.username)
+            if deployment_name:
+                self.api.delete_deployment_user(app_name, deployment_name, args.username)
+
+            else:
+                self.api.delete_app_user(app_name, args.username)
+
         except GoneError:
             raise InputErrorException('RemoveUserGoneError')
         return True

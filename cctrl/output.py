@@ -58,9 +58,14 @@ def print_app_details(app):
             app['owner']['username'])
         print ' Repository: {0}'.format(app['repository'])
         print '\n Users'
-        print "   {0:40} {1:20}".format('Name', 'Email')
+        print "   {0:15} {1:35} {2:10} {3:10}".format('Name', 'Email', 'Role', 'Deployment')
         for user in app['users']:
-            print "   {0:40} {1:20}".format(user['username'], user['email'])
+            print "   {0:15} {1:35} {2:10} {3:10}".format(
+                user['username'],
+                user['email'],
+                user['role'] if 'role' in user else '',
+                user['deployment'] if 'deployment' in user else '(app)'
+            )
         print '\n Deployments'
         for deployment in app['deployments']:
             print "   {0:60}".format(deployment['name'])
@@ -71,9 +76,14 @@ def print_app_details(app):
             app['owner']['username'])
         print ' Repository: %s' % (app['repository'])
         print '\n Users'
-        print "   %-40ls %-20ls" % ('Name', 'Email')
+        print "   %-15ls %-35ls %-10ls %-10ls" % ('Name', 'Email', 'Role', 'Deployment')
         for user in app['users']:
-            print "   %(username)-40ls %(email)-20ls" % (user)
+            if 'deployment' not in user:
+                user['deployment'] = '(app)'
+            if 'role' not in user:
+                user['role'] = ''
+
+            print "   %(username)-15ls %(email)-35ls %(role)-10ls %(deployment)-10ls" % (user)
         print '\n Deployments'
         for deployment in app['deployments']:
             print "   %(name)-60ls" % (deployment)
@@ -98,6 +108,17 @@ def print_deployment_details(deployment):
         print ' min boxes: {0}'.format(deployment['min_boxes'])
         print ' max boxes: {0}'.format(deployment['max_boxes'])
 
+        if 'users' in deployment and deployment['users']:
+            print '\n Users'
+            print "   {0:15} {1:35} {2:10} {3:10}".format('Name', 'Email', 'Role', 'Deployment')
+            for user in deployment['users']:
+                print "   {0:15} {1:35} {2:10} {3:10}".format(
+                    user['username'],
+                    user['email'],
+                    user['role'],
+                    '(app)' if 'app' in user else deployment['name'],
+                )
+
     else:
         print ' name: %(name)s' % (deployment)
         print ' stack: %s' % (stack)
@@ -107,6 +128,13 @@ def print_deployment_details(deployment):
         print ' current state: %(state)s' % (deployment)
         print ' min boxes: %(min_boxes)s' % (deployment)
         print ' max boxes: %(min_boxes)s' % (deployment)
+
+        if 'users' in deployment and deployment['users']:
+            print '\n Users'
+            print "   %-15ls %-35ls %-10ls %-10ls" % ('Name', 'Email', 'Role', 'Deployment')
+            for user in deployment['users']:
+                user['deployment'] = '(app)' if 'app' in user else deployment['name']
+                print "   %(username)-15ls %(email)-35ls %(role)-10ls %(deployment)-10ls" % (user)
 
 
 def print_user_list(users):
