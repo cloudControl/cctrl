@@ -66,15 +66,12 @@ class CVSType():
             Provides the cvs (repo) type by checking if given directory
             contains a ".git" or ".bzr" configuration directory.
         """
-        if os.path.exists(application_path + "/.git"):
-            print messages['GitConfigFound']
-            return CVSType.GIT
+        for (dirname, cvstype, msg) in [(".git", CVSType.GIT, 'GitConfigFound'),
+                                        (".bzr", CVSType.BZR, 'BazaarConfigFound')]:
+            if os.path.exists(os.path.join(application_path, dirname)):
+                return (cvstype, msg)
 
-        if os.path.exists(application_path + "/.bzr"):
-            print messages['BazaarConfigFound']             # Terrible side-effect programming! Yuck! All of these!
-            return CVSType.BZR
-
-        return None
+        return (None, None)
 
     @staticmethod
     def by_env():
@@ -82,15 +79,12 @@ class CVSType():
             Provides the cvs (repo) type by checking environment variable
             PATH for existence of either Bazaar or Git.
         """
-        if check_installed_rcs('git'):
-            print messages['GitExecutableFound']
-            return CVSType.GIT
+        for (execname, cvstype, msg) in [('git', CVSType.GIT,'GitExecutableFound'),
+                                         ('bzr', CVSType.BZR, 'BazaarExecutableFound')]:
+            if check_installed_rcs(execname):
+                return (cvstype, msg)
 
-        if check_installed_rcs('bzr'):
-            print messages['BazaarExecutableFound']
-            return CVSType.BZR
-
-        return None
+        return (None, None)
 
 
 class AppController():
@@ -141,17 +135,18 @@ class AppController():
         # Did the user provide the repo type as argument?
         if args.repo:
             repo_type = args.repo
+            detection_method = None
         else:
             # No, he/she didn't! Then check if current directory is an app and already has a CVS type ...
-            repo_type = CVSType.by_path(os.getcwd())
+            (repo_type, detection_method) = CVSType.by_path(os.getcwd())
 
             if repo_type is None:
                 # Hmm, current directory was nothing. Let's check if either 'bzr' or 'git' is installed ...
-                repo_type = CVSType.by_env()
+                (repo_type, detection_method) = CVSType.by_env()
 
             if repo_type is None:
                 # Hmm, also nothing installed! Ok, we give up and set default = GIT and hope for better times ...
-                print messages['CreatingAppAsDefaultRepoType']
+                detection_method = 'CreatingAppAsDefaultRepoType'
                 repo_type = CVSType.GIT
 
         try:
@@ -159,6 +154,8 @@ class AppController():
             self.api.create_deployment(
                 app_name,
                 deployment_name=deployment_name)
+            if detection_method:
+                print messages[detection_method]
         except GoneError:
             raise InputErrorException('WrongApplication')
         except ForbiddenError:
