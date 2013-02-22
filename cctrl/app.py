@@ -640,16 +640,26 @@ class AppController():
 
     def removeUser(self, args):
         """
-            Remove a user specified by the user name from an application.
+            Remove a user specified by the user name or email address from an application.
         """
         #noinspection PyTupleAssignmentBalance
         app_name, deployment_name = self.parse_app_deployment_name(args.name)  # @UnusedVariable
+        if '@' in args.username:
+            users = self.api.read_app(app_name)['users']
+            try:
+                username = [user['username'] for user in users
+                            if user['email'] == args.username][0]
+            except IndexError:
+                raise InputErrorException('RemoveUserGoneError')
+        else:
+            username = args.username
         try:
             if deployment_name:
-                self.api.delete_deployment_user(app_name, deployment_name, args.username)
+                self.api.delete_deployment_user(app_name, deployment_name,
+                                                username)
 
             else:
-                self.api.delete_app_user(app_name, args.username)
+                self.api.delete_app_user(app_name, username)
 
         except GoneError:
             raise InputErrorException('RemoveUserGoneError')
