@@ -56,17 +56,13 @@ def init_api():
         because the httplib2 provided ones are not included due to
         py2exe.
     """
-    try:
-        api_url = os.environ.pop('CCTRL_API_URL')
-    except KeyError:
-        pass
-    else:
-        cclib.API_URL = api_url
+    api_url = os.environ.pop('CCTRL_API_URL', None)
+    if api_url:
         cclib.DISABLE_SSL_CHECK = True
     if sys.platform == 'win32':
         cclib.CA_CERTS = os.path.join(
             os.path.dirname(os.path.abspath(__file__ )), "../../cacerts.txt")
-    return cclib.API(token=read_tokenfile())
+    return cclib.API(token=read_tokenfile(), api_url=api_url)
 
 
 def run(args, api):
