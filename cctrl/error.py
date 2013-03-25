@@ -61,6 +61,9 @@ messages['CreatingAppAsDefaultRepoType'] = r'Using default "Git" as repository t
 messages['DeleteAppsBeforeUser'] = r'There are still applications associated with this user account. Undeploy and/or delete applications before deleting user.'
 messages['NoSuchFile'] = r'File not found.'
 messages['APIUnreachable'] = r'Could not connect to API...'
+messages['NoBuildpackURL'] = r'You need to provide a buildpack URL for "custom" application type'
+messages['NoCustomApp'] = r'You can only provide a buildpack URL if the app type is "custom"'
+messages['NoValidBuildpackURL'] = r'The buildpack URL provided is not valid. Please try again.'
 
 
 

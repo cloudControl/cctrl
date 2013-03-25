@@ -16,6 +16,7 @@
     limitations under the License.
 """
 import os
+import subprocess
 from cctrl.error import InputErrorException
 
 
@@ -79,3 +80,18 @@ def check_installed_rcs(name):
         'bzr': ['bzr.exe', 'bzr.bat', 'bzr'],
         'git': ['git', 'git.exe', 'git.cmd']}
     return which(rcs_executables[name])
+
+
+def is_buildpack_url_valid(buildpack_url):
+    """
+        Is the given url a valid buildpack url?
+    """
+    sp = subprocess.Popen(
+        ['git', 'ls-remote', buildpack_url],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=False
+    )
+    _, stderr = sp.communicate()
+    valid = True if sp.returncode == 0 else False
+    return valid

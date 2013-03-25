@@ -27,7 +27,7 @@ from datetime import datetime
 from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, BadRequestError, ConflictDuplicateError, UnauthorizedError, NotImplementedError
 from subprocess import check_call, CalledProcessError
 from cctrl.error import InputErrorException, messages
-from cctrl.oshelpers import check_installed_rcs
+from cctrl.oshelpers import check_installed_rcs, is_buildpack_url_valid
 from cctrl.output import print_deployment_details, print_app_details,\
     print_alias_details, print_log_entries, print_list_apps,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
@@ -132,6 +132,17 @@ class AppController():
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
 
+        if args.buildpack:
+            # Did the user choose a default app type and provided a buildpack url?
+            if not args.type == 'custom':
+                raise InputErrorException('NoCustomApp')
+            # Did the user provide a valid buildpack URL?
+            elif not is_buildpack_url_valid(args.buildpack):
+                raise InputErrorException('NoValidBuildpackURL')  
+        # Did the user provide a buildpack url if app has a custom type?
+        elif args.type == 'custom':
+            raise InputErrorException('NoBuildpackURL')
+
         # Did the user provide the repo type as argument?
         if args.repo:
             repo_type = args.repo
@@ -150,7 +161,7 @@ class AppController():
                 repo_type = CVSType.GIT
 
         try:
-            self.api.create_app(app_name, args.type, repo_type)
+            self.api.create_app(app_name, args.type, repo_type, args.buildpack)
             self.api.create_deployment(
                 app_name,
                 deployment_name=deployment_name)

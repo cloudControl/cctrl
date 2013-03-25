@@ -56,6 +56,8 @@ def print_app_details(app):
             app['name'],
             app['type']['name'],
             app['owner']['username'])
+        if app['type']['name'] == 'custom':
+            print ' Buildpack URL: {0}\n'.format(app['buildpack_url'])
         print ' Repository: {0}'.format(app['repository'])
         print '\n Users'
         print "   {0:15} {1:35} {2:10} {3:10}".format('Name', 'Email', 'Role', 'Deployment')

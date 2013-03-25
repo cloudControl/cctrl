@@ -156,6 +156,11 @@ def parse_cmdline(app, api):
         help='app-type (language)',
         metavar='type')
     create_subparser.add_argument(
+        '--buildpack',
+        help='custom buildpack URL (for "custom" app type)',
+        default=None,
+        metavar='url')
+    create_subparser.add_argument(
         '--repo',
         choices=['bzr', 'git'],
         help='bzr or git',
