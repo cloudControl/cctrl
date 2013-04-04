@@ -9,7 +9,7 @@ import os
 import sys
 from cctrl.version import __version__
 
-DOWNLOAD_URL = 'https://github.com/downloads/cloudControl/cctrl/cctrl-{0}.tar.gz'.format(__version__)
+DOWNLOAD_URL = 'https://s3-eu-west-1.amazonaws.com/cctrl/cctrl-{0}.tar.gz'.format(__version__)
 
 try:
     from setuptools import setup, find_packages
