@@ -33,7 +33,7 @@ from cctrl.output import print_deployment_details, print_app_details,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
     print_worker_list, print_worker_details, print_cronjob_list, \
     print_cronjob_details, print_addon_creds
-from output import print_user_list
+from output import print_user_list_app, print_user_list_deployment
 from cctrl.addonoptionhelpers import parse_additional_addon_options
 
 
@@ -211,18 +211,8 @@ class AppController():
         else:
             raise TokenRequiredError
 
-    def details(self, args):
-        """
-            Print application or deployment details.
-
-            e.g.:
-
-            'cctrlapp APP_NAME details' prints application details
-
-            'cctrlapp APP_NAME/DEP_NAME details' prints deployment details
-        """
-        #noinspection PyTupleAssignmentBalance
-        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+    def _details(self, app_or_deployment_name):
+        app_name, deployment_name = self.parse_app_deployment_name(app_or_deployment_name)
         if deployment_name:
             try:
                 deployment = self.api.read_deployment(
@@ -244,7 +234,7 @@ class AppController():
             except GoneError:
                 raise InputErrorException('WrongDeployment')
             else:
-                print_deployment_details(deployment)
+                return app_name, deployment_name, deployment
         else:
             try:
                 app = self.api.read_app(app_name)
@@ -267,7 +257,23 @@ class AppController():
             except GoneError:
                 raise InputErrorException('WrongApplication')
             else:
-                print_app_details(app)
+                return app_name, deployment_name, app
+
+    def details(self, args):
+        """
+            Print application or deployment details.
+
+            e.g.:
+
+            'cctrlapp APP_NAME details' prints application details
+
+            'cctrlapp APP_NAME/DEP_NAME details' prints deployment details
+        """
+        app_name, deployment_name, obj = self._details(args.name)
+        if deployment_name:
+            print_deployment_details(obj)
+        else:
+            print_app_details(obj)
 
     def deploy(self, args):
         """
@@ -618,19 +624,15 @@ class AppController():
         """
             List users
         """
-        #noinspection PyTupleAssignmentBalance
-        app_name, deployment_name = self.parse_app_deployment_name(args.name)  # @UnusedVariable
-        try:
-            # This is a dirty hack because I have been to lazy to implement
-            # a GET on /app/APP_NAME/user/ for now. Promise to do in the future
-            # though.
-            app = self.api.read_app(app_name)
-            users = app['users']
-        except:
-            raise
+
+        app_name, deployment_name, obj = self._details(args.name)
+
+        if deployment_name:
+            print_user_list_deployment(obj)
         else:
-            print_user_list(users)
-            return True
+            print_user_list_app(obj)
+
+        return True
 
     def addUser(self, args):
         """

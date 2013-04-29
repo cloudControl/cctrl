@@ -139,19 +139,45 @@ def print_deployment_details(deployment):
                 print "   %(username)-15ls %(email)-35ls %(role)-10ls %(deployment)-10ls" % (user)
 
 
-def print_user_list(users):
-    """
-        Print user list.
-    """
+def print_user_list_app(app):
     print 'Users'
     if has_str_format:
-        print " {0:40} {1:20}".format('Name', 'Email')
-        for user in users:
-            print " {0:40} {1:20}".format(user['username'], user['email'])
+        print "   {0:15} {1:35} {2:10} {3:10}".format('Name', 'Email', 'Role', 'Deployment')
+        for user in app['users']:
+            print "   {0:15} {1:35} {2:10} {3:10}".format(
+                user['username'],
+                user['email'],
+                user['role'] if 'role' in user else '',
+                user['deployment'] if 'deployment' in user else '(app)'
+            )
     else:
-        print " %-40ls %-20ls" % ('Name', 'Email')
-        for user in users:
-            print " %(username)-40ls %(email)-20ls" % (user)
+        print "   %-15ls %-35ls %-10ls %-10ls" % ('Name', 'Email', 'Role', 'Deployment')
+        for user in app['users']:
+            if 'deployment' not in user:
+                user['deployment'] = '(app)'
+            if 'role' not in user:
+                user['role'] = ''
+
+            print "   %(username)-15ls %(email)-35ls %(role)-10ls %(deployment)-10ls" % (user)
+
+
+def print_user_list_deployment(deployment):
+    print 'Users'
+    if has_str_format:
+        print "   {0:15} {1:35} {2:10} {3:10}".format('Name', 'Email', 'Role', 'Deployment')
+        for user in deployment['users']:
+            print "   {0:15} {1:35} {2:10} {3:10}".format(
+                user['username'],
+                user['email'],
+                user['role'],
+                '(app)' if 'app' in user else deployment['name'],
+            )
+    else:
+        print '\n Users'
+        print "   %-15ls %-35ls %-10ls %-10ls" % ('Name', 'Email', 'Role', 'Deployment')
+        for user in deployment['users']:
+            user['deployment'] = '(app)' if 'app' in user else deployment['name']
+            print "   %(username)-15ls %(email)-35ls %(role)-10ls %(deployment)-10ls" % (user)
 
 
 def print_alias_list(aliases):
