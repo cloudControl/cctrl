@@ -86,12 +86,16 @@ def is_buildpack_url_valid(buildpack_url):
     """
         Is the given url a valid buildpack url?
     """
+    try:
+        branch = buildpack_url.split('#')[1]
+    except IndexError:
+        branch = 'master'
     sp = subprocess.Popen(
-        ['git', 'ls-remote', buildpack_url],
+        ['git', 'ls-remote', buildpack_url.split('#')[0], branch],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         shell=False
     )
-    _, stderr = sp.communicate()
-    valid = True if sp.returncode == 0 else False
+    stdout, stderr = sp.communicate()
+    valid = True if sp.returncode == 0 and 'refs/heads' in stdout else False
     return valid
