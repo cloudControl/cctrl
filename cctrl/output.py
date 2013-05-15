@@ -429,14 +429,13 @@ def print_addon_details(addon):
 def print_worker_list(workers):
     print 'Workers'
     if has_str_format:
-        print ' {0:3} {1:11}'.format('nr.', 'wrk_id')
+        print ' {0:3} {1:11} {2}'.format('nr.', 'wrk_id', 'command')
         for count, worker in enumerate(workers):
-            print ' {0:3} {1:11}'.format(count + 1, worker['wrk_id'])
+            print ' {0:3} {1:11} {2}'.format(count + 1, worker['wrk_id'], worker['command'])
     else:
-        print ' %-3ls %-11ls' % ('nr.', 'wrk_id')
+        print ' %-3ls %-11ls %s' % ('nr.', 'wrk_id', 'command')
         for count, worker in enumerate(workers):
-            wrk_id = worker['wrk_id']
-            print ' %-3ls %-11ls' % (count + 1, wrk_id)
+            print ' %-3ls %-11ls %s' % (count + 1, worker['wrk_id'], worker['command'])
 
 
 def print_worker_details(worker):

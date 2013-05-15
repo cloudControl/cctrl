@@ -471,7 +471,7 @@ class AppController():
         if not deployment_name:
             raise InputErrorException('NoDeployment')
         if not args.wrk_id:
-            workers = self.api.read_workers(app_name, deployment_name)
+            workers = (self.api.read_worker(app_name, deployment_name, worker['wrk_id']) for worker in self.api.read_workers(app_name, deployment_name))
             print_worker_list(workers)
             return True
         else:
