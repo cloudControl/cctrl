@@ -18,5 +18,10 @@ Installation
 To install cctrl:
 
     $ python setup.py install
-    
+
 Dependencies should be automatically fetched by `easy_install`.
+
+
+To upgrade on non-win32 cctrl:
+
+    $ (sudo) pip install cctrl --upgrade
