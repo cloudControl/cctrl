@@ -33,8 +33,6 @@ messages['CannotDeleteDeploymentExist'] = r'You have to undeploy all related dep
 messages['NotAuthorized'] = r'The authorization failed, check your e-mail address and password.'
 messages['PermissionDenied'] = r'You are not allowed to push to this repository. Maybe check your keys using "cctrluser key".'
 messages['SecurityQuestionDenied'] = r'Action canceled on user request.'
-messages['UpdateAvailable'] = r'A newer version is available. Please update.'
-messages['UpdateRequired'] = r'A newer version is required. You need to update before using this program.'
 messages['WrongAddon'] = r'This addon is unknown for this app_name/deployment_name.'
 messages['DuplicateAddon'] = r'You can not add the same addon option twice.'
 messages['WrongPubKeyName'] = r'The public key file must be named "id_rsa.pub".'
@@ -65,6 +63,13 @@ messages['NoBuildpackURL'] = r'You need to provide a buildpack URL for "custom" 
 messages['NoCustomApp'] = r'You can only provide a buildpack URL if the app type is "custom"'
 messages['NoValidBuildpackURL'] = r'The buildpack URL provided is not valid. Please try again.'
 
+
+if sys.platform == 'win32':
+    messages['UpdateAvailable'] = r'A newer version is available. Please update.'
+    messages['UpdateRequired'] = r'A newer version is required. You need to upgrade before using this program.'
+else:
+    messages['UpdateAvailable'] = r'A newer version is available. To upgrade run: (sudo) pip install cctrl --upgrade'
+    messages['UpdateRequired'] = r'A newer version is required. You need to upgrade before using this program. To upgrade run: (sudo) pip install cctrl --upgrade'
 
 
 class InputErrorException(Exception):
