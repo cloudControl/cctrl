@@ -422,6 +422,12 @@ def parse_cmdline(app, api):
         version=version,
         help='show version string')
 
+    open_subparser = subparsers.add_parser(
+        'open',
+        help="open deployment on default browser"
+    )
+    open_subparser.set_defaults(func=app.open)
+
     args = parser.parse_args()
 
     common.run(args, api)

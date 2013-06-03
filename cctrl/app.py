@@ -21,6 +21,7 @@ import time
 import re
 import subprocess
 import shlex
+import webbrowser
 from settings import SSH_FORWARDER, SSH_FORWARDER_PORT
 from datetime import datetime
 
@@ -79,7 +80,7 @@ class CVSType():
             Provides the cvs (repo) type by checking environment variable
             PATH for existence of either Bazaar or Git.
         """
-        for (execname, cvstype, msg) in [('git', CVSType.GIT,'GitExecutableFound'),
+        for (execname, cvstype, msg) in [('git', CVSType.GIT, 'GitExecutableFound'),
                                          ('bzr', CVSType.BZR, 'BazaarExecutableFound')]:
             if check_installed_rcs(execname):
                 return (cvstype, msg)
@@ -138,7 +139,7 @@ class AppController():
                 raise InputErrorException('NoCustomApp')
             # Did the user provide a valid buildpack URL?
             elif not is_buildpack_url_valid(args.buildpack):
-                raise InputErrorException('NoValidBuildpackURL')  
+                raise InputErrorException('NoValidBuildpackURL')
         # Did the user provide a buildpack url if app has a custom type?
         elif args.type == 'custom':
             raise InputErrorException('NoBuildpackURL')
@@ -274,6 +275,54 @@ class AppController():
             print_deployment_details(obj)
         else:
             print_app_details(obj)
+
+    def _get_url(self, app_or_deployment):
+        if 'default_subdomain' in app_or_deployment:
+            return "http://{}".format(app_or_deployment['default_subdomain'])
+        else:
+            app, _ = app_or_deployment['deployments'][0]['name'].split('/')
+            return "http://{}.{}.com".format(app, re.search('@(.*).com', app_or_deployment['repository']).group(1))
+
+    def _open(self, app_or_deployment_name):
+        app_name, deployment_name = self.parse_app_deployment_name(app_or_deployment_name)
+        if deployment_name:
+            try:
+                deployment = self.api.read_deployment(
+                    app_name,
+                    deployment_name)
+
+            except GoneError:
+                raise InputErrorException('WrongDeployment')
+            else:
+                return app_name, deployment_name, deployment
+        else:
+            try:
+                app = self.api.read_app(app_name)
+
+            except GoneError:
+                raise InputErrorException('WrongApplication')
+            else:
+                return app_name, deployment_name, app
+
+    def open(self, args):
+        """
+            Open deployment URL on the default browser.
+
+            e.g.:
+
+            'cctrlapp APP_NAME open' opens the default deployment's URL
+
+            'cctrlapp APP_NAME/DEP_NAME open' opens the deployment's URL
+        """
+        app_name, deployment_name, obj = self._open(args.name)
+        url = self._get_url(obj)
+        savout = os.dup(1)
+        os.close(1)
+        os.open(os.devnull, os.O_RDWR)
+        try:
+            webbrowser.open_new_tab(url)
+        finally:
+            os.dup2(savout, 1)
 
     def deploy(self, args):
         """
