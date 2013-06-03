@@ -15,6 +15,8 @@
     limitations under the License.
 """
 
+import sys
+
 messages = {}
 messages['NoDeployment'] = r'You have to append the deployment name.'
 messages['WrongApplication'] = r'This application is unknown.'
