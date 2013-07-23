@@ -46,7 +46,7 @@ def readContentOf(filename):
         raise InputErrorException('FileReadOrWriteFailed')
 
     # pass back content
-    return file_content
+    return file_content.strip()
 
 
 def which(programs):
@@ -96,6 +96,6 @@ def is_buildpack_url_valid(buildpack_url):
         stderr=subprocess.PIPE,
         shell=False
     )
-    stdout, stderr = sp.communicate()
+    stdout, _ = sp.communicate()
     valid = True if sp.returncode == 0 and 'refs/heads' in stdout else False
     return valid
