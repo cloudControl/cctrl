@@ -65,6 +65,7 @@ if sys.platform == 'win32':
 else:
     extra_options = dict(
         scripts=srcscripts,
+        data_files=[("",["cacerts.txt",])],
         packages=find_packages()
     )
 

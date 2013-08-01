@@ -62,10 +62,17 @@ def init_api():
         pass
     else:
         cclib.API_URL = api_url
-        cclib.DISABLE_SSL_CHECK = True
-    if sys.platform == 'win32':
-        cclib.CA_CERTS = os.path.join(
-            os.path.dirname(os.path.abspath(__file__ )), "../../cacerts.txt")
+
+    dirname = os.path.dirname(__file__)
+    while len(dirname) > 1:
+        p = os.path.join(dirname, 'cacerts.txt')
+
+        if os.path.exists(p):
+            cclib.CA_CERTS = p
+            break
+
+        dirname = os.path.dirname(dirname)
+
     return cclib.API(token=read_tokenfile())
 
 
