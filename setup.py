@@ -15,10 +15,11 @@ try:
     from setuptools import setup, find_packages
 except ImportError:
     import ez_setup
+
     ez_setup.use_setuptools()
     from setuptools import setup, find_packages
 
-execfile(os.path.join(os.path.dirname(os.path.realpath(__file__)),'cctrl', 'version.py'))
+execfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'cctrl', 'version.py'))
 
 if sys.version_info < (2, 6):
     required = ['simplejson']
@@ -31,15 +32,15 @@ required.append('argparse>=1.1')
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/cctrltunnel']
 
 if sys.platform == 'win32':
-    #noinspection PyUnresolvedReferences
     import py2exe
+
     required.append('paramiko')
     extra_options = dict(
         setup_requires=['py2exe'],
-        console = srcscripts,
-        zipfile = None,#"lib/library.zip",
-        data_files=[("",["cacerts.txt",])],
-        options = {
+        console=srcscripts,
+        zipfile=None,
+        data_files=[("", ["cacerts.txt", ])],
+        options={
             "py2exe": {
                 "compressed": True,
                 "optimize": 2,
@@ -65,7 +66,7 @@ if sys.platform == 'win32':
 else:
     extra_options = dict(
         scripts=srcscripts,
-        data_files=[("",["cacerts.txt",])],
+        data_files=[("", ["cacerts.txt", ])],
         packages=find_packages()
     )
 
@@ -73,24 +74,24 @@ setup(
     name="cctrl",
     version=__version__,
     description='cloudControl command line utilities',
-    author = 'cloudControl Team',
-    author_email = 'info@cloudcontrol.de',
-    url = 'https://www.cloudcontrol.com',
-    download_url = DOWNLOAD_URL,
-    license = 'Apache 2.0',
+    author='cloudControl Team',
+    author_email='info@cloudcontrol.de',
+    url='https://www.cloudcontrol.com',
+    download_url=DOWNLOAD_URL,
+    license='Apache 2.0',
     classifiers=[
-          'Development Status :: 5 - Production/Stable',
-          'Environment :: Console',
-          'Intended Audience :: Developers',
-          'Intended Audience :: Information Technology',
-          'Intended Audience :: System Administrators',
-          'License :: OSI Approved :: Apache Software License',
-          'Operating System :: MacOS :: MacOS X',
-          'Operating System :: Microsoft :: Windows',
-          'Operating System :: POSIX',
-          'Programming Language :: Python',
-          'Topic :: Internet'
-          ],
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX',
+        'Programming Language :: Python',
+        'Topic :: Internet'
+    ],
     install_requires=required,
     **extra_options
 )
