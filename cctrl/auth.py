@@ -17,9 +17,11 @@
 from __builtin__ import open, raw_input, range
 from exceptions import ImportError, ValueError
 
-import getpass
+from getpass import getpass
 import sys
 import os
+from cctrl.oshelpers import recode_input
+
 try:
     import json
 except ImportError:
@@ -104,9 +106,9 @@ def get_credentials(create=False):
     password = None
     for i in range(3):
         #noinspection PyArgumentEqualDefault
-        password = getpass.getpass('Password: ')
+        password = recode_input(getpass('Password: '))
         if create:
-            password2 = getpass.getpass('Password (again): ')
+            password2 = recode_input(getpass('Password (again): '))
             if password != password2:
                 print messages['PasswordsDontMatch']
                 if i == 2:

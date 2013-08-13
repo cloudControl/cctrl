@@ -17,6 +17,7 @@
 """
 import os
 import subprocess
+import sys
 from cctrl.error import InputErrorException
 
 
@@ -99,3 +100,7 @@ def is_buildpack_url_valid(buildpack_url):
     stdout, _ = sp.communicate()
     valid = True if sp.returncode == 0 and 'refs/heads' in stdout else False
     return valid
+
+
+def recode_input(input):
+    return input.decode(sys.stdin.encoding or 'UTF-8').encode('UTF-8')
