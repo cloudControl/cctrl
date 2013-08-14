@@ -37,7 +37,7 @@ if sys.platform == 'win32':
         setup_requires=['py2exe'],
         console=srcscripts,
         zipfile=None,
-        data_files=[("cctrl", ["cacerts.txt", ])],
+        data_files=[("", ["cacerts.txt", ])],
         options={
             "py2exe": {
                 "compressed": True,
