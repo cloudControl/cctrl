@@ -9,8 +9,6 @@ import os
 import sys
 from cctrl.version import __version__
 
-DOWNLOAD_URL = 'https://s3-eu-west-1.amazonaws.com/cctrl/cctrl-{0}.tar.gz'.format(__version__)
-
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -77,7 +75,6 @@ setup(
     author='cloudControl Team',
     author_email='info@cloudcontrol.de',
     url='https://www.cloudcontrol.com',
-    download_url=DOWNLOAD_URL,
     license='Apache 2.0',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
