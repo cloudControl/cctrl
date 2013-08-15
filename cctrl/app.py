@@ -21,6 +21,7 @@ import time
 import re
 import subprocess
 import shlex
+import json
 import webbrowser
 from settings import SSH_FORWARDER, SSH_FORWARDER_PORT
 from datetime import datetime
@@ -33,7 +34,7 @@ from cctrl.output import print_deployment_details, print_app_details,\
     print_alias_details, print_log_entries, print_list_apps,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
     print_worker_list, print_worker_details, print_cronjob_list, \
-    print_cronjob_details, print_addon_creds
+    print_cronjob_details, print_addon_creds, print_config
 from output import print_user_list_app, print_user_list_deployment
 from cctrl.addonoptionhelpers import parse_additional_addon_options
 
@@ -668,6 +669,87 @@ class AppController():
         except GoneError:
             raise InputErrorException('WrongAddon')
         return True
+
+    def _getConfig(self, args):
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        try:
+            addon = self.api.read_addon(app_name, deployment_name, 'config.free')
+            return addon['settings']['CONFIG_VARS']
+        except (KeyError, GoneError):
+            return {}
+
+    def _updateConfig(self, app_name, deployment_name, new_config):
+        try:
+            self.api.delete_addon(app_name, deployment_name, 'config.free')
+        except GoneError:
+            pass
+
+        try:
+            self.api.create_addon(
+                app_name,
+                deployment_name,
+                'config.free',
+                json.dumps(new_config)
+            )
+            return True
+        except ConflictDuplicateError:
+            return False
+
+
+    def showConfig(self, args):
+        """
+            Show a list of all config vars
+        """
+        config = self._getConfig(args)
+        print_config(config, args.shell)
+
+    def getConfigVar(self, args):
+        """
+            Show one config param
+        """
+        config = self._getConfig(args)
+        if args.param not in config:
+            print
+        else:
+            print config[args.param]
+
+    def setConfigVars(self, args):
+        """
+            Set one or more config params
+        """
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        old_config = self._getConfig(args)
+        new_config = old_config.copy()
+
+        try:
+            for param in args.param:
+                name, value = param.split('=')
+                new_config[name] = value
+        except ValueError:
+            print messages['ParameterMalformed']
+            return
+
+        if new_config != old_config:
+            self._updateConfig(app_name, deployment_name, new_config)
+            print_config(new_config)
+
+    def unsetConfigVars(self, args):
+        """
+            Unset one or more config params
+        """
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        old_config = self._getConfig(args)
+        new_config = old_config.copy()
+
+        for param in args.param:
+            param = param.decode('utf8')
+            if param in new_config:
+                del new_config[param]
+
+        if new_config != old_config:
+            self._updateConfig(app_name, deployment_name, new_config)
+
+        print_config(new_config)
 
     def showUser(self, args):
         """

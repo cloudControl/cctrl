@@ -415,6 +415,40 @@ def parse_cmdline(app, api):
         help="pattern to search for within the log entry")
     log_subparser.set_defaults(func=app.log)
 
+    showConfig_subparser = subparsers.add_parser('config', help="show config")
+    showConfig_subparser.add_argument(
+        '-s',
+        '--shell',
+        action="store_true",
+        dest="shell",
+        help="output config vars in shell format")
+    showConfig_subparser.set_defaults(func=app.showConfig)
+
+    getConfigVar_subparser = subparsers.add_parser(
+        'config.get',
+        help="display a config parameter")
+    getConfigVar_subparser.add_argument('param',  help="parameter name")
+    getConfigVar_subparser.set_defaults(func=app.getConfigVar)
+
+    setConfigVar_subparser = subparsers.add_parser(
+        'config.set',
+        help="set one or more config parameters")
+    setConfigVar_subparser.add_argument(
+        'param',
+        nargs='+',
+        help='config parameters. Format: KEY1=VALUE1 [KEY2=VALUE2]')
+    setConfigVar_subparser.set_defaults(func=app.setConfigVars)
+
+    unsetConfigVar_subparser = subparsers.add_parser(
+        'config.unset',
+        help='unset one or more config parameters'
+    )
+    unsetConfigVar_subparser.add_argument(
+        'param',
+        nargs='+',
+        help='config parameter. Format: KEY1 [KEY2]')
+    unsetConfigVar_subparser.set_defaults(func=app.unsetConfigVars)
+
     parser.add_argument(
         '-v',
         '--version',
