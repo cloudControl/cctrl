@@ -761,7 +761,10 @@ class AppController():
         #noinspection PyTupleAssignmentBalance
         app_name, deployment_name = self.parse_app_deployment_name(args.name)  # @UnusedVariable
         if '@' in args.username:
-            users = self.api.read_app(app_name)['users']
+            if deployment_name:
+                users = self.api.read_deployment_users(app_name, deployment_name)
+            else:
+                users = self.api.read_app(app_name)['users']
             try:
                 username = [user['username'] for user in users
                             if user['email'] == args.username][0]

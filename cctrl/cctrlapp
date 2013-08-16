@@ -247,8 +247,8 @@ def parse_cmdline(app, api):
 
     removeUser_subparser = subparsers.add_parser(
         'user.remove',
-        help="remove user by user name")
-    removeUser_subparser.add_argument('username', help='user name')
+        help="remove user by username or email")
+    removeUser_subparser.add_argument('username', help='username or email')
     removeUser_subparser.set_defaults(func=app.removeUser)
 
     showAddon_subparser = subparsers.add_parser('addon', help="show addon")
