@@ -193,19 +193,17 @@ def parse_cmdline(app, api):
 
     deploy_subparser = subparsers.add_parser('deploy', help="deploy version")
     deploy_subparser.add_argument(
-        '--min',
-        action="store",
-        nargs='?',
-        default=None,
-        dest="min_boxes",
-        help="minimum number of boxes")
+        '--containers', '--min',
+        type=int,
+        metavar='NUM',
+        help="number of containers")
     deploy_subparser.add_argument(
-        '--max',
-        action="store",
-        nargs='?',
-        default=None,
-        dest="max_boxes",
-        help="maximum number of boxes")
+        '--size', '--max',
+        type=int,
+        help="container memory size in units of 128MB")
+    deploy_subparser.add_argument(
+        '--memory',
+        help="container size in MB, --memory=X*128 maps to --size=X")
     deploy_subparser.add_argument(
         '--stack',
         action="store",
@@ -359,11 +357,11 @@ def parse_cmdline(app, api):
         help='optional parameters to append to the command')
     addWorker_subparser.add_argument(
         '--size',
-        action="store",
-        nargs='?',
-        default=None,
-        dest="size",
-        help="worker container size")
+        type=int,
+        help="container memory size in units of 128MB")
+    addWorker_subparser.add_argument(
+        '--memory',
+        help="container size in MB, --memory=X*128 maps to --size=X")
     addWorker_subparser.set_defaults(func=app.addWorker)
 
     removeWorker_subparser = subparsers.add_parser(

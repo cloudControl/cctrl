@@ -116,8 +116,8 @@ def print_deployment_details(deployment):
         print ' last modified: {0}'.format(deployment['date_modified'])
         print ' current version: {0}'.format(deployment['version'])
         print ' current state: {0}'.format(deployment['state'])
-        print ' min boxes: {0}'.format(deployment['min_boxes'])
-        print ' max boxes: {0}'.format(deployment['max_boxes'])
+        print ' containers: {0}'.format(deployment['min_boxes'])
+        print ' memory: {0}MB'.format(deployment['max_boxes'] * 128)
 
         if 'users' in deployment and deployment['users']:
             print '\n Users'
@@ -138,8 +138,8 @@ def print_deployment_details(deployment):
         print ' last modified: %(date_modified)s' % (deployment)
         print ' current version: %(version)s' % (deployment)
         print ' current state: %(state)s' % (deployment)
-        print ' min boxes: %(min_boxes)s' % (deployment)
-        print ' max boxes: %(min_boxes)s' % (deployment)
+        print ' containers: %(min_boxes)s' % (deployment)
+        print ' memory: %(min_boxes)sMB' % (deployment) * 128
 
         if 'users' in deployment and deployment['users']:
             print '\n Users'

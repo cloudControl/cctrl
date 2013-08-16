@@ -90,5 +90,7 @@ setup(
         'Topic :: Internet'
     ],
     install_requires=required,
+    tests_require=['mock'],
+    test_suite='test',
     **extra_options
 )

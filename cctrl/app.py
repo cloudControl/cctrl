@@ -22,6 +22,9 @@ import re
 import subprocess
 import shlex
 import webbrowser
+import math
+import sys
+
 from settings import SSH_FORWARDER, SSH_FORWARDER_PORT
 from datetime import datetime
 
@@ -324,6 +327,21 @@ class AppController():
         finally:
             os.dup2(savout, 1)
 
+    def _get_size_from_memory(self, memory):
+        res = re.match(r'(\d+)(.*)', memory.lower())
+        if not res:
+            raise InputErrorException('InvalidMemory')
+        if res.group(2) in ['mb', 'm', '']:
+            size = float(res.group(1)) / 128
+        elif res.group(2) in ['gb', 'g']:
+            size = float(res.group(1)) * 2**10 / 128
+        else:
+            raise InputErrorException('InvalidMemory')
+        final_size = int(math.ceil(size))
+        if final_size != size:
+            print >> sys.stderr, 'Memory size has to be a multiple of 128MB and has been rounded up to {0}MB.'.format(final_size * 128)
+        return final_size
+
     def deploy(self, args):
         """
             Deploy a distinct version.
@@ -337,31 +355,49 @@ class AppController():
             app_name, deployment_name = self.parse_app_deployment_name(args.name)
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
+        if args.size:
+            size = args.size
+            if args.memory:
+                raise InputErrorException('AmbiguousSize')
+        elif args.memory:
+            memory = args.memory
+            size = self._get_size_from_memory(memory)
+        else:
+            size = None
         try:
-            self.api.update_deployment(
-                app_name,
-                version=args.version,
-                deployment_name=deployment_name,
-                min_boxes=args.min_boxes,
-                max_boxes=args.max_boxes,
-                stack=args.stack)
-        except GoneError:
             try:
-                self.api.create_deployment(
-                    app_name,
-                    deployment_name=deployment_name,
-                    stack=args.stack)
                 self.api.update_deployment(
                     app_name,
                     version=args.version,
                     deployment_name=deployment_name,
-                    min_boxes=args.min_boxes,
-                    max_boxes=args.max_boxes,
+                    min_boxes=args.containers,
+                    max_boxes=size,
                     stack=args.stack)
             except GoneError:
-                raise InputErrorException('WrongApplication')
-            except ForbiddenError:
-                raise InputErrorException('NotAllowed')
+                try:
+                    self.api.create_deployment(
+                        app_name,
+                        deployment_name=deployment_name,
+                        stack=args.stack)
+                    self.api.update_deployment(
+                        app_name,
+                        version=args.version,
+                        deployment_name=deployment_name,
+                        min_boxes=args.containers,
+                        max_boxes=size,
+                        stack=args.stack)
+                except GoneError:
+                    raise InputErrorException('WrongApplication')
+                except ForbiddenError:
+                    raise InputErrorException('NotAllowed')
+        except BadRequestError as e:
+            if 'max_boxes_over_max_process_limit' in e.msgs:
+                if args.memory:
+                    raise InputErrorException('InvalidMemory')
+                if args.size:
+                    raise InputErrorException('InvalidSize')
+            else:
+                raise
         else:
             return True
 
@@ -450,16 +486,34 @@ class AppController():
         """
         #noinspection PyTupleAssignmentBalance
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if args.size:
+            size = args.size
+            if args.memory:
+                raise InputErrorException('AmbiguousSize')
+        elif args.memory:
+            memory = args.memory
+            size = self._get_size_from_memory(memory)
+        else:
+            size = None
         if not deployment_name:
             raise InputErrorException('NoDeployment')
         if not args.command:
             raise InputErrorException('NoWorkerCommandGiven')
-        self.api.create_worker(
-            app_name,
-            deployment_name,
-            args.command,
-            params=args.params,
-            size=args.size)
+        try:
+            self.api.create_worker(
+                app_name,
+                deployment_name,
+                args.command,
+                params=args.params,
+                size=size)
+        except BadRequestError as e:
+            if 'size' in e.msgs:
+                if args.memory:
+                    raise InputErrorException('InvalidMemory')
+                if args.size:
+                    raise InputErrorException('InvalidSize')
+            else:
+                raise
         return True
 
     def showWorker(self, args):

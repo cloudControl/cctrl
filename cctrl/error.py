@@ -64,7 +64,9 @@ messages['APIUnreachable'] = r'Could not connect to API...'
 messages['NoBuildpackURL'] = r'You need to provide a buildpack URL for "custom" application type'
 messages['NoCustomApp'] = r'You can only provide a buildpack URL if the app type is "custom"'
 messages['NoValidBuildpackURL'] = r'The buildpack URL provided is not valid. Please try again.'
-
+messages['AmbiguousSize'] = r'You can only specify one of --size or --memory'
+messages['InvalidMemory'] = r'Memory size should be an integer between 128 and 1024 MB'
+messages['InvalidSize'] = r'Size should be an integer between 1 and 8'
 
 if sys.platform == 'win32':
     messages['UpdateAvailable'] = r'A newer version is available. Please update.'
