@@ -21,6 +21,8 @@ from cctrl.version import __version__
 HOME_PATH = os.path.abspath(os.path.expanduser('~/.cloudControl'))
 TOKEN_FILE_NAME = os.environ.get('CCTRL_TOKEN_FILE', 'token.json')
 TOKEN_FILE_PATH = os.path.join(HOME_PATH, TOKEN_FILE_NAME)
+CONFIG_FILE_NAME = os.environ.get('CONFIG_FILE_NAME', 'config.json')
+CONFIG_FILE_PATH = os.path.join(HOME_PATH, CONFIG_FILE_NAME)
 CACHE_DIR = None
 VERSION = __version__
 SSH_FORWARDER = os.environ.pop('SSH_FORWARDER', 'ssh.cloudcontrolled.net')

@@ -27,6 +27,7 @@ import cctrl.settings as settings
 import cctrl.common as common
 from cctrl.user import UserController
 from cctrl.output import get_version
+from cctrl.auth import write_configfile
 
 
 def main(api):
@@ -135,6 +136,11 @@ def parse_cmdline(user):
         'logout',
         help="logout - this deletes the saved token")
     logout_subparser.set_defaults(func=user.logout)
+
+    logout_subparser = subparsers.add_parser(
+        'store',
+        help="store the credentials locally")
+    logout_subparser.set_defaults(func=write_configfile)
 
     args = parser.parse_args()
 

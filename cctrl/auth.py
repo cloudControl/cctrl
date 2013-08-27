@@ -29,7 +29,7 @@ except ImportError:
     import simplejson as json
 
 from cctrl.error import messages, PasswordsDontMatchException
-from cctrl.settings import TOKEN_FILE_PATH, HOME_PATH
+from cctrl.settings import TOKEN_FILE_PATH, HOME_PATH, CONFIG_FILE_PATH
 
 
 def update_tokenfile(api):
@@ -94,7 +94,29 @@ def delete_tokenfile():
     return False
 
 
-def get_credentials(create=False):
+def read_configfile():
+    if os.path.exists(CONFIG_FILE_PATH):
+        try:
+            with open(CONFIG_FILE_PATH) as config_fp:
+                config_json = json.loads(config_fp.read())
+            return config_json['email'], config_json['password']
+        except (ValueError, IOError, KeyError):
+            # fall through to normal authorization
+            pass
+
+
+def write_configfile(*args):
+    if os.path.exists(CONFIG_FILE_PATH):
+        question = raw_input(
+                "'%s' exsits, type 'Yes' without the quotes to overwrite:"
+                % CONFIG_FILE_PATH)
+    if question.lower() == 'yes':
+        email, password = get_credentials(read=False)
+        with open(CONFIG_FILE_PATH, 'w') as config_fp:
+            config_fp.write(json.dumps({'email': email, 'password': password}))
+
+
+def get_credentials(create=False, read=True):
     """
         We use this to ask the user for his credentials in case we have no
         valid token.
@@ -102,6 +124,10 @@ def get_credentials(create=False):
         to make sure, that no typing error occurred. This is done three times
         after that a PasswordsDontMatchException is thrown.
     """
+    if read:
+        credentials = read_configfile()
+        if credentials is not None:
+            return credentials
     email = raw_input('Email   : ')
     password = None
     for i in range(3):
