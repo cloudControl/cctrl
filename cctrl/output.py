@@ -18,7 +18,6 @@
 from datetime import datetime
 import sys
 import json
-import re
 
 if sys.version_info < (2, 6):
     has_str_format = False
@@ -97,11 +96,7 @@ def print_deployment_details(deployment):
         Print deployment details.
     """
     app, dep = deployment['name'].split("/")
-    if not dep == 'default':
-        dep_app = "{}.{}".format(dep, app)
-    else:
-        dep_app = app
-    url = "http://{}.{}.com".format(dep_app, re.search('@(.*).com', deployment['branch']).group(1))
+    url = "http://{0}".format(deployment['default_subdomain'])
 
     if deployment['stack']:
         stack = deployment['stack']['name']

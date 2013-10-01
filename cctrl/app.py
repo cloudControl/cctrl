@@ -279,33 +279,23 @@ class AppController():
         else:
             print_app_details(obj)
 
-    def _get_url(self, app_or_deployment):
-        if 'default_subdomain' in app_or_deployment:
-            return "http://{}".format(app_or_deployment['default_subdomain'])
-        else:
-            app, _ = app_or_deployment['deployments'][0]['name'].split('/')
-            return "http://{}.{}.com".format(app, re.search('@(.*).com', app_or_deployment['repository']).group(1))
+    def _get_url(self, deployment):
+        return "http://{0}".format(deployment['default_subdomain'])
 
     def _open(self, app_or_deployment_name):
         app_name, deployment_name = self.parse_app_deployment_name(app_or_deployment_name)
-        if deployment_name:
-            try:
-                deployment = self.api.read_deployment(
-                    app_name,
-                    deployment_name)
+        if not deployment_name:
+            deployment_name = 'default'
 
-            except GoneError:
-                raise InputErrorException('WrongDeployment')
-            else:
-                return app_name, deployment_name, deployment
+        try:
+            deployment = self.api.read_deployment(
+                app_name,
+                deployment_name)
+
+        except GoneError:
+            raise InputErrorException('WrongDeployment')
         else:
-            try:
-                app = self.api.read_app(app_name)
-
-            except GoneError:
-                raise InputErrorException('WrongApplication')
-            else:
-                return app_name, deployment_name, app
+            return app_name, deployment_name, deployment
 
     def open(self, args):
         """
@@ -334,7 +324,7 @@ class AppController():
         if res.group(2) in ['mb', 'm', '']:
             size = float(res.group(1)) / 128
         elif res.group(2) in ['gb', 'g']:
-            size = float(res.group(1)) * 2**10 / 128
+            size = float(res.group(1)) * 2 ** 10 / 128
         else:
             raise InputErrorException('InvalidMemory')
         final_size = int(math.ceil(size))
