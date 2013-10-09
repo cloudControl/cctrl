@@ -37,6 +37,7 @@ messages['PermissionDenied'] = r'You are not allowed to push to this repository.
 messages['SecurityQuestionDenied'] = r'Action canceled on user request.'
 messages['WrongAddon'] = r'This addon is unknown for this app_name/deployment_name.'
 messages['DuplicateAddon'] = r'You can not add the same addon option twice.'
+messages['InvalidAddon'] = r'This is not a valid addon name. Check the list of available addons with cctrlapp app_name/deployment_name addon.list'
 messages['WrongPubKeyName'] = r'The public key file must be named "id_rsa.pub".'
 messages['NoSuchKeyFile'] = r'No such key file. Please check your input.'
 messages['WrongKeyFormat'] = r'Your id_rsa.pub public key file seems to be in the wrong format.'

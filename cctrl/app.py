@@ -767,6 +767,10 @@ class AppController():
             self.api.create_addon(app_name, deployment_name, args.addon, options)
         except ConflictDuplicateError:
             raise InputErrorException('DuplicateAddon')
+        except BadRequestError as e:
+            if 'This is not a valid addon name' in str(e):
+                raise InputErrorException('InvalidAddon')
+            raise
         return True
 
     def showAddon(self, args):
