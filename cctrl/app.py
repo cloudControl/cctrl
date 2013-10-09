@@ -251,8 +251,8 @@ class AppController():
             if deployment_name:
                 raise InputErrorException('DeleteOnlyApplication')
             if not args.force_delete:
-                question = raw_input('Do you really want to delete this ' +
-                                     'application? Type "Yes" without the quotes to delete: ')
+                question = raw_input("Do you really want to delete application '{0}'? ".format(app_name) +
+                                     'Type "Yes" without the quotes to delete: ')
             else:
                 question = 'Yes'
             if question.lower() == 'yes':
@@ -456,9 +456,8 @@ class AppController():
         if not self.does_app_exist(app_name):
             raise InputErrorException('WrongApplication')
         if not args.force_delete:
-                question = raw_input('Do you really want to delete this ' +
-                                     'deployment? This will delete everything including files ' +
-                                     'and the database. Type "Yes" without the quotes to delete: ')
+            question = raw_input("Do you really want to delete deployment '{0}'? ".format(args.name) +
+                                 'This will delete everything including files and the database. Type "Yes" without the quotes to delete: ')
         else:
             question = 'Yes'
         if question.lower() == 'yes':
