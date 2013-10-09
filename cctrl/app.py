@@ -760,9 +760,11 @@ class AppController():
             raise InputErrorException('NoDeployment')
         if not args.addon:
             raise InputErrorException('NoAddonGiven')
+
         options = None
         if args.options:
             options = parse_additional_addon_options(args.options)
+
         try:
             self.api.create_addon(app_name, deployment_name, args.addon, options)
         except ConflictDuplicateError:
@@ -771,6 +773,9 @@ class AppController():
             if 'This is not a valid addon name' in str(e):
                 raise InputErrorException('InvalidAddon')
             raise
+        except ForbiddenError:
+            raise InputErrorException('ForbiddenAddon')
+
         return True
 
     def showAddon(self, args):
