@@ -1,12 +1,1 @@
-*.iml
-*.pyc
-**/*.pyc
 cctrl.egg-info/
-.idea/
-.bzr/
-.bzrignore
-*.swp
-build/
-dist/
-win32setup/
-*.nja

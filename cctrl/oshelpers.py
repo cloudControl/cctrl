@@ -36,18 +36,15 @@ def readContentOf(filename):
     """
     file_content = ''
 
-    # check if file exists
     if not os.path.isfile(os.path.abspath(filename)):
         raise InputErrorException('FileNotFound')
 
-    # open file and read into string
     try:
         open_file = open(os.path.abspath(filename), 'r')
         file_content = str(open_file.read())
     except IOError:
         raise InputErrorException('FileReadOrWriteFailed')
 
-    # pass back content
     return file_content.strip()
 
 
@@ -60,7 +57,7 @@ def which(programs):
         return os.path.exists(file_path) and os.access(file_path, os.X_OK)
 
     for program in programs:
-        file_path, file_name = os.path.split(program)  # @UnusedVariable
+        file_path, file_name = os.path.split(program)
         if file_path:
             if is_exe(program):
                 return program

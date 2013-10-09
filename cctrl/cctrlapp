@@ -46,7 +46,6 @@ class list_action(argparse.Action):
         self.api = api
 
     def __call__(self, parser, namespace, value, option_string=None):
-        # check if there is a newer version of cctrl or pycclib
         try:
             common.check_for_updates(self.api.check_versions()['cctrl'])
         except KeyError:
@@ -60,7 +59,6 @@ class list_action(argparse.Action):
                 try:
                     apps.list()
                 except TokenRequiredError:
-                    # check ENV for credentials first
                     try:
                         email = env.pop('CCTRL_EMAIL')
                         password = env.pop('CCTRL_PASSWORD')
@@ -87,7 +85,6 @@ class list_action(argparse.Action):
                     ConflictDuplicateError, GoneError, InternalServerError,
                     NotImplementedError, ThrottledError, InputErrorException), e:
                 sys.exit(e)
-        #noinspection PyUnreachableCode,PyUnboundLocalVariable
         parser.exit()
 
 
