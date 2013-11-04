@@ -102,7 +102,9 @@ def get_credentials(create=False):
         to make sure, that no typing error occurred. This is done three times
         after that a PasswordsDontMatchException is thrown.
     """
-    email = raw_input('Email   : ')
+    sys.stderr.write('Email   : ')
+    sys.stderr.flush()
+    email = raw_input()
     password = None
     for i in range(3):
         #noinspection PyArgumentEqualDefault

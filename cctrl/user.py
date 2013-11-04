@@ -27,6 +27,7 @@ from output import print_key
 from oshelpers import readContentOf
 from keyhelpers import is_key_valid, ask_user_to_use_default_ssh_public_key, \
     create_new_default_ssh_keys
+from pycclib import cclib
 
 
 class UserController():
@@ -38,6 +39,13 @@ class UserController():
 
     def __init__(self, api):
         self.api = api
+
+    def checktoken(self, args):
+        try:
+            self.api.read_users()
+        except cclib.TokenRequiredError:
+            sys.exit(1)
+        sys.exit(0)
 
     def create(self, args):
         """

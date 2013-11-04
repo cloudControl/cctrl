@@ -136,6 +136,9 @@ def parse_cmdline(user):
         help="logout - this deletes the saved token")
     logout_subparser.set_defaults(func=user.logout)
 
+    check_token_subparser = subparsers.add_parser('checktoken')
+    check_token_subparser.set_defaults(func=user.checktoken)
+
     args = parser.parse_args()
 
     common.run(args, api)
