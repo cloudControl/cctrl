@@ -251,6 +251,37 @@ def parse_cmdline(app, api):
     removeUser_subparser.add_argument('username', help='username or email')
     removeUser_subparser.set_defaults(func=app.removeUser)
 
+    showConfig_subparser = subparsers.add_parser('config', help="list config vars")
+    showConfig_subparser.add_argument(
+        'key',
+        nargs='?',
+        help='name of the key e.g. foo')
+    showConfig_subparser.set_defaults(func=app.showConfig)
+
+    addConfig_subparser = subparsers.add_parser(
+        'config.add',
+        help="add config vars")
+    addConfig_subparser.add_argument(
+        '-f',
+        '--force',
+        action="store_true",
+        dest="force_add",
+        help="don't ask for confirmation")
+    addConfig_subparser.add_argument(
+        'variables',
+        nargs=argparse.REMAINDER,
+        help='variables to add passed through to the config add-on e.g foo=bar baz=faa')
+    addConfig_subparser.set_defaults(func=app.addConfig)
+
+    removeConfig_subparser = subparsers.add_parser(
+        'config.remove',
+        help="remove config variables")
+    removeConfig_subparser.add_argument(
+        'variables',
+        nargs=argparse.REMAINDER,
+        help='variables to remove on the config add-on e.g. foo baz')
+    removeConfig_subparser.set_defaults(func=app.removeConfig)
+
     showAddon_subparser = subparsers.add_parser('addon', help="show addon")
     showAddon_subparser.add_argument(
         'addon',

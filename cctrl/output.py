@@ -491,3 +491,13 @@ def get_version(cctrlversion, cclibversion):
             cclibversion)
     else:
         return '%%(prog)s %s using pycclib %s' % (cctrlversion, cclibversion)
+
+
+def print_config(config, key=None):
+    if key and key in config:
+        print config.get(key)
+    elif key:
+        print '[ERROR] Key `{}` not found.'.format(key)
+    else:
+        for param, value in config.items():
+            print u'{0}={1}'.format(param, value)

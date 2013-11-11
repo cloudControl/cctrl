@@ -28,7 +28,9 @@ import sys
 from settings import SSH_FORWARDER, SSH_FORWARDER_PORT
 from datetime import datetime
 
-from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, BadRequestError, ConflictDuplicateError, UnauthorizedError, NotImplementedError
+from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, \
+    BadRequestError, ConflictDuplicateError, UnauthorizedError, \
+    NotImplementedError, ThrottledError
 from subprocess import check_call, CalledProcessError
 from cctrl.error import InputErrorException, messages
 from cctrl.oshelpers import check_installed_rcs, is_buildpack_url_valid
@@ -36,9 +38,9 @@ from cctrl.output import print_deployment_details, print_app_details,\
     print_alias_details, print_log_entries, print_list_apps,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
     print_worker_list, print_worker_details, print_cronjob_list, \
-    print_cronjob_details, print_addon_creds
+    print_cronjob_details, print_addon_creds, print_config
 from output import print_user_list_app, print_user_list_deployment
-from cctrl.addonoptionhelpers import parse_additional_addon_options
+from cctrl.addonoptionhelpers import parse_additional_addon_options, parse_config_variables
 
 
 class AppsController():
@@ -596,6 +598,96 @@ class AppController():
             self.api.delete_cronjob(app_name, deployment_name, args.job_id)
         except GoneError:
             raise InputErrorException('NoSuchCronJob')
+        return True
+
+    def _get_config_vars(self, app_name, deployment_name):
+        try:
+            addon = self.api.read_addon(app_name, deployment_name, 'config.free')
+            return addon['settings']['CONFIG_VARS']
+        except (KeyError, GoneError):
+            return {}
+
+    def showConfig(self, args):
+        """
+            Shows the config variables
+        """
+        #noinspection PyTupleAssignmentBalance
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if not deployment_name:
+            raise InputErrorException('NoDeployment')
+
+        config = self._get_config_vars(app_name, deployment_name)
+
+        if config:
+            print_config(config, args.key)
+        else:
+            print '[ERROR] No configuration variables for this deployment.'
+
+        return True
+
+    def addConfig(self, args):
+        """
+            Adds the given variable and value to the config addon.
+        """
+        #noinspection PyTupleAssignmentBalance
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if not deployment_name:
+            raise InputErrorException('NoDeployment')
+        if not args.variables:
+            raise InputErrorException('NoVariablesGiven')
+
+        variables = parse_config_variables(args.variables, 'add')
+        force = args.force_add
+
+        try:
+            self.api.update_addon(
+                app_name,
+                deployment_name,
+                'config.free',
+                'config.free',
+                settings=variables,
+                force=force)
+        except GoneError:
+            # Add addon if it didn't exist.
+            self.api.create_addon(app_name, deployment_name, 'config.free', variables)
+        except ThrottledError as te:
+            # Overwrite the variable if didn't force, but type Yes
+            question = raw_input('{} Do you really want to overwrite it? ' \
+                                    'Type "Yes" without the quotes to proceed: '.format(te.message))
+            if question.lower() == 'yes':
+                self.api.update_addon(
+                    app_name,
+                    deployment_name,
+                    'config.free',
+                    'config.free',
+                    settings=variables,
+                    force=True)
+
+        return True
+
+    def removeConfig(self, args):
+        """
+            Remove the given variable if it exists.
+        """
+        #noinspection PyTupleAssignmentBalance
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if not deployment_name:
+            raise InputErrorException('NoDeployment')
+        if not args.variables:
+            raise InputErrorException('NoVariablesGiven')
+
+        variables = parse_config_variables(args.variables, 'remove')
+
+        try:
+            self.api.update_addon(
+                app_name,
+                deployment_name,
+                'config.free',
+                'config.free',
+                settings=variables)
+        except GoneError:
+            raise InputErrorException('WrongAddon')
+
         return True
 
     #noinspection PyUnusedLocal

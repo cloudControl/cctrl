@@ -59,3 +59,23 @@ def parse_additional_addon_options(options):
             else:
                 result[match.group(1)] = 'true'
     return json.dumps(result)
+
+
+def parse_config_variables(variables, method):
+    if not variables:
+        return None
+
+    result = {}
+    if method == 'remove':
+        for var in variables:
+            result[var.strip()] = None
+
+    if method == 'add':
+        for var in variables:
+            if '=' in var:
+                k, v = var.split('=')
+                result[k.strip()] = if_file_get_content(v.strip())
+            else:
+                result[var.strip()] = 'true'
+
+    return json.dumps(result)
