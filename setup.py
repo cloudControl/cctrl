@@ -24,7 +24,7 @@ if sys.version_info < (2, 6):
 else:
     required = []
 
-required.append('pycclib>=1.3.1')
+required.append('pycclib>=1.4.0')
 required.append('argparse>=1.1')
 
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/cctrltunnel']
