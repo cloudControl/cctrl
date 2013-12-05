@@ -25,7 +25,7 @@ import webbrowser
 import math
 import sys
 
-from settings import SSH_FORWARDER, SSH_FORWARDER_PORT
+from settings import SSH_FORWARDER, SSH_FORWARDER_PORT, CONFIG_ADDON
 from datetime import datetime
 
 from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, \
@@ -602,7 +602,7 @@ class AppController():
 
     def _get_config_vars(self, app_name, deployment_name):
         try:
-            addon = self.api.read_addon(app_name, deployment_name, 'config.free')
+            addon = self.api.read_addon(app_name, deployment_name, CONFIG_ADDON)
             return addon['settings']['CONFIG_VARS']
         except (KeyError, GoneError):
             return {}
@@ -643,23 +643,23 @@ class AppController():
             self.api.update_addon(
                 app_name,
                 deployment_name,
-                'config.free',
-                'config.free',
+                CONFIG_ADDON,
+                CONFIG_ADDON,
                 settings=variables,
                 force=force)
         except GoneError:
             # Add addon if it didn't exist.
-            self.api.create_addon(app_name, deployment_name, 'config.free', variables)
+            self.api.create_addon(app_name, deployment_name, CONFIG_ADDON, variables)
         except ThrottledError as te:
             # Overwrite the variable if didn't force, but type Yes
-            question = raw_input('{} Do you really want to overwrite it? ' \
-                                    'Type "Yes" without the quotes to proceed: '.format(te.message))
+            question = raw_input('{} Do you really want to overwrite it? '
+                    'Type "Yes" without the quotes to proceed: '.format(te.message))
             if question.lower() == 'yes':
                 self.api.update_addon(
                     app_name,
                     deployment_name,
-                    'config.free',
-                    'config.free',
+                    CONFIG_ADDON,
+                    CONFIG_ADDON,
                     settings=variables,
                     force=True)
 
@@ -682,8 +682,8 @@ class AppController():
             self.api.update_addon(
                 app_name,
                 deployment_name,
-                'config.free',
-                'config.free',
+                CONFIG_ADDON,
+                CONFIG_ADDON,
                 settings=variables)
         except GoneError:
             raise InputErrorException('WrongAddon')

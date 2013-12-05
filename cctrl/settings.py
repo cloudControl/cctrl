@@ -25,3 +25,4 @@ CACHE_DIR = None
 VERSION = __version__
 SSH_FORWARDER = os.environ.pop('SSH_FORWARDER', 'ssh.cloudcontrolled.net')
 SSH_FORWARDER_PORT = '2222'
+CONFIG_ADDON = os.getenv('CONFIG_ADDON', 'config.free')
