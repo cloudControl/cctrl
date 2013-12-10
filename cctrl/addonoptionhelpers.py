@@ -73,7 +73,7 @@ def parse_config_variables(variables, method):
     if method == 'add':
         for var in variables:
             if '=' in var:
-                k, v = var.split('=')
+                k, v = var.split('=', 1)
                 result[k.strip()] = if_file_get_content(v.strip())
             else:
                 result[var.strip()] = 'true'
