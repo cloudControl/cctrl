@@ -141,7 +141,6 @@ class AppController():
         if deployment_name == '':
             raise InputErrorException('NoDeployment')
 
-        last_time = None
         logEntries = []
 
         try:
@@ -149,7 +148,7 @@ class AppController():
                 app_name,
                 deployment_name,
                 'deploy',
-                last_time=last_time)
+                last_time=None)
         except GoneError:
             raise InputErrorException('WrongApplication')
 
@@ -159,32 +158,23 @@ class AppController():
         current_deployment = deployments.pop()
         previous_deployment = None
 
-        print 'Current version: {0}'.format(current_deployment)
-        print 'Looking for previous version...'
-
         while not previous_deployment:
             try:
-                v = deployments.pop()
-                if v not in current_deployment:
-                    previous_deployment = v
+                deployment_version = deployments.pop()
+                if deployment_version != current_deployment:
+                    previous_deployment = deployment_version
             except IndexError:
-                break
+                raise InputErrorException('NoPreviousVersionFound')
 
-        if previous_deployment:
-
-            print 'Deploying version {0}'.format(previous_deployment)
-
-            try:
-                self.api.update_deployment(
-                    app_name,
-                    version=previous_deployment,
-                    deployment_name=deployment_name)
-            except GoneError:
-                raise InputErrorException('WrongApplication')
-            except ForbiddenError:
-                raise InputErrorException('NotAllowed')
-        else:
-            print 'No previous version found'
+        try:
+            self.api.update_deployment(
+                app_name,
+                version=previous_deployment,
+                deployment_name=deployment_name)
+        except GoneError:
+            raise InputErrorException('WrongApplication')
+        except ForbiddenError:
+            raise InputErrorException('NotAllowed')
 
     def create(self, args):
         """
