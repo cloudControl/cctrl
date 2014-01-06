@@ -148,6 +148,11 @@ def parse_cmdline(app, api):
         help='command to execute')
     run_cmd_subparser.set_defaults(func=app.run_cmd)
 
+    rollback_cmd_subparser = subparsers.add_parser(
+        'rollback',
+        help="rollback to previous deployment")
+    rollback_cmd_subparser.set_defaults(func=app.rollback_cmd)
+
     create_subparser = subparsers.add_parser(
         'create',
         help="create new application")

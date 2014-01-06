@@ -128,6 +128,64 @@ class AppController():
         ssh_cmd = ['ssh', '-t'] + sshopts + ['-p', SSH_FORWARDER_PORT, '--', user_host, command]
         subprocess.call(ssh_cmd)
 
+    def rollback_cmd(self, args):
+        """
+           Rollback command
+        """
+
+        try:
+            app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        except ParseAppDeploymentName:
+            raise InputErrorException('InvalidApplicationName')
+
+        if deployment_name == '':
+            raise InputErrorException('NoDeployment')
+
+        last_time = None
+        logEntries = []
+
+        try:
+            logEntries = self.api.read_log(
+                app_name,
+                deployment_name,
+                'deploy',
+                last_time=last_time)
+        except GoneError:
+            raise InputErrorException('WrongApplication')
+
+        deployments = [e['message'].split(':')[1].strip() for e in logEntries
+                       if 'Deployed version' in e['message']]
+
+        current_deployment = deployments.pop()
+        previous_deployment = None
+
+        print 'Current version: {0}'.format(current_deployment)
+        print 'Looking for previous version...'
+
+        while not previous_deployment:
+            try:
+                v = deployments.pop()
+                if v not in current_deployment:
+                    previous_deployment = v
+            except IndexError:
+                break
+
+        if previous_deployment:
+
+            print 'Deploying version {0}'.format(previous_deployment)
+
+            try:
+                self.api.update_deployment(
+                    app_name,
+                    version=previous_deployment,
+                    deployment_name=deployment_name)
+            except GoneError:
+                raise InputErrorException('WrongApplication')
+            except ForbiddenError:
+                raise InputErrorException('NotAllowed')
+        else:
+            print 'No previous version found'
+
     def create(self, args):
         """
             Creates a new application.
