@@ -155,7 +155,11 @@ class AppController():
         deployments = [e['message'].split(':')[1].strip() for e in logEntries
                        if 'Deployed version' in e['message']]
 
-        current_deployment = deployments.pop()
+        try:
+            current_deployment = deployments.pop()
+        except IndexError:
+            raise InputErrorException('NoPreviousVersionFound')
+
         previous_deployment = None
 
         while not previous_deployment:
