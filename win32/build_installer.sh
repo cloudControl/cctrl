@@ -20,8 +20,10 @@ if [ ! -f "$ISCC_HOME" ]; then
 	ISCC_HOME="C:/Program Files/Inno Setup 5"
 fi
 
+log_dir=$(pwd)
+
 function handle_log() {
-	cat 2>>build.log 1>&2 
+	cat 2>>$log_dir/build.log 1>&2
 }
 
 echo "[INFO] Installing paramiko..."
