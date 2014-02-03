@@ -7,6 +7,7 @@
 # Install setuptool: https://bitbucket.org/pypa/setuptools#rst-header-windows
 # Install pycrypto for python 2.7: http://www.voidspace.org.uk/python/modules.shtml#pycrypto
 # Install p2exe: http://sourceforge.net/projects/py2exe
+# Install Inno Setup: http://www.jrsoftware.org/isdl.php#stable
 
 set -e
 
