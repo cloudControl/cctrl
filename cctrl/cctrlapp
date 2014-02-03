@@ -194,6 +194,12 @@ def parse_cmdline(app, api):
         'source',
         nargs='?',
         help='path to local branch')
+    push_subparser.add_argument(
+        '--clear-cache',
+        action='store_true',
+        dest='clear_cache',
+        help="clear the deployment buildpack cache"
+        )
     push_subparser.set_defaults(func=app.push)
 
     deploy_subparser = subparsers.add_parser('deploy', help="deploy version")

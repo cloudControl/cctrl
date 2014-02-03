@@ -969,7 +969,12 @@ class AppController():
 
             It queries the deployment details and uses whatever is in branch.
 
+            If deployment exists will clear the buildpack cache if
+            --clear-cache flag is set.
+
             If no deployment exists we automatically create one.
+
+
         """
         if not check_installed_rcs('bzr') and not check_installed_rcs('git'):
             raise InputErrorException('NeitherBazaarNorGitFound')
@@ -985,10 +990,14 @@ class AppController():
             deployment = self.api.read_deployment(
                 app_name,
                 push_deployment_name)
+
+            if args.clear_cache:
+                self._clear_cache(app_name, deployment_name, deployment)
         except GoneError:
             push_deployment_name = ''
             if deployment_name != '':
                 push_deployment_name = deployment_name
+
             try:
                 deployment = self.api.create_deployment(
                     app_name,
@@ -1003,6 +1012,7 @@ class AppController():
             rcs = check_installed_rcs('bzr')
             if not rcs:
                 raise InputErrorException('BazaarRequiredToPush')
+
             if args.source:
                 cmd = [rcs, 'push', deployment['branch'], '-d', args.source]
             else:
@@ -1011,10 +1021,12 @@ class AppController():
             rcs = check_installed_rcs('git')
             if not rcs:
                 raise InputErrorException('GitRequiredToPush')
+
             if push_deployment_name == 'default':
                 git_branch = 'master'
             else:
                 git_branch = push_deployment_name
+
             if args.source:
                 git_dir = os.path.join(args.source, '.git')
                 cmd = [
@@ -1025,10 +1037,23 @@ class AppController():
                     git_branch]
             else:
                 cmd = [rcs, 'push', deployment['branch'], git_branch]
+
         try:
             check_call(cmd)
         except CalledProcessError, e:
             print str(e)
+
+    def _clear_cache(self, app_name, deployment_name, deployment):
+        subdomain = self._get_url(deployment).split('.', 1)[1]
+        host_name = '{}@{}'.format(app_name, subdomain)
+
+        sshopts = shlex.split(os.environ.get('CCTRL_SSHOPTS', ''))
+        ssh_cmd = ['ssh'] + sshopts + ['--', host_name, 'delete-cache', deployment_name]
+
+        try:
+            check_call(ssh_cmd)
+        except CalledProcessError, e:
+            raise InputErrorException('ClearCacheFailed')
 
     def parse_app_deployment_name(self, name):
         match = re.match(
