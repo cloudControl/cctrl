@@ -33,6 +33,7 @@ if sys.platform == 'win32':
     import py2exe
 
     required.append('paramiko')
+    required.append('ecdsa')
     extra_options = dict(
         setup_requires=['py2exe'],
         console=srcscripts,
@@ -56,7 +57,7 @@ if sys.platform == 'win32':
                     'pickle',
                     'difflib',
                     'unittest'],
-                "includes": ["argparse", "pycclib", "paramiko", "Crypto"],
+                "includes": ["argparse", "pycclib", "paramiko", "Crypto", "ecdsa"],
                 "packages": find_packages()
             }
         }
