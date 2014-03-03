@@ -71,6 +71,7 @@ messages['InvalidMemory'] = r'Memory size should be an integer between 128 and 1
 messages['InvalidSize'] = r'Size should be an integer between 1 and 8'
 messages['NoPreviousVersionFound'] = r'Previous version not found.'
 messages['ClearCacheFailed'] = r'Clear buildpack cache failed.'
+messages['DeploymentFailed'] = r'Deployment failed.'
 
 if sys.platform == 'win32':
     messages['UpdateAvailable'] = r'A newer version is available. Please update.'

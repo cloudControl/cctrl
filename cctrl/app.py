@@ -26,7 +26,7 @@ import math
 import sys
 
 from settings import SSH_FORWARDER, SSH_FORWARDER_PORT, CONFIG_ADDON
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, \
     BadRequestError, ConflictDuplicateError, UnauthorizedError, \
@@ -349,6 +349,15 @@ class AppController():
         else:
             return app_name, deployment_name, deployment
 
+    def _open(self, url):
+        savout = os.dup(1)
+        os.close(1)
+        os.open(os.devnull, os.O_RDWR)
+        try:
+            webbrowser.open_new_tab(url)
+        finally:
+            os.dup2(savout, 1)
+
     def open(self, args):
         """
             Open deployment URL on the default browser.
@@ -361,13 +370,7 @@ class AppController():
         """
         app_name, deployment_name, obj = self.get_deployment_from_app_deployment_name(args.name)
         url = self._get_url(obj)
-        savout = os.dup(1)
-        os.close(1)
-        os.open(os.devnull, os.O_RDWR)
-        try:
-            webbrowser.open_new_tab(url)
-        finally:
-            os.dup2(savout, 1)
+        self._open(url)
 
     def _get_size_from_memory(self, memory):
         res = re.match(r'(\d+)(.*)', memory.lower())
@@ -441,6 +444,22 @@ class AppController():
                 raise
         else:
             return True
+
+    def redeploy(self, deployment):
+        """
+            Redeploy an existing application with same options and configuration.
+        """
+        try:
+            app_name, deployment_name = self.parse_app_deployment_name(deployment['name'])
+            self.api.update_deployment(
+                app_name,
+                version=-1,
+                deployment_name=deployment_name,
+                min_boxes=deployment['min_boxes'],
+                max_boxes=deployment['max_boxes'],
+                stack=deployment['stack']['name'])
+        except (KeyError, GoneError, BadRequestError):
+            raise InputErrorException('DeploymentFailed')
 
     def undeploy(self, args):
         """
@@ -945,6 +964,25 @@ class AppController():
                 print_log_entries(logEntries, args.type)
             time.sleep(2)
 
+    def log_from_now(self, app_name, deployment_name, type_):
+        last_time = datetime.now() - timedelta(seconds=10)
+        while True:
+            logEntries = []
+            try:
+                logEntries = self.api.read_log(
+                    app_name,
+                    deployment_name,
+                    type_,
+                    last_time=last_time)
+            except GoneError:
+                raise InputErrorException('WrongApplication')
+
+            if len(logEntries) > 0:
+                last_time = datetime.fromtimestamp(float(logEntries[-1]["time"]))
+                print_log_entries(logEntries, type_)
+
+            time.sleep(1)
+
     def _get_or_create_deployment(self, app_name, deployment_name, clear_cache):
         try:
             if deployment_name == '':
@@ -1008,7 +1046,6 @@ class AppController():
 
         return cmd
 
-
     def push(self, args):
         """
             Push is actually only a shortcut for bzr and git push commands
@@ -1035,6 +1072,19 @@ class AppController():
             check_call(cmd)
         except CalledProcessError, e:
             print str(e)
+            exit(1)
+
+        if args.ship:
+            print
+            print "Deploying newest version. Press Ctrl+C to open {} in your browser.".format(deployment['name'])
+            self.redeploy(deployment)
+
+            try:
+                self.log_from_now(app_name, deployment_name, 'deploy')
+            except KeyboardInterrupt:
+                print
+                print "Opening in browser..."
+                self._open(self._get_url(deployment))
 
     def _clear_cache(self, app_name, deployment_name, deployment):
         subdomain = self._get_url(deployment).split('.', 1)[1]
@@ -1045,7 +1095,7 @@ class AppController():
 
         try:
             check_call(ssh_cmd)
-        except CalledProcessError, e:
+        except CalledProcessError:
             raise InputErrorException('ClearCacheFailed')
 
     def parse_app_deployment_name(self, name):

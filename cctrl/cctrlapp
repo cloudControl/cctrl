@@ -192,6 +192,11 @@ def parse_cmdline(app, api):
         nargs='?',
         help='path to local branch')
     push_subparser.add_argument(
+        '--ship',
+        action='store_true',
+        dest='ship',
+        help='deploy, show logs and open last version in browser after pushing')
+    push_subparser.add_argument(
         '--clear-cache',
         action='store_true',
         dest='clear_cache',
