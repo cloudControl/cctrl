@@ -945,6 +945,70 @@ class AppController():
                 print_log_entries(logEntries, args.type)
             time.sleep(2)
 
+    def _get_or_create_deployment(self, app_name, deployment_name, clear_cache):
+        try:
+            if deployment_name == '':
+                push_deployment_name = 'default'
+            else:
+                push_deployment_name = deployment_name
+
+            deployment = self.api.read_deployment(
+                app_name,
+                push_deployment_name)
+
+            if clear_cache:
+                self._clear_cache(app_name, deployment_name, deployment)
+        except GoneError:
+            push_deployment_name = ''
+            if deployment_name != '':
+                push_deployment_name = deployment_name
+
+            try:
+                deployment = self.api.create_deployment(
+                    app_name,
+                    deployment_name=push_deployment_name)
+            except GoneError:
+                raise InputErrorException('WrongApplication')
+            except ForbiddenError:
+                raise InputErrorException('NotAllowed')
+
+        return deployment, push_deployment_name
+
+    def _push_cmd(self, deployment, push_deployment_name, source):
+        cmd = None
+        if deployment['branch'].startswith('bzr+ssh'):
+            rcs = check_installed_rcs('bzr')
+            if not rcs:
+                raise InputErrorException('BazaarRequiredToPush')
+
+            if source:
+                cmd = [rcs, 'push', deployment['branch'], '-d', source]
+            else:
+                cmd = [rcs, 'push', deployment['branch']]
+        elif deployment['branch'].startswith('ssh'):
+            rcs = check_installed_rcs('git')
+            if not rcs:
+                raise InputErrorException('GitRequiredToPush')
+
+            if push_deployment_name == 'default':
+                git_branch = 'master'
+            else:
+                git_branch = push_deployment_name
+
+            if source:
+                git_dir = os.path.join(source, '.git')
+                cmd = [
+                    rcs,
+                    '--git-dir=' + git_dir,
+                    'push',
+                    deployment['branch'],
+                    git_branch]
+            else:
+                cmd = [rcs, 'push', deployment['branch'], git_branch]
+
+        return cmd
+
+
     def push(self, args):
         """
             Push is actually only a shortcut for bzr and git push commands
@@ -963,61 +1027,9 @@ class AppController():
             raise InputErrorException('NeitherBazaarNorGitFound')
 
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
-        try:
-            if deployment_name == '':
-                push_deployment_name = 'default'
-            else:
-                push_deployment_name = deployment_name
-            deployment = self.api.read_deployment(
-                app_name,
-                push_deployment_name)
+        deployment, push_deployment_name = self._get_or_create_deployment(app_name, deployment_name, args.clear_cache)
 
-            if args.clear_cache:
-                self._clear_cache(app_name, deployment_name, deployment)
-        except GoneError:
-            push_deployment_name = ''
-            if deployment_name != '':
-                push_deployment_name = deployment_name
-
-            try:
-                deployment = self.api.create_deployment(
-                    app_name,
-                    deployment_name=push_deployment_name)
-            except GoneError:
-                raise InputErrorException('WrongApplication')
-            except ForbiddenError:
-                raise InputErrorException('NotAllowed')
-
-        cmd = None
-        if deployment['branch'].startswith('bzr+ssh'):
-            rcs = check_installed_rcs('bzr')
-            if not rcs:
-                raise InputErrorException('BazaarRequiredToPush')
-
-            if args.source:
-                cmd = [rcs, 'push', deployment['branch'], '-d', args.source]
-            else:
-                cmd = [rcs, 'push', deployment['branch']]
-        elif deployment['branch'].startswith('ssh'):
-            rcs = check_installed_rcs('git')
-            if not rcs:
-                raise InputErrorException('GitRequiredToPush')
-
-            if push_deployment_name == 'default':
-                git_branch = 'master'
-            else:
-                git_branch = push_deployment_name
-
-            if args.source:
-                git_dir = os.path.join(args.source, '.git')
-                cmd = [
-                    rcs,
-                    '--git-dir=' + git_dir,
-                    'push',
-                    deployment['branch'],
-                    git_branch]
-            else:
-                cmd = [rcs, 'push', deployment['branch'], git_branch]
+        cmd = self._push_cmd(deployment, push_deployment_name, args.source)
 
         try:
             check_call(cmd)
