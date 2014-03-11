@@ -197,10 +197,10 @@ def parse_cmdline(app, api):
         dest='ship',
         help='deploy, show logs and open last version in browser after pushing')
     push_subparser.add_argument(
-        '--clear-cache',
+        '--clear-buildpack-cache',
         action='store_true',
         dest='clear_cache',
-        help="clear the deployment buildpack cache"
+        help="clear the deployment buildpack cache so all dependencies are downloaded again"
         )
     push_subparser.set_defaults(func=app.push)
 
