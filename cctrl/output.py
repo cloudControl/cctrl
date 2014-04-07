@@ -46,7 +46,7 @@ def print_list_apps(apps):
                 app['type']['name'])
 
 
-def print_app_details(app):
+def print_app_details(app, public_key):
     """
         Print app details.
     """
@@ -59,6 +59,8 @@ def print_app_details(app):
         if app['type']['name'] == 'custom':
             print ' Buildpack URL: {0}\n'.format(app['buildpack_url'])
         print ' Repository: {0}'.format(app['repository'])
+        print '\n Public Key: {0}'.format(public_key)
+
         print '\n Users'
         print "   {0:15} {1:35} {2:10} {3:10}".format('Name', 'Email', 'Role', 'Deployment')
         for user in app['users']:
@@ -77,6 +79,7 @@ def print_app_details(app):
             app['type']['name'],
             app['owner']['username'])
         print ' Repository: %s' % (app['repository'])
+        print '\n Public Key: %s' % public_key
         print '\n Users'
         print "   %-15ls %-35ls %-10ls %-10ls" % ('Name', 'Email', 'Role', 'Deployment')
         for user in app['users']:

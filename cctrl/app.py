@@ -24,6 +24,7 @@ import shlex
 import webbrowser
 import math
 import sys
+import urlparse
 
 from settings import SSH_FORWARDER, SSH_FORWARDER_PORT, CONFIG_ADDON
 from datetime import datetime, timedelta
@@ -31,9 +32,9 @@ from datetime import datetime, timedelta
 from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, \
     BadRequestError, ConflictDuplicateError, UnauthorizedError, \
     NotImplementedError, ThrottledError
-from subprocess import check_call, CalledProcessError
+from subprocess import check_call, check_output, CalledProcessError
 from cctrl.error import InputErrorException, messages
-from cctrl.oshelpers import check_installed_rcs, is_buildpack_url_valid
+from cctrl.oshelpers import check_installed_rcs, is_buildpack_url_valid, ssh_cmd
 from cctrl.output import print_deployment_details, print_app_details,\
     print_alias_details, print_log_entries, print_list_apps,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
@@ -329,10 +330,14 @@ class AppController():
         if deployment_name:
             print_deployment_details(obj)
         else:
-            print_app_details(obj)
+            public_key_content = self._get_public_key(app_name, obj)
+            print_app_details(obj, public_key_content)
 
-    def _get_url(self, deployment):
-        return "http://{0}".format(deployment['default_subdomain'])
+    def _get_deployment_url(self, obj):
+        return "http://{0}".format(obj.get('default_subdomain'))
+
+    def _get_repository_url(self, obj):
+        return urlparse.urlsplit(obj.get('repository')).netloc
 
     def get_deployment_from_app_deployment_name(self, app_or_deployment_name):
         app_name, deployment_name = self.parse_app_deployment_name(app_or_deployment_name)
@@ -369,7 +374,7 @@ class AppController():
             'cctrlapp APP_NAME/DEP_NAME open' opens the deployment's URL
         """
         app_name, deployment_name, obj = self.get_deployment_from_app_deployment_name(args.name)
-        url = self._get_url(obj)
+        url = self._get_deployment_url(obj)
         self._open(url)
 
     def _get_size_from_memory(self, memory):
@@ -1084,19 +1089,28 @@ class AppController():
             except KeyboardInterrupt:
                 print
                 print "Opening in browser..."
-                self._open(self._get_url(deployment))
+                self._open(self._get_deployment_url(deployment))
 
     def _clear_cache(self, app_name, deployment_name, deployment):
-        subdomain = self._get_url(deployment).split('.', 1)[1]
+        subdomain = self._get_deployment_url(deployment).split('.', 1)[1]
         host_name = '{}@{}'.format(app_name, subdomain)
 
-        sshopts = shlex.split(os.environ.get('CCTRL_SSHOPTS', ''))
-        ssh_cmd = ['ssh'] + sshopts + ['--', host_name, 'delete-cache', deployment_name]
+        cmd = ssh_cmd(host_name, 'delete-cache', deployment_name)
 
         try:
-            check_call(ssh_cmd)
+            check_call(cmd)
         except CalledProcessError:
             raise InputErrorException('ClearCacheFailed')
+
+    def _get_public_key(self, app_name, application):
+        host_name = self._get_repository_url(application)
+
+        cmd = ssh_cmd(host_name, 'get-public-key')
+
+        try:
+            return check_output(cmd)
+        except CalledProcessError:
+            raise InputErrorException('GetPublicKeyFailed')
 
     def parse_app_deployment_name(self, name):
         match = re.match(

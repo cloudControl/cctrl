@@ -18,6 +18,7 @@
 import os
 import subprocess
 import sys
+import shlex
 
 from cctrl.error import InputErrorException
 
@@ -102,3 +103,8 @@ def is_buildpack_url_valid(buildpack_url):
 
 def recode_input(input):
     return input.decode(sys.stdin.encoding or 'UTF-8').encode('UTF-8')
+
+
+def ssh_cmd(host_name, *args):
+    sshopts = shlex.split(os.environ.get('CCTRL_SSHOPTS', ''))
+    return ['ssh'] + sshopts + ['--'] + [host_name] + list(args)
