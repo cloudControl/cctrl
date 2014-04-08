@@ -32,9 +32,10 @@ from datetime import datetime, timedelta
 from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, \
     BadRequestError, ConflictDuplicateError, UnauthorizedError, \
     NotImplementedError, ThrottledError
-from subprocess import check_call, check_output, CalledProcessError
+from subprocess import check_call, CalledProcessError
 from cctrl.error import InputErrorException, messages
-from cctrl.oshelpers import check_installed_rcs, is_buildpack_url_valid, ssh_cmd
+from cctrl.oshelpers import check_installed_rcs, is_buildpack_url_valid, \
+    ssh_cmd, check_output
 from cctrl.output import print_deployment_details, print_app_details,\
     print_alias_details, print_log_entries, print_list_apps,\
     print_addon_details, print_addons, print_addon_list, print_alias_list, \
@@ -1077,7 +1078,7 @@ class AppController():
             check_call(cmd)
         except CalledProcessError, e:
             print str(e)
-            exit(1)
+            sys.exit(1)
 
         if args.ship:
             print
@@ -1106,7 +1107,6 @@ class AppController():
         host_name = self._get_repository_url(application)
 
         cmd = ssh_cmd(host_name, 'get-public-key')
-
         try:
             return check_output(cmd)
         except CalledProcessError:
