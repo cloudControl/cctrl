@@ -21,8 +21,13 @@ from cctrl.version import __version__
 HOME_PATH = os.path.abspath(os.path.expanduser('~/.cloudControl'))
 TOKEN_FILE_NAME = os.environ.get('CCTRL_TOKEN_FILE', 'token.json')
 TOKEN_FILE_PATH = os.path.join(HOME_PATH, TOKEN_FILE_NAME)
-CACHE_DIR = None
 VERSION = __version__
-SSH_FORWARDER = os.environ.pop('SSH_FORWARDER', 'ssh.cloudcontrolled.net')
-SSH_FORWARDER_PORT = '2222'
 CONFIG_ADDON = os.getenv('CONFIG_ADDON', 'config.free')
+
+
+class Settings():
+
+    def __init__(self):
+        self.ssh_forwarder = os.environ.pop('SSH_FORWARDER', 'ssh.cloudcontrolled.net')
+        self.ssh_forwarder_port = '2222'
+        self.api_url = os.environ.pop('CCTRL_API_URL', 'https://api.cloudcontrol.com')

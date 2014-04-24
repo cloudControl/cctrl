@@ -48,7 +48,7 @@ def check_for_updates(latest_version_str, our_version_str=VERSION):
             return
 
 
-def init_api():
+def init_api(settings):
     """
         This methods initializes the API but first checks for a
         CCTRL_API_URL environment variable and uses it if found.
@@ -56,12 +56,12 @@ def init_api():
         because the httplib2 provided ones are not included due to
         py2exe.
     """
-    try:
-        api_url = os.environ.pop('CCTRL_API_URL')
-    except KeyError:
-        pass
-    else:
-        cclib.API_URL = api_url
+    #try:
+        #api_url = settings.api_url
+    #except KeyError:
+        #pass
+    #else:
+    #cclib.API_URL = settings.api_url
 
     dirname = os.path.dirname(__file__)
     while len(dirname) > 1:
@@ -73,7 +73,7 @@ def init_api():
 
         dirname = os.path.dirname(dirname)
 
-    return cclib.API(token=read_tokenfile())
+    return cclib.API(token=read_tokenfile(), url=settings.api_url)
 
 
 def run(args, api):

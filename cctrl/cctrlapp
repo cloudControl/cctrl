@@ -21,7 +21,7 @@ import argparse
 import sys
 from os import environ as env
 
-import cctrl.settings as settings
+from cctrl.settings import Settings, VERSION
 from pycclib.cclib import *
 from pycclib.version import __version__ as cclibversion
 import cctrl.common as common
@@ -88,8 +88,8 @@ class list_action(argparse.Action):
         parser.exit()
 
 
-def main(api):
-    app = AppController(api)
+def main(api, settings):
+    app = AppController(api, settings)
     parse_cmdline(app, api)
 
 
@@ -106,7 +106,7 @@ def parse_cmdline(app, api):
         Each subparser then may have it's own arguments needed for that
         particular subparsers action to work.
     """
-    version = get_version(settings.VERSION, cclibversion)
+    version = get_version(VERSION, cclibversion)
     description = "%(prog)s controls your cloudControl apps"
     epilog = "And now you're in control"
 
@@ -476,9 +476,10 @@ def parse_cmdline(app, api):
 
 
 if __name__ == "__main__":
-    api = common.init_api()
+    settings = Settings()
+    api = common.init_api(settings)
     try:
-        main(api)
+        main(api, settings)
     except KeyboardInterrupt:
         pass
     finally:

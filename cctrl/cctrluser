@@ -23,8 +23,8 @@ import argparse
 
 from pycclib.version import __version__ as cclibversion
 
-import cctrl.settings as settings
 import cctrl.common as common
+from cctrl.settings import Settings, VERSION
 from cctrl.user import UserController
 from cctrl.output import get_version
 
@@ -39,7 +39,7 @@ def parse_cmdline(user):
       We parse the commandline using argparse from
       http://code.google.com/p/argparse/.
     """
-    version = get_version(settings.VERSION, cclibversion)
+    version = get_version(VERSION, cclibversion)
     usage = '%(prog)s [-h, --help] [command]'
     description = '%(prog)s controls your user account'
     epilog = "And now you're in control"
@@ -145,7 +145,8 @@ def parse_cmdline(user):
 
 
 if __name__ == "__main__":
-    api = common.init_api()
+    settings = Settings()
+    api = common.init_api(settings)
     try:
         main(api)
     except KeyboardInterrupt:

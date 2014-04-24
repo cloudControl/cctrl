@@ -26,7 +26,7 @@ import math
 import sys
 import urlparse
 
-from settings import SSH_FORWARDER, SSH_FORWARDER_PORT, CONFIG_ADDON
+from settings import CONFIG_ADDON
 from datetime import datetime, timedelta
 
 from pycclib.cclib import GoneError, ForbiddenError, TokenRequiredError, \
@@ -102,8 +102,9 @@ class AppController():
         pycclib to fire a request and handles the response showing it to the
         user if needed.
     """
-    def __init__(self, api):
+    def __init__(self, api, settings):
         self.api = api
+        self.settings = settings
 
     def run_cmd(self, args):
         try:
@@ -114,7 +115,7 @@ class AppController():
         if deployment_name == '':
             raise InputErrorException('NoDeployment')
 
-        user_host = '{app}-{dep}@{host}'.format(app=app_name, dep=deployment_name, host=SSH_FORWARDER)
+        user_host = '{app}-{dep}@{host}'.format(app=app_name, dep=deployment_name, host=self.settings.ssh_forwarder)
 
         # Refresh our token before sending it to the forwarder.
         try:
@@ -127,8 +128,8 @@ class AppController():
         else:
             raise InputErrorException('NoRunCommandGiven')
         sshopts = shlex.split(os.environ.get('CCTRL_SSHOPTS', ''))
-        ssh_cmd = ['ssh', '-t'] + sshopts + ['-p', SSH_FORWARDER_PORT, '--', user_host, command]
-        subprocess.call(ssh_cmd)
+        ssh_command = ['ssh', '-t'] + sshopts + ['-p', self.settings.ssh_forwarder_port, '--', user_host, command]
+        subprocess.call(ssh_command)
 
     def rollback_cmd(self, args):
         """
