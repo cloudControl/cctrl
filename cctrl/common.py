@@ -56,13 +56,6 @@ def init_api(settings):
         because the httplib2 provided ones are not included due to
         py2exe.
     """
-    #try:
-        #api_url = settings.api_url
-    #except KeyError:
-        #pass
-    #else:
-    #cclib.API_URL = settings.api_url
-
     dirname = os.path.dirname(__file__)
     while len(dirname) > 1:
         p = os.path.join(dirname, 'cacerts.txt')

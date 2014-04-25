@@ -27,7 +27,7 @@ CONFIG_ADDON = os.getenv('CONFIG_ADDON', 'config.free')
 
 class Settings():
 
-    def __init__(self):
+    def __init__(self, api_url=None):
         self.ssh_forwarder = os.environ.pop('SSH_FORWARDER', 'ssh.cloudcontrolled.net')
         self.ssh_forwarder_port = '2222'
-        self.api_url = os.environ.pop('CCTRL_API_URL', 'https://api.cloudcontrol.com')
+        self.api_url = api_url or os.environ.pop('CCTRL_API_URL', 'https://api.cloudcontrol.com')

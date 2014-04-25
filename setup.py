@@ -27,7 +27,7 @@ else:
 required.append('pycclib>=1.5.0')
 required.append('argparse>=1.1')
 
-srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/cctrltunnel']
+srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/exoapp', 'cctrl/exouser']
 
 if sys.platform == 'win32':
     import py2exe
