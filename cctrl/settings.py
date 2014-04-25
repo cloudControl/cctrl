@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    Copyright 2010 cloudControl UG (haftungsbeschraenkt)
+    Copyright 2014 cloudControl GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -31,4 +31,4 @@ class Settings():
         self.ssh_forwarder = os.environ.pop('SSH_FORWARDER', 'ssh.cloudcontrolled.net')
         self.ssh_forwarder_port = '2222'
         self.api_url = api_url or os.environ.pop('CCTRL_API_URL', 'https://api.cloudcontrol.com')
-        self.token_source_url = token_source_url or self.api_url
+        self.token_source_url = token_source_url or self.api_url + '/token/'
