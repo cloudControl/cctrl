@@ -54,37 +54,7 @@ class list_action(argparse.Action):
             pass
 
         apps = AppsController(self.api)
-        while True:
-            try:
-                try:
-                    apps.list()
-                except TokenRequiredError:
-                    try:
-                        email = env.pop('CCTRL_EMAIL')
-                        password = env.pop('CCTRL_PASSWORD')
-                    except KeyError:
-                        email, password = get_credentials()
-                    try:
-                        self.api.create_token(email, password)
-                    except UnauthorizedError:
-                        sys.exit(messages['NotAuthorized'])
-                    else:
-                        pass
-                except ParseAppDeploymentName:
-                    sys.exit(messages['InvalidAppOrDeploymentName'])
-                else:
-                    break
-            except UnauthorizedError, e:
-                if delete_tokenfile():
-                    self.api.set_token(None)
-                else:
-                    sys.exit(messages['NotAuthorized'])
-            except ForbiddenError, e:
-                sys.exit(messages['NotAllowed'])
-            except (ConnectionException, BadRequestError,
-                    ConflictDuplicateError, GoneError, InternalServerError,
-                    NotImplementedError, ThrottledError, InputErrorException), e:
-                sys.exit(e)
+        common.execute_with_authenticated_user(self.api, lambda: apps.list())
         parser.exit()
 
 

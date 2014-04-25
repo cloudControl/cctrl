@@ -23,5 +23,5 @@ from cctrl.app_commands import setup_cli
 
 
 if __name__ == "__main__":
-    settings = Settings(api_url='https://api.app.exo.io')
+    settings = Settings(api_url='https://api.app.exo.io', token_source_url="https://todo-token-source.app.exo.io")
     setup_cli(settings)

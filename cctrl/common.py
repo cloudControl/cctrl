@@ -65,31 +65,14 @@ def init_api(settings):
             break
 
         dirname = os.path.dirname(dirname)
+    return cclib.API(token=read_tokenfile(), url=settings.api_url, token_source_url=settings.token_source_url)
 
-    return cclib.API(token=read_tokenfile(), url=settings.api_url)
 
-
-def run(args, api):
-    """
-        run takes care of calling the action with the needed arguments parsed
-        using argparse.
-
-        We first try to call the action. In case the called action requires a
-        valid token and the api instance does not have one a TokenRequiredError
-        gets raised. In this case we catch the error and ask the user for a
-        email/password combination to create a new token. After that we call
-        the action again.
-
-        pycclib raises an exception any time the API does answer with a
-        HTTP STATUS CODE other than 200, 201 or 204. We catch these exceptions
-        here and stop cctrlapp using sys.exit and show the error message to the
-        user.
-    """
-
+def execute_with_authenticated_user(api, command):
     while True:
         try:
             try:
-                args.func(args)
+                command()
             except cclib.TokenRequiredError:
                 # check ENV for credentials first
                 try:
@@ -120,6 +103,26 @@ def run(args, api):
                 cclib.InternalServerError, cclib.NotImplementedError, cclib.ThrottledError,
                 InputErrorException), e:
             sys.exit(e)
+
+
+def run(args, api):
+    """
+        run takes care of calling the action with the needed arguments parsed
+        using argparse.
+
+        We first try to call the action. In case the called action requires a
+        valid token and the api instance does not have one a TokenRequiredError
+        gets raised. In this case we catch the error and ask the user for a
+        email/password combination to create a new token. After that we call
+        the action again.
+
+        pycclib raises an exception any time the API does answer with a
+        HTTP STATUS CODE other than 200, 201 or 204. We catch these exceptions
+        here and stop cctrlapp using sys.exit and show the error message to the
+        user.
+    """
+
+    execute_with_authenticated_user(api, (lambda: args.func(args)))
 
 
 def shutdown(api):
