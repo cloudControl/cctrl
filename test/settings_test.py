@@ -28,7 +28,12 @@ class TestSettings(TestCase):
 
     def test_ssh_forwarder_url_default(self):
         settings = Settings(env={})
-        self.assertEquals('ssh.cloudcontrolled.net', settings.ssh_forwarder)
+        self.assertEquals('sshforwarder.cloudcontrolled.com', settings.ssh_forwarder)
+
+    def test_ssh_forwarder_url_set_by_argument(self):
+        test_env = {'SSH_FORWARDER': "any.env_api.url"}
+        settings = Settings(ssh_forwarder_url='my.ssh_forwarder.url', env=test_env)
+        self.assertEquals('my.ssh_forwarder.url', settings.ssh_forwarder)
 
     def test_ssh_forwarder_set_by_environment(self):
         test_env = {'SSH_FORWARDER': "my.ssh_forwarder.url"}

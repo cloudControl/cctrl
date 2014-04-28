@@ -17,7 +17,6 @@
     limitations under the License.
 """
 
-
 from cctrl.settings import Settings
 from cctrl.app_commands import setup_cli
 
