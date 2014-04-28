@@ -20,7 +20,7 @@ import sys
 
 from cctrl.error import PasswordsDontMatchException, InputErrorException, messages
 from cctrl.auth import get_credentials
-from pycclib.cclib import GoneError
+from pycclib.cclib import GoneError, NotImplementedError, ForbiddenError
 from cctrl.output import print_keys
 from pycclib.cclib import ConflictDuplicateError
 from output import print_key
@@ -62,7 +62,11 @@ class UserController():
                 email, password = get_credentials(create=True)
             except PasswordsDontMatchException:
                 return
-        self.api.create_user(name, email, password)
+        try:
+            self.api.create_user(name, email, password)
+        except NotImplementedError:
+            raise InputErrorException('CommandNotImplemented')
+
         print messages['UserCreatedNowCheckEmail']
 
     def activate(self, args):
@@ -77,14 +81,13 @@ class UserController():
                 activation_code=args.activation_code[0])
         except GoneError:
             raise InputErrorException('WrongUsername')
+        except NotImplementedError:
+            raise InputErrorException('CommandNotImplemented')
 
     def delete(self, args):
         """
             Delete your user account.
         """
-        apps = self.api.read_apps()
-        if len(apps) > 0:
-            raise InputErrorException('DeleteAppsBeforeUser')
 
         users = self.api.read_users()
         if not args.force_delete:
@@ -93,7 +96,13 @@ class UserController():
         else:
             question = 'Yes'
         if question.lower() == 'yes':
-            self.api.delete_user(users[0]['username'])
+            try:
+                self.api.delete_user(users[0]['username'])
+            except NotImplementedError:
+                raise InputErrorException('CommandNotImplemented')
+            except ForbiddenError:
+                raise InputErrorException('DeleteAppsBeforeUser')
+
             # After we have deleted our user we should also delete
             # the token_file to avoid confusion
             self.api.set_token(None)

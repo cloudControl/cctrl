@@ -73,6 +73,7 @@ messages['NoPreviousVersionFound'] = r'Previous version not found.'
 messages['ClearCacheFailed'] = r'Clear buildpack cache failed.'
 messages['DeploymentFailed'] = r'Deployment failed.'
 messages['GetPublicKeyFailed'] = r'Get Public Key failed.'
+messages['CommandNotImplemented'] = r'Sorry, this command is not available.'
 
 if sys.platform == 'win32':
     messages['UpdateAvailable'] = r'A newer version is available. Please update.'

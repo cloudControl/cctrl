@@ -898,6 +898,8 @@ class AppController():
 
         except ConflictDuplicateError:
             raise InputErrorException('UserBelongsToApp')
+        except NotImplementedError:
+            raise InputErrorException('CommandNotImplemented')
         return True
 
     def removeUser(self, args):
@@ -927,6 +929,8 @@ class AppController():
 
         except GoneError:
             raise InputErrorException('RemoveUserGoneError')
+        except NotImplementedError:
+            raise InputErrorException('CommandNotImplemented')
         return True
 
     def log(self, args):
