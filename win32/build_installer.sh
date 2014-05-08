@@ -33,6 +33,18 @@ pushd paramiko > /dev/null
 "$PYTHON_HOME/python.exe" setup.py install_lib 2>&1 | handle_log
 popd > /dev/null
 
+echo "[INFO] Installing certifi..."
+git clone https://github.com/certifi/python-certifi 2>&1 | handle_log
+pushd python-certifi > /dev/null
+"$PYTHON_HOME/python.exe" setup.py install_lib 2>&1 | handle_log
+popd > /dev/null
+
+echo "[INFO] Installing pycclib..."
+git clone https://github.com/cloudControl/pycclib 2>&1 | handle_log
+pushd pycclib > /dev/null
+"$PYTHON_HOME/python.exe" setup.py install_lib 2>&1 | handle_log
+popd > /dev/null
+
 echo "[INFO] Installing cctrl..."
 if [ ! -d  "$1" ]; then
 	git clone https://github.com/cloudControl/cctrl 2>&1 | handle_log
