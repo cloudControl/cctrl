@@ -1115,7 +1115,7 @@ class AppController():
         try:
             return check_output(cmd)
         except CalledProcessError:
-            raise InputErrorException('GetPublicKeyFailed')
+            return "Not available. Have you added your Public Key?"
 
     def parse_app_deployment_name(self, name):
         match = re.match(
