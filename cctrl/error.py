@@ -72,7 +72,6 @@ messages['InvalidSize'] = r'Size should be an integer between 1 and 8'
 messages['NoPreviousVersionFound'] = r'Previous version not found.'
 messages['ClearCacheFailed'] = r'Clear buildpack cache failed.'
 messages['DeploymentFailed'] = r'Deployment failed.'
-messages['GetPublicKeyFailed'] = r'Get Public Key failed.'
 messages['CommandNotImplemented'] = r'Sorry, this command is not available.'
 
 if sys.platform == 'win32':
