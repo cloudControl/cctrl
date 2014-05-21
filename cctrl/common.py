@@ -73,7 +73,7 @@ def execute_with_authenticated_user(api, command):
         try:
             try:
                 command()
-            except cclib.TokenRequiredError:
+            except (cclib.TokenRequiredError, cclib.UnauthorizedError):
                 # check ENV for credentials first
                 try:
                     email = os.environ.pop('CCTRL_EMAIL')
@@ -90,11 +90,6 @@ def execute_with_authenticated_user(api, command):
                 sys.exit(messages['InvalidAppOrDeploymentName'])
             else:
                 break
-        except cclib.UnauthorizedError, e:
-            if delete_tokenfile():
-                api.set_token(None)
-            else:
-                sys.exit(messages['NotAuthorized'])
         except cclib.ForbiddenError, e:
             sys.exit(messages['NotAllowed'])
         except cclib.ConnectionException:
