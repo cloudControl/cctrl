@@ -502,5 +502,5 @@ def print_config(config, key=None):
     elif key:
         print '[ERROR] Key `{}` not found.'.format(key)
     else:
-        for param, value in config.items():
-            print u'{0}={1}'.format(param, value)
+        for key in sorted(config):
+            print u'{0}={1}'.format(key, config.get(key))
