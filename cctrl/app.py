@@ -361,10 +361,14 @@ class AppController():
         savout = os.dup(1)
         os.close(1)
         os.open(os.devnull, os.O_RDWR)
+        saverr = os.dup(2)
+        os.close(2)
+        os.dup2(1, 2)
         try:
             webbrowser.open_new_tab(url)
         finally:
             os.dup2(savout, 1)
+            os.dup2(saverr, 2)
 
     def open(self, args):
         """
