@@ -1029,24 +1029,36 @@ class AppController():
                 print_log_entries(logEntries, args.type)
             time.sleep(2)
 
-    def log_from_now(self, app_name, deployment_name, type_):
-        last_time = datetime.now() - timedelta(seconds=10)
-        while True:
-            logEntries = []
-            try:
-                logEntries = self.api.read_log(
-                    app_name,
-                    deployment_name,
-                    type_,
-                    last_time=last_time)
-            except GoneError:
-                raise InputErrorException('WrongApplication')
+    def log_lines_look_successful(self, log_lines, containers, version):
+        container_lines = 0
+        for line in log_lines:
+            if line == 'Deployed version: %s' % version:
+                container_lines += 1
+            if container_lines == containers and line == "Routing requests to new version":
+                return True
+        return False
 
-            if len(logEntries) > 0:
-                last_time = datetime.fromtimestamp(float(logEntries[-1]["time"]))
-                print_log_entries(logEntries, type_)
+    def is_deploy_successful(self, app_name, deployment_name, ts, containers, version):
+        print "version:", version
+        printed_lines = 0
+        log_start_time = datetime.fromtimestamp(ts) - timedelta(seconds=1)
+        start_time = ts
+        while time.time() < start_time + 130:
+            log_entries = self.api.read_log(
+                app_name,
+                deployment_name,
+                'deploy',
+                last_time=log_start_time)
+
+            print_log_entries(log_entries[printed_lines:], 'deploy')
+            printed_lines = len(log_entries)
+
+            log_lines = [line['message'] for line in log_entries]
+            if self.log_lines_look_successful(log_lines, containers, version):
+                return True
 
             time.sleep(1)
+        return False
 
     def _get_or_create_deployment(self, app_name, deployment_name, clear_cache):
         try:
@@ -1123,6 +1135,7 @@ class AppController():
 
             If no deployment exists we automatically create one.
 
+            If --ship is provided, also deploy the deployment and open it in a browser.
 
         """
         if not check_installed_rcs('bzr') and not check_installed_rcs('git'):
@@ -1148,13 +1161,14 @@ class AppController():
             self.redeploy(deployment)
 
         if args.ship:
-            print
-            print "Deploying newest version. Press Ctrl+C to open {} in your browser.".format(deployment['name'])
+            ts = time.time()
             self.redeploy(deployment)
+            deployment = self.api.read_deployment(app_name, deployment_name)
 
-            try:
-                self.log_from_now(app_name, deployment_name, 'deploy')
-            except KeyboardInterrupt:
+            if not self.is_deploy_successful(app_name, deployment_name, ts, deployment['min_boxes'], deployment['version']):
+                sys.exit(1)
+
+            if sys.stdout.isatty():
                 print
                 print "Opening in browser..."
                 self._open(self._get_deployment_url(deployment))
