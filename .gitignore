@@ -1,1 +1,6 @@
 cctrl.egg-info/
+*.pyc
+*.iml
+/.idea/
+/build/
+/dist/

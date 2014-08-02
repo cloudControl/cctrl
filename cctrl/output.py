@@ -503,4 +503,4 @@ def print_config(config, key=None):
         print '[ERROR] Key `{}` not found.'.format(key)
     else:
         for key in sorted(config):
-            print u'{0}={1}'.format(key, config.get(key))
+            print u'{0}=\'{1}\''.format(key, (config.get(key) or '').replace("'", "'\\''"))
