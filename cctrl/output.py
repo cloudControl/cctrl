@@ -18,6 +18,7 @@
 from datetime import datetime
 import sys
 import json
+import pipes
 
 if sys.version_info < (2, 6):
     has_str_format = False
@@ -503,4 +504,4 @@ def print_config(config, key=None):
         print '[ERROR] Key `{}` not found.'.format(key)
     else:
         for key in sorted(config):
-            print u'{0}={1}'.format(key, config.get(key))
+            print u'{0}={1}'.format(key, pipes.quote(config.get(key) or '')
