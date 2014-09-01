@@ -28,6 +28,20 @@ class AppControllerTestCase(unittest.TestCase):
         self.assertEqual('[ERROR] Memory size should be an integer between 128 and 1024 MB', str(ctx.exception))
 
     @patch('cctrl.app.check_call')
+    def test_push_with_ship(self, check_call):
+        app = AppController(None, Settings())
+        app.redeploy = Mock()
+        app.log_from_now = Mock()
+        app._get_or_create_deployment = Mock(return_value=({'branch': 'default', 'name': 'dep'}, 'name'))
+        args = Mock()
+        args.name = 'app/dep'
+        args.deploy = False
+        app.push(args)
+        self.assertTrue(check_call.called)
+        self.assertTrue(app.redeploy.called)
+        self.assertTrue(app.log_from_now.called)
+
+    @patch('cctrl.app.check_call')
     def test_push_with_deploy(self, check_call):
         app = AppController(None, Settings())
         app.redeploy = Mock()
