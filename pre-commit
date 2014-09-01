@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+
+PYTHONPATH=src py.test tests/*.py --doctest-modules -v --cov cctrl/ --cov-report term-missing --cov-report=html
+
+set +e
+
