@@ -385,6 +385,21 @@ def parse_cmdline(app):
         help='stop worker by wrk_id')
     removeWorker_subparser.set_defaults(func=app.removeWorker)
 
+    restartWorker_subparser = subparsers.add_parser(
+        'worker.restart',
+        help="restart worker")
+    restartWorker_subparser.add_argument(
+        'wrk_id',
+        help='restart worker by wrk_id',
+        nargs='?'
+    )
+    restartWorker_subparser.add_argument(
+        '--all',
+        action='store_true',
+        dest='all',
+        help='restart all currently running workers')
+    restartWorker_subparser.set_defaults(func=app.restartWorker)
+
     showCron_subparser = subparsers.add_parser('cron', help="show cronjobs")
     showCron_subparser.add_argument(
         'job_id',
