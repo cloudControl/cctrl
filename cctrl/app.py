@@ -639,7 +639,7 @@ class AppController():
     def restartWorker(self, args):
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
 
         if args.wrk_id and args.all:
             raise InputErrorException('wrkIdAndAll')
