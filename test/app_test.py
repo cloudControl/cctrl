@@ -52,3 +52,13 @@ class AppControllerTestCase(unittest.TestCase):
         app.push(args)
         self.assertTrue(check_call.called)
         self.assertTrue(app.redeploy.called)
+
+    @patch('cctrl.app.check_call')
+    def test_push_with_ship_and_deploy_error(self, check_call):
+        app = AppController(None, Settings())
+        app._get_or_create_deployment = Mock(return_value=({'branch': 'default', 'name': 'dep'}, 'name'))
+        args = Mock()
+        args.name = 'app/dep'
+        with self.assertRaises(InputErrorException) as sd:
+            app.push(args)
+        self.assertEqual('[ERROR] --ship and --push options cannot be used simultaneously.', str(sd.exception))

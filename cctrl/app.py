@@ -1074,6 +1074,9 @@ class AppController():
         if not check_installed_rcs('bzr') and not check_installed_rcs('git'):
             raise InputErrorException('NeitherBazaarNorGitFound')
 
+        if args.deploy and args.ship:
+            raise InputErrorException('ShipAndDeploy')
+
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         deployment, push_deployment_name = self._get_or_create_deployment(app_name, deployment_name, args.clear_cache)
 
