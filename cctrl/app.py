@@ -112,8 +112,8 @@ class AppController():
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
 
-        if deployment_name == '':
-            raise InputErrorException('NoDeployment')
+        if not deployment_name:
+            deployment_name = 'default'
 
         user_host = '{app}-{dep}@{host}'.format(app=app_name, dep=deployment_name, host=self.settings.ssh_forwarder)
 
@@ -141,8 +141,8 @@ class AppController():
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
 
-        if deployment_name == '':
-            raise InputErrorException('NoDeployment')
+        if not deployment_name:
+            deployment_name = 'default'
 
         logEntries = []
 
@@ -474,7 +474,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not self.does_app_exist(app_name):
             raise InputErrorException('WrongApplication')
         if not args.force_delete:
@@ -498,7 +498,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.alias:
             raise InputErrorException('NoAliasGiven')
         self.api.create_alias(app_name, args.alias, deployment_name)
@@ -510,7 +510,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.alias:
             aliases = self.api.read_aliases(app_name, deployment_name)
             print_alias_list(aliases)
@@ -533,7 +533,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.alias:
             raise InputErrorException('NoAliasGiven')
         try:
@@ -557,7 +557,7 @@ class AppController():
         else:
             size = None
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.command:
             raise InputErrorException('NoWorkerCommandGiven')
         try:
@@ -583,7 +583,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.wrk_id:
             workers = (self.api.read_worker(app_name, deployment_name, worker['wrk_id']) for worker in self.api.read_workers(app_name, deployment_name))
             print_worker_list(workers)
@@ -606,7 +606,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         try:
             self.api.delete_worker(app_name, deployment_name, args.wrk_id)
         except GoneError:
@@ -656,7 +656,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.url:
             raise InputErrorException('NoCronURLGiven')
         self.api.create_cronjob(
@@ -671,7 +671,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.job_id:
             cronjobs = self.api.read_cronjobs(app_name, deployment_name)
             print_cronjob_list(cronjobs)
@@ -694,7 +694,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         try:
             self.api.delete_cronjob(app_name, deployment_name, args.job_id)
         except GoneError:
@@ -714,7 +714,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
 
         config = self._get_config_vars(app_name, deployment_name)
 
@@ -731,7 +731,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.variables:
             raise InputErrorException('NoVariablesGiven')
 
@@ -770,7 +770,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.variables:
             raise InputErrorException('NoVariablesGiven')
 
@@ -802,7 +802,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.addon:
             raise InputErrorException('NoAddonGiven')
 
@@ -829,7 +829,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.addon:
             try:
                 addons = self.api.read_addons(app_name, deployment_name)
@@ -856,7 +856,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.addon:
             try:
                 addons = self.api.read_addons(app_name, deployment_name)
@@ -880,7 +880,7 @@ class AppController():
     def updateAddon(self, args):
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         try:
             self.api.update_addon(
                 app_name,
@@ -898,7 +898,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         if not args.addon:
             raise InputErrorException('NoAddonGiven')
         try:
@@ -976,7 +976,7 @@ class AppController():
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if not deployment_name:
-            raise InputErrorException('NoDeployment')
+            deployment_name = 'default'
         last_time = None
         while True:
             logEntries = []
