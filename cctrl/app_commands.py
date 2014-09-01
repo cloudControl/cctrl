@@ -166,6 +166,11 @@ def parse_cmdline(app):
         action='store_true',
         dest='clear_cache',
         help="clear the deployment buildpack cache so all dependencies are downloaded again")
+    push_subparser.add_argument(
+        '--deploy',
+        action='store_true',
+        dest='deploy',
+        help='deploy after pushing')
     push_subparser.set_defaults(func=app.push)
 
     deploy_subparser = subparsers.add_parser('deploy', help="deploy version")

@@ -1,5 +1,5 @@
 import unittest
-from mock import patch, call
+from mock import patch, call, Mock
 from cctrl.error import InputErrorException
 from cctrl.app import AppController
 from cctrl.settings import Settings
@@ -26,3 +26,15 @@ class AppControllerTestCase(unittest.TestCase):
         with self.assertRaises(InputErrorException) as ctx:
             AppController(None, Settings())._get_size_from_memory('4kb')
         self.assertEqual('[ERROR] Memory size should be an integer between 128 and 1024 MB', str(ctx.exception))
+
+    @patch('cctrl.app.check_call')
+    def test_push_with_deploy(self, check_call):
+        app = AppController(None, Settings())
+        app.redeploy = Mock()
+        app._get_or_create_deployment = Mock(return_value=({'branch': 'default'}, 'name'))
+        args = Mock()
+        args.name = 'app/dep'
+        args.ship = False
+        app.push(args)
+        self.assertTrue(check_call.called)
+        self.assertTrue(app.redeploy.called)
