@@ -715,7 +715,7 @@ class AppController():
         except ThrottledError as te:
             # Overwrite the variable if didn't force, but type Yes
             question = raw_input('{} Do you really want to overwrite it? '
-                    'Type "Yes" without the quotes to proceed: '.format(te.message))
+                                 'Type "Yes" without the quotes to proceed: '.format(te.message))
             if question.lower() == 'yes':
                 self.api.update_addon(
                     app_name,
@@ -966,11 +966,11 @@ class AppController():
                     if args.type == 'access':
                         logEntries = filter(lambda entry:
                                             re.search(
-                                            re.compile(args.filter, re.IGNORECASE),
-                                            entry['first_request_line'] +
-                                            entry['referer'] +
-                                            entry['user_agent'] +
-                                            entry['remote_host']),
+                                                re.compile(args.filter, re.IGNORECASE),
+                                                entry['first_request_line'] +
+                                                entry['referer'] +
+                                                entry['user_agent'] +
+                                                entry['remote_host']),
                                             logEntries)
                 print_log_entries(logEntries, args.type)
             time.sleep(2)
@@ -1074,6 +1074,9 @@ class AppController():
         if not check_installed_rcs('bzr') and not check_installed_rcs('git'):
             raise InputErrorException('NeitherBazaarNorGitFound')
 
+        if args.deploy and args.ship:
+            raise InputErrorException('ShipAndDeploy')
+
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         deployment, push_deployment_name = self._get_or_create_deployment(app_name, deployment_name, args.clear_cache)
 
@@ -1084,6 +1087,11 @@ class AppController():
         except CalledProcessError, e:
             print str(e)
             sys.exit(1)
+
+        if args.deploy:
+            print
+            print "Deploying newest version."
+            self.redeploy(deployment)
 
         if args.ship:
             print

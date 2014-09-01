@@ -16,7 +16,7 @@ class TestSettings(TestCase):
 
     def test_api_url_default(self):
         settings = Settings(env={})
-        self.assertEquals('https://api.cloudcontrol.com', settings.api_url)
+        self.assertEquals('https://api.cloudcontrolled.com', settings.api_url)
 
     def test_token_source_url_set_by_constructor(self):
         settings = Settings(token_source_url='my.token_source.url', api_url='any.api.url')
