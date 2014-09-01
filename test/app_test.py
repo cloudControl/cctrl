@@ -138,3 +138,29 @@ class AppControllerTestCase(unittest.TestCase):
         app._restartWorker('app_name', 'deployment_name', 'wrk_id', 'command', 'params', 'size')
         self.assertTrue(app.api.delete_worker.called)
         self.assertTrue(app.api.create_worker.called)
+
+    @patch('cctrl.app.time')
+    def test_deploy_restart_workers(self, time):
+        app = AppController(None, Settings())
+        app.api = Mock()
+        app.api.read_deployment.return_value = {'state': 'deployed'}
+        app._restartWorkers = Mock()
+        args = Mock()
+        args.name = 'app/dep'
+        args.memory = False
+        app.deploy(args)
+        self.assertTrue(app._restartWorkers.called)
+        self.assertEqual(call('app', 'dep'), app.api.read_deployment.call_args_list[0])
+
+    @patch('cctrl.app.time')
+    def test_deploy_restart_workers_no_dep_name(self, time):
+        app = AppController(None, Settings())
+        app.api = Mock()
+        app.api.read_deployment.return_value = {'state': 'deployed'}
+        app._restartWorkers = Mock()
+        args = Mock()
+        args.name = 'app'
+        args.memory = False
+        app.deploy(args)
+        self.assertTrue(app._restartWorkers.called)
+        self.assertEqual(call('app', 'default'), app.api.read_deployment.call_args_list[0])

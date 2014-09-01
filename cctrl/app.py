@@ -406,6 +406,8 @@ class AppController():
             app_name, deployment_name = self.parse_app_deployment_name(args.name)
         except ParseAppDeploymentName:
             raise InputErrorException('InvalidApplicationName')
+        if not deployment_name:
+            deployment_name = 'default'
         if args.size:
             size = args.size
             if args.memory:
@@ -449,8 +451,15 @@ class AppController():
                     raise InputErrorException('InvalidSize')
             else:
                 raise
-        else:
-            return True
+
+        if args.restart_workers:
+            deployment = {'state': 'unknown'}
+            while deployment['state'] != 'deployed':
+                time.sleep(1)
+                deployment = self.api.read_deployment(app_name, deployment_name)
+            self._restartWorkers(app_name, deployment_name)
+
+        return True
 
     def redeploy(self, deployment):
         """
