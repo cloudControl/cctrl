@@ -198,6 +198,12 @@ def parse_cmdline(app):
         nargs='?',
         default=-1,
         help='optionally accepts a version')
+    deploy_subparser.add_argument(
+        '--restart-workers',
+        action='store_true',
+        dest='restart_workers',
+        help='restart the worker after deploying')
+    push_subparser.set_defaults(func=app.push)
     deploy_subparser.set_defaults(func=app.deploy)
 
     undeploy_subparser = subparsers.add_parser(
