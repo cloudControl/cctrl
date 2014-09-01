@@ -18,7 +18,6 @@
 import sys
 
 messages = {}
-messages['NoDeployment'] = r'You have to append the deployment name.'
 messages['WrongApplication'] = r'This application is unknown.'
 messages['WrongDeployment'] = r'This deployment is unknown.'
 messages['PasswordsDontMatch'] = r"The passwords don't match."
