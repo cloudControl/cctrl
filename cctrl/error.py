@@ -73,8 +73,6 @@ messages['ClearCacheFailed'] = r'Clear buildpack cache failed.'
 messages['DeploymentFailed'] = r'Deployment failed.'
 messages['CommandNotImplemented'] = r'Sorry, this command is not available.'
 messages['ShipAndDeploy'] = r'--ship and --push options cannot be used simultaneously.'
-messages['wrkIdAndAll'] = r'You can either provide a wrk_id or the --all option.'
-messages['noWrkIdOrAll'] = r'You have to specify either a wrk_id or the --all option.'
 
 if sys.platform == 'win32':
     messages['UpdateAvailable'] = r'A newer version is available. Please update.'

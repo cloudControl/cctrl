@@ -641,12 +641,6 @@ class AppController():
         if not deployment_name:
             deployment_name = 'default'
 
-        if args.wrk_id and args.all:
-            raise InputErrorException('wrkIdAndAll')
-
-        if not args.wrk_id and not args.all:
-            raise InputErrorException('noWrkIdOrAll')
-
         if args.wrk_id:
             try:
                 worker = self.api.read_worker(app_name, deployment_name, args.wrk_id)
