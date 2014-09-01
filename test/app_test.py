@@ -64,22 +64,6 @@ class AppControllerTestCase(unittest.TestCase):
             app.push(args)
         self.assertEqual('[ERROR] --ship and --push options cannot be used simultaneously.', str(sd.exception))
 
-    def test_restart_worker_no_wrk_or_all_specified(self):
-        app = AppController(None, Settings())
-        app._restartWorker = Mock()
-        args = Mock()
-        args.name = 'app/dep'
-        self.assertRaises(InputErrorException, app.restartWorker, args)
-
-    def test_restart_worker_wrk_and_all_specified(self):
-        app = AppController(None, Settings())
-        app._restartWorker = Mock()
-        args = Mock()
-        args.name = 'app/dep'
-        args.wrk_id = 'wrk1'
-        args.all = True
-        self.assertRaises(InputErrorException, app.restartWorker, args)
-
     def test_restart_worker_with_wrk(self):
         app = AppController(None, Settings())
         app._restartWorker = Mock()

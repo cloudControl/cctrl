@@ -18,16 +18,12 @@
 """
 
 import argparse
-import sys
-from os import environ as env
 
 from cctrl.settings import VERSION
 from pycclib.cclib import *
 from pycclib.version import __version__ as cclibversion
 import cctrl.common as common
-from cctrl.error import InputErrorException, messages
-from cctrl.app import AppController, AppsController, ParseAppDeploymentName
-from cctrl.auth import get_credentials, delete_tokenfile
+from cctrl.app import AppController, AppsController
 from cctrl.output import get_version
 
 
@@ -394,17 +390,18 @@ def parse_cmdline(app):
     restartWorker_subparser = subparsers.add_parser(
         'worker.restart',
         help="restart worker")
-    restartWorker_subparser.add_argument(
+    restart_worker_group = restartWorker_subparser.add_mutually_exclusive_group(required=True)
+    restart_worker_group.add_argument(
         'wrk_id',
         help='restart worker by wrk_id',
         nargs='?'
     )
-    restartWorker_subparser.add_argument(
+    restart_worker_group.add_argument(
         '--all',
         action='store_true',
         dest='all',
         help='restart all currently running workers')
-    restartWorker_subparser.set_defaults(func=app.restartWorker)
+    restart_worker_group.set_defaults(func=app.restartWorker)
 
     showCron_subparser = subparsers.add_parser('cron', help="show cronjobs")
     showCron_subparser.add_argument(
