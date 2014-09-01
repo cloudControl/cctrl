@@ -613,6 +613,43 @@ class AppController():
             raise InputErrorException('WrongWorker')
         return True
 
+    def _restartWorker(self, app_name, deployment_name, wrk_id, command, params, size):
+        self.api.delete_worker(app_name, deployment_name, wrk_id)
+        self.api.create_worker(
+            app_name,
+            deployment_name,
+            command,
+            params,
+            size)
+
+    def _restartWorkers(self, app_name, deployment_name):
+        workers = (self.api.read_worker(app_name, deployment_name, worker['wrk_id']) for worker in self.api.read_workers(app_name, deployment_name))
+        for worker in workers:
+            self._restartWorker(app_name, deployment_name, worker['wrk_id'], worker['command'], worker['params'], worker['size'])
+
+    def restartWorker(self, args):
+        app_name, deployment_name = self.parse_app_deployment_name(args.name)
+        if not deployment_name:
+            raise InputErrorException('NoDeployment')
+
+        if args.wrk_id and args.all:
+            raise InputErrorException('wrkIdAndAll')
+
+        if not args.wrk_id and not args.all:
+            raise InputErrorException('noWrkIdOrAll')
+
+        if args.wrk_id:
+            try:
+                worker = self.api.read_worker(app_name, deployment_name, args.wrk_id)
+            except GoneError:
+                raise InputErrorException('WrongWorker')
+
+            self._restartWorker(app_name, deployment_name, worker['wrk_id'], worker['command'], worker['params'], worker['size'])
+            return
+
+        if args.all:
+            self._restartWorkers(app_name, deployment_name)
+
     def addCron(self, args):
         """
             Adds the given worker to the deployment.

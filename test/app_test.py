@@ -3,6 +3,7 @@ from mock import patch, call, Mock
 from cctrl.error import InputErrorException
 from cctrl.app import AppController
 from cctrl.settings import Settings
+from pycclib.cclib import GoneError
 
 
 class AppControllerTestCase(unittest.TestCase):
@@ -62,3 +63,78 @@ class AppControllerTestCase(unittest.TestCase):
         with self.assertRaises(InputErrorException) as sd:
             app.push(args)
         self.assertEqual('[ERROR] --ship and --push options cannot be used simultaneously.', str(sd.exception))
+
+    def test_restart_worker_no_wrk_or_all_specified(self):
+        app = AppController(None, Settings())
+        app._restartWorker = Mock()
+        args = Mock()
+        args.name = 'app/dep'
+        self.assertRaises(InputErrorException, app.restartWorker, args)
+
+    def test_restart_worker_wrk_and_all_specified(self):
+        app = AppController(None, Settings())
+        app._restartWorker = Mock()
+        args = Mock()
+        args.name = 'app/dep'
+        args.wrk_id = 'wrk1'
+        args.all = True
+        self.assertRaises(InputErrorException, app.restartWorker, args)
+
+    def test_restart_worker_with_wrk(self):
+        app = AppController(None, Settings())
+        app._restartWorker = Mock()
+        app._restartWorkers = Mock()
+        app.api = Mock()
+        app.api.read_worker.return_value = {'wrk_id': 'wrk1', 'command': 'command', 'params': 'params', 'size': 'size'}
+        args = Mock()
+        args.name = 'app/dep'
+        args.wrk_id = 'wrk1'
+        args.all = False
+        app.restartWorker(args)
+        self.assertTrue(app._restartWorker.called)
+        self.assertFalse(app._restartWorkers.called)
+
+    def test_restart_worker_with_all(self):
+        app = AppController(None, Settings())
+        app._restartWorker = Mock()
+        app._restartWorkers = Mock()
+        app.api = Mock()
+        app.api.read_worker.return_value = {'wrk_id': 'wrk1', 'command': 'command', 'params': 'params', 'size': 'size'}
+        args = Mock()
+        args.name = 'app/dep'
+        args.wrk_id = False
+        args.all = True
+        app.restartWorker(args)
+        self.assertTrue(app._restartWorkers.called)
+
+    def test_restart_worker_gone_error(self):
+        app = AppController(None, Settings())
+        app._restartWorker = Mock()
+        app._restartWorkers = Mock()
+        app.api = Mock()
+        app.api.read_worker.side_effect = GoneError
+        args = Mock()
+        args.name = 'app/dep'
+        args.wrk_id = 'wrkgone'
+        args.all = False
+        self.assertRaises(InputErrorException, app.restartWorker, args)
+        self.assertFalse(app._restartWorker.called)
+        self.assertFalse(app._restartWorkers.called)
+
+    def test__restart_workers(self):
+        app = AppController(None, Settings())
+        app.api = Mock()
+        app.api.read_workers.return_value = [{'wrk_id': 'wrk1'}]
+        app.api.read_worker.return_value = {'wrk_id': 'wrk1', 'command': 'command', 'params': 'params', 'size': 8}
+
+        app._restartWorkers('app', 'dep')
+
+        self.assertTrue(app.api.delete_worker.called)
+        self.assertTrue(app.api.create_worker.called)
+
+    def test__restart_worker(self):
+        app = AppController(None, Settings())
+        app.api = Mock()
+        app._restartWorker('app_name', 'deployment_name', 'wrk_id', 'command', 'params', 'size')
+        self.assertTrue(app.api.delete_worker.called)
+        self.assertTrue(app.api.create_worker.called)
