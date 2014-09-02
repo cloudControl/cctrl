@@ -5,5 +5,3 @@ install:
   - 'pip install -r requirements_tests.txt'
 script:
   - './pre-commit'
-after_success:
-  - coveralls
