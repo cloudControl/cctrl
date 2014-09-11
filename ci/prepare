@@ -1,0 +1,12 @@
+#!/bin/bash -e
+
+echo "Install python tools..."
+cd $WORKSPACE
+
+if [ ! -d "cctrl_venv" ]; then
+    virtualenv --system-site-packages cctrl_venv
+fi
+source cctrl_venv/bin/activate
+pip install -r requirements_tests.txt --upgrade
+
+./pre-commit
