@@ -27,7 +27,7 @@ else:
 required.append('pycclib>=1.5.2')
 required.append('argparse>=1.1')
 
-srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/exoapp', 'cctrl/exouser']
+srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/exoapp', 'cctrl/exouser', 'cctrl/dcapp', 'cctrl/dcuser']
 
 if sys.platform == 'win32':
     import py2exe
@@ -76,6 +76,33 @@ setup(
     author='cloudControl Team',
     author_email='info@cloudcontrol.de',
     url='https://www.cloudcontrol.com',
+    license='Apache 2.0',
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX',
+        'Programming Language :: Python',
+        'Topic :: Internet'
+    ],
+    install_requires=required,
+    tests_require=['mock'],
+    test_suite='test',
+    **extra_options
+)
+
+setup(
+    name="dotcloudng",
+    version=__version__,
+    description='dotcloud command line utilities',
+    author='dotcloud Team',
+    author_email='info@dotcloud.com',
+    url='https://www.dotcloud.com',
     license='Apache 2.0',
     classifiers=[
         'Development Status :: 5 - Production/Stable',

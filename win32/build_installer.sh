@@ -1,17 +1,9 @@
 #!/bin/bash
 
-# Script for building cloudControl CLI Windows installer
-
-# Preparation steps:
-# Install python 2.7.6 via msi installer: http://www.python.org/download/releases/2.7.6/
-# Install setuptool: https://bitbucket.org/pypa/setuptools#rst-header-windows
-# Install pycrypto for python 2.7: http://www.voidspace.org.uk/python/modules.shtml#pycrypto
-# Install p2exe: http://sourceforge.net/projects/py2exe
-# Install Inno Setup: http://www.jrsoftware.org/isdl.php#stable
-
 set -e
 
 echo "[INFO] Checking env..."
+ENV=$1
 
 if [ ! -f "$PYTHON_HOME" ]; then
 	PYTHON_HOME=c:/Python27
@@ -46,18 +38,18 @@ pushd pycclib > /dev/null
 popd > /dev/null
 
 echo "[INFO] Installing cctrl..."
-if [ ! -d  "$1" ]; then
+if [ ! -d  "$2" ]; then
 	git clone https://github.com/cloudControl/cctrl 2>&1 | handle_log
 	cctrl_dir=cctrl
 else
-	cctrl_dir="$1"
+	cctrl_dir="$2"
 fi
 
 pushd "$cctrl_dir" > /dev/null
 "$PYTHON_HOME/python.exe" setup.py py2exe 2>&1 | handle_log
 pushd win32 > /dev/null
 echo "[INFO] Building executable..."
-"$ISCC_HOME/ISCC.exe" wininstaller.iss 2>&1 | handle_log
+"$ISCC_HOME/ISCC.exe" wininstaller_$ENV.iss 2>&1 | handle_log
 popd > /dev/null
 popd > /dev/null
 echo "[INFO] Build successful :-)"

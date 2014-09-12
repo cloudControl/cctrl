@@ -6,18 +6,18 @@
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{86DDE49A-CB27-4B64-A816-887A13C06D58}
-AppName=cctrl
-AppVerName=cctrl-1.11.1
-AppPublisher=cloudControl GmbH
-AppPublisherURL=https://www.cloudcontrol.com
-AppSupportURL=https://www.cloudcontrol.com
-AppUpdatesURL=https://www.cloudcontrol.com
-DefaultDirName={pf}\cloudControl
-DefaultGroupName=cloudControl
+AppName=dotcloudng
+AppVerName=dotcloudng-1.12.0
+AppPublisher=cloudControl Inc.
+AppPublisherURL=https://www.dotcloud.com
+AppSupportURL=https://www.dotcloud.com
+AppUpdatesURL=https://www.dotcloud.com
+DefaultDirName={pf}\dotcloud
+DefaultGroupName=dotcloud
 AllowNoIcons=yes
 SourceDir=..\
 OutputDir=win32setup
-OutputBaseFilename=cctrl-1.11.1-setup
+OutputBaseFilename=dotcloudng-1.12.0-setup
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
@@ -34,7 +34,7 @@ Source: "dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createal
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\{cm:ProgramOnTheWeb,control}"; Filename: "https://www.cloudcontrol.com"
+Name: "{group}\{cm:ProgramOnTheWeb,control}"; Filename: "https://www.dotcloud.com"
 Name: "{group}\{cm:UninstallProgram,control}"; Filename: "{uninstallexe}"
 
 [Code]
