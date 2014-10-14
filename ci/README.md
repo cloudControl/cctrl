@@ -38,3 +38,4 @@ When build is executed, you should find fresh new packages released under:
 
 * `cctrl`: https://pypi.python.org/pypi/cctrl
 * `dotcloudng`: https://pypi.python.org/pypi/dotcloudng
+* `cnh`: https://pypi.python.org/pypi/cnh

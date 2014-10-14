@@ -1,2 +1,2 @@
-pycclib>=1.5.2
+pycclib>=1.5.4
 argparse>=1.1

@@ -6,18 +6,18 @@
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{86DDE49A-CB27-4B64-A816-887A13C06D58}
-AppName=cctrl
-AppVerName=cctrl-1.12.1
+AppName=cnh
+AppVerName=cnh-1.12.1
 AppPublisher=cloudControl GmbH
 AppPublisherURL=https://www.cloudcontrol.com
 AppSupportURL=https://www.cloudcontrol.com
 AppUpdatesURL=https://www.cloudcontrol.com
-DefaultDirName={pf}\cloudControl
-DefaultGroupName=cloudControl
+DefaultDirName={pf}\cnh
+DefaultGroupName=cnh
 AllowNoIcons=yes
 SourceDir=..\
 OutputDir=win32setup
-OutputBaseFilename=cctrl-1.12.1-setup
+OutputBaseFilename=cnh-1.12.1-setup
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
