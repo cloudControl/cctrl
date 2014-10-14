@@ -24,10 +24,10 @@ if sys.version_info < (2, 6):
 else:
     required = []
 
-required.append('pycclib>=1.5.2')
+required.append('pycclib>=1.5.4')
 required.append('argparse>=1.1')
 
-srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/exoapp', 'cctrl/exouser', 'cctrl/dcapp', 'cctrl/dcuser']
+srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/exoapp', 'cctrl/exouser', 'cctrl/dcapp', 'cctrl/dcuser', 'cctrl/cnhapp', 'cctrl/cnhuser']
 
 if sys.platform == 'win32':
     import py2exe
@@ -103,6 +103,33 @@ setup(
     author='dotcloud Team',
     author_email='info@dotcloud.com',
     url='https://www.dotcloud.com',
+    license='Apache 2.0',
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX',
+        'Programming Language :: Python',
+        'Topic :: Internet'
+    ],
+    install_requires=required,
+    tests_require=['mock'],
+    test_suite='test',
+    **extra_options
+)
+
+setup(
+    name="cnh",
+    version=__version__,
+    description='cloud&heat command line utilities',
+    author='cloudControl Team',
+    author_email='info@cloudcontrol.com',
+    url='https://www.cloudcontrol.com',
     license='Apache 2.0',
     classifiers=[
         'Development Status :: 5 - Production/Stable',

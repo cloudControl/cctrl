@@ -65,7 +65,7 @@ def init_api(settings):
             break
 
         dirname = os.path.dirname(dirname)
-    return cclib.API(token=read_tokenfile(), url=settings.api_url, token_source_url=settings.token_source_url)
+    return cclib.API(token=read_tokenfile(), url=settings.api_url, token_source_url=settings.token_source_url, encode_email=settings.encode_email)
 
 
 def execute_with_authenticated_user(api, command):
