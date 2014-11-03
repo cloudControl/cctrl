@@ -142,7 +142,7 @@ def parse_cmdline(user):
 def setup_cli(settings):
     api = common.init_api(settings)
     try:
-        user = UserController(api)
+        user = UserController(api, settings)
         parse_cmdline(user)
     except KeyboardInterrupt:
         pass

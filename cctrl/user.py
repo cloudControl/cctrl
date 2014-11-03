@@ -30,15 +30,16 @@ from keyhelpers import is_key_valid, ask_user_to_use_default_ssh_public_key, \
 from pycclib import cclib
 
 
-class UserController():
+class UserController(object):
     """
         This controller handles all user related actions.
     """
 
     api = None
 
-    def __init__(self, api):
+    def __init__(self, api, settings):
         self.api = api
+        self.settings = settings
 
     def checktoken(self, args):
         try:
@@ -51,6 +52,10 @@ class UserController():
         """
             Create a new user.
         """
+        if not self.settings.user_registration_enabled:
+            print messages['RegisterDisabled'].format(self.settings.user_registration_url)
+            return
+
         self.api.set_token(None)
         if args.name and args.email and args.password:
             name = args.name[0]
