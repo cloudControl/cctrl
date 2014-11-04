@@ -73,6 +73,7 @@ messages['ClearCacheFailed'] = r'Clear buildpack cache failed.'
 messages['DeploymentFailed'] = r'Deployment failed.'
 messages['CommandNotImplemented'] = r'Sorry, this command is not available.'
 messages['ShipAndDeploy'] = r'--ship and --push options cannot be used simultaneously.'
+messages['RegisterDisabled'] = r'You can register on {}'
 
 if sys.platform == 'win32':
     messages['UpdateAvailable'] = r'A newer version is available. Please update.'
