@@ -16,11 +16,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
+
 from cctrl.settings import Settings
 from cctrl.user_commands import setup_cli
 
 
 if __name__ == "__main__":
-    settings = Settings(api_url='https://api.app.exo.io', token_source_url="https://portal.exoscale.ch/api/apps/token",
-                        ssh_forwarder_url='sshforwarder.app.exo.io')
+    settings = Settings(api_url='https://api.app.exo.io',
+                        token_source_url="https://portal.exoscale.ch/api/apps/token",
+                        ssh_forwarder_url='sshforwarder.app.exo.io',
+                        login_name='Email or Organization ID: ')
     setup_cli(settings)

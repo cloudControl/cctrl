@@ -142,7 +142,7 @@ def parse_cmdline(user):
 
     args = parser.parse_args()
 
-    common.run(args, user.api)
+    common.run(args, user.api, user.settings)
 
 
 def setup_cli(settings):

@@ -34,7 +34,8 @@ class Settings(object):
                  encode_email=False,
                  user_registration_enabled=True,
                  user_registration_url='https://www.cloudcontrol.com',
-                 register_addon_url=None):
+                 register_addon_url=None,
+                 login_name='Email   : '):
 
         self.ssh_forwarder = ssh_forwarder_url or env.get('SSH_FORWARDER', 'sshforwarder.cloudcontrolled.com')
         self.ssh_forwarder_port = '2222'
@@ -44,3 +45,4 @@ class Settings(object):
         self.user_registration_enabled = user_registration_enabled
         self.user_registration_url = user_registration_url
         self.register_addon_url = register_addon_url
+        self.login_name = login_name

@@ -37,9 +37,10 @@ class list_action(argparse.Action):
         It would be better to use common.run here too.
     """
 
-    def __init__(self, api, **kwargs):
+    def __init__(self, api, settings, **kwargs):
         super(list_action, self).__init__(**kwargs)
         self.api = api
+        self.settings = settings
 
     def __call__(self, parser, namespace, value, option_string=None):
         try:
@@ -50,7 +51,7 @@ class list_action(argparse.Action):
             pass
 
         apps = AppsController(self.api)
-        common.execute_with_authenticated_user(self.api, lambda: apps.list())
+        common.execute_with_authenticated_user(self.api, lambda: apps.list(), self.settings)
         parser.exit()
 
 
@@ -82,6 +83,7 @@ def parse_cmdline(app):
         action=list_action,
         nargs=0,
         api=app.api,
+        settings=app.settings,
         help='list apps')
 
     control_apps = parser.add_argument_group(
@@ -459,7 +461,7 @@ def parse_cmdline(app):
 
     args = parser.parse_args()
 
-    common.run(args, app.api)
+    common.run(args, app.api, app.settings)
 
 
 def setup_cli(settings):
