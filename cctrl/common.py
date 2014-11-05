@@ -65,7 +65,17 @@ def init_api(settings):
             break
 
         dirname = os.path.dirname(dirname)
-    return cclib.API(token=read_tokenfile(), url=settings.api_url, token_source_url=settings.token_source_url, encode_email=settings.encode_email)
+    return cclib.API(token=read_tokenfile(), url=settings.api_url, token_source_url=settings.token_source_url, register_addon_url=settings.register_addon_url, encode_email=settings.encode_email)
+
+
+def get_email_and_password():
+    # check ENV for credentials first
+    try:
+        email = os.environ.pop('CCTRL_EMAIL')
+        password = os.environ.pop('CCTRL_PASSWORD')
+    except KeyError:
+        email, password = get_credentials()
+    return email, password
 
 
 def execute_with_authenticated_user(api, command):
@@ -74,12 +84,7 @@ def execute_with_authenticated_user(api, command):
             try:
                 command()
             except (cclib.TokenRequiredError, cclib.UnauthorizedError):
-                # check ENV for credentials first
-                try:
-                    email = os.environ.pop('CCTRL_EMAIL')
-                    password = os.environ.pop('CCTRL_PASSWORD')
-                except KeyError:
-                    email, password = get_credentials()
+                email, password = get_email_and_password()
                 try:
                     api.create_token(email, password)
                 except cclib.UnauthorizedError:

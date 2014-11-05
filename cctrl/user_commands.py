@@ -134,6 +134,12 @@ def parse_cmdline(user):
     check_token_subparser = subparsers.add_parser('checktoken')
     check_token_subparser.set_defaults(func=user.checktoken)
 
+    registerAddon_subparser = subparsers.add_parser('addon.register', help="registers an addon")
+    registerAddon_subparser.add_argument(
+        'manifest',
+        help='path to the manifest file')
+    registerAddon_subparser.set_defaults(func=user.registerAddon)
+
     args = parser.parse_args()
 
     common.run(args, user.api)

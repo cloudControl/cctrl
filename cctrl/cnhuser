@@ -26,5 +26,6 @@ if __name__ == "__main__":
                         ssh_forwarder_url='sshforwarder.api.cnh-apps.com',
                         encode_email=True,
                         user_registration_enabled=False,
-                        user_registration_url='https://www.cloudandheat.com')
+                        user_registration_url='https://www.cloudandheat.com',
+                        register_addon_url='https://cctrl-tokenprovidermiddleware.cloudandheat.com')
     setup_cli(settings)

@@ -17,6 +17,7 @@
 
 import os
 import sys
+import json
 
 from cctrl.error import PasswordsDontMatchException, InputErrorException, messages
 from cctrl.auth import get_credentials
@@ -28,6 +29,7 @@ from oshelpers import readContentOf
 from keyhelpers import is_key_valid, ask_user_to_use_default_ssh_public_key, \
     create_new_default_ssh_keys
 from pycclib import cclib
+from cctrl.common import get_email_and_password
 
 
 class UserController(object):
@@ -187,3 +189,8 @@ class UserController(object):
             Logout a user by deleting the token.json file.
         """
         self.api.set_token(None)
+
+    def registerAddon(self, args):
+        file_content = readContentOf(args.manifest)
+        email, password = get_email_and_password()
+        self.api.register_addon(email, password, json.loads(file_content))
