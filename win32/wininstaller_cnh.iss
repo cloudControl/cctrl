@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{86DDE49A-CB27-4B64-A816-887A13C06D58}
 AppName=cnh
-AppVerName=cnh-1.12.1
+AppVerName=cnh-1.13.2
 AppPublisher=cloudControl GmbH
 AppPublisherURL=https://www.cloudcontrol.com
 AppSupportURL=https://www.cloudcontrol.com
@@ -17,7 +17,7 @@ DefaultGroupName=cnh
 AllowNoIcons=yes
 SourceDir=..\
 OutputDir=win32setup
-OutputBaseFilename=cnh-1.12.1-setup
+OutputBaseFilename=cnh-1.13.2-setup
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes

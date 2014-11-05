@@ -44,7 +44,7 @@ class list_action(argparse.Action):
 
     def __call__(self, parser, namespace, value, option_string=None):
         try:
-            common.check_for_updates(self.api.check_versions()['cctrl'])
+            common.check_for_updates(self.settings.package_name, self.api.check_versions()['cctrl'])
         except KeyError:
             pass
         except ConnectionException:
