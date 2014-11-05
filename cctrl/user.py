@@ -66,7 +66,7 @@ class UserController(object):
         else:
             name = raw_input('Username: ')
             try:
-                email, password = get_credentials(create=True)
+                email, password = get_credentials(self.settings, create=True)
             except PasswordsDontMatchException:
                 return
         try:
@@ -192,5 +192,5 @@ class UserController(object):
 
     def registerAddon(self, args):
         file_content = readContentOf(args.manifest)
-        email, password = get_email_and_password()
+        email, password = get_email_and_password(self.settings)
         self.api.register_addon(email, password, json.loads(file_content))

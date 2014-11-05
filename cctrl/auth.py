@@ -93,7 +93,7 @@ def delete_tokenfile():
     return False
 
 
-def get_credentials(create=False):
+def get_credentials(settings, create=False):
     """
         We use this to ask the user for his credentials in case we have no
         valid token.
@@ -101,7 +101,7 @@ def get_credentials(create=False):
         to make sure, that no typing error occurred. This is done three times
         after that a PasswordsDontMatchException is thrown.
     """
-    sys.stderr.write('Email   : ')
+    sys.stderr.write(settings.login_name)
     sys.stderr.flush()
     email = raw_input()
     password = None

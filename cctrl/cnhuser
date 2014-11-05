@@ -27,5 +27,6 @@ if __name__ == "__main__":
                         encode_email=True,
                         user_registration_enabled=False,
                         user_registration_url='https://www.cloudandheat.com',
-                        register_addon_url='https://cctrl-tokenprovidermiddleware.cloudandheat.com')
+                        register_addon_url='https://cctrl-tokenprovidermiddleware.cloudandheat.com',
+                        login_name='Login   : ')
     setup_cli(settings)

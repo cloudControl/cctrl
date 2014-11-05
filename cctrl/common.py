@@ -68,23 +68,23 @@ def init_api(settings):
     return cclib.API(token=read_tokenfile(), url=settings.api_url, token_source_url=settings.token_source_url, register_addon_url=settings.register_addon_url, encode_email=settings.encode_email)
 
 
-def get_email_and_password():
+def get_email_and_password(settings):
     # check ENV for credentials first
     try:
         email = os.environ.pop('CCTRL_EMAIL')
         password = os.environ.pop('CCTRL_PASSWORD')
     except KeyError:
-        email, password = get_credentials()
+        email, password = get_credentials(settings)
     return email, password
 
 
-def execute_with_authenticated_user(api, command):
+def execute_with_authenticated_user(api, command, settings):
     while True:
         try:
             try:
                 command()
             except (cclib.TokenRequiredError, cclib.UnauthorizedError):
-                email, password = get_email_and_password()
+                email, password = get_email_and_password(settings)
                 try:
                     api.create_token(email, password)
                 except cclib.UnauthorizedError:
@@ -105,7 +105,7 @@ def execute_with_authenticated_user(api, command):
             sys.exit(e)
 
 
-def run(args, api):
+def run(args, api, settings):
     """
         run takes care of calling the action with the needed arguments parsed
         using argparse.
@@ -122,7 +122,7 @@ def run(args, api):
         user.
     """
 
-    execute_with_authenticated_user(api, (lambda: args.func(args)))
+    execute_with_authenticated_user(api, (lambda: args.func(args)), settings)
 
 
 def shutdown(api):
