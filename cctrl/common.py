@@ -26,7 +26,7 @@ from cctrl.auth import get_credentials, update_tokenfile, delete_tokenfile, read
 from cctrl.app import ParseAppDeploymentName
 
 
-def check_for_updates(latest_version_str, our_version_str=VERSION):
+def check_for_updates(package_name, latest_version_str, our_version_str=VERSION):
     """
         check if the API reports a version that is greater then our currently
         installed one
@@ -42,9 +42,9 @@ def check_for_updates(latest_version_str, our_version_str=VERSION):
     for part in ['major', 'minor', 'patch', 'suffix']:
         if latest[part] > our[part]:
             if part == 'major':
-                sys.exit(messages['UpdateRequired'])
+                sys.exit(messages['UpdateRequired'].format(package_name))
             else:
-                print >> sys.stderr, messages['UpdateAvailable']
+                print >> sys.stderr, messages['UpdateAvailable'].format(package_name)
             return
 
 

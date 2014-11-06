@@ -80,8 +80,8 @@ if sys.platform == 'win32':
     messages['UpdateAvailable'] = r'A newer version is available. Please update.'
     messages['UpdateRequired'] = r'A newer version is required. You need to upgrade before using this program.'
 else:
-    messages['UpdateAvailable'] = r'A newer version is available. To upgrade run: (sudo) pip install cctrl --upgrade'
-    messages['UpdateRequired'] = r'A newer version is required. You need to upgrade before using this program. To upgrade run: (sudo) pip install cctrl --upgrade'
+    messages['UpdateAvailable'] = r'A newer version is available. To upgrade run: (sudo) pip install {} --upgrade'
+    messages['UpdateRequired'] = r'A newer version is required. You need to upgrade before using this program. To upgrade run: (sudo) pip install {} --upgrade'
 
 
 class InputErrorException(Exception):

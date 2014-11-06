@@ -21,5 +21,7 @@ from cctrl.user_commands import setup_cli
 
 
 if __name__ == "__main__":
-    settings = Settings(api_url='https://api.dotcloudapp.com', ssh_forwarder_url='sshforwarder.dotcloudapp.com')
+    settings = Settings(api_url='https://api.dotcloudapp.com',
+                        ssh_forwarder_url='sshforwarder.dotcloudapp.com',
+                        package_name='dotcloudng')
     setup_cli(settings)
