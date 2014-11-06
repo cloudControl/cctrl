@@ -29,7 +29,7 @@ if __name__ == "__main__":
                         user_registration_url='https://www.cloudandheat.com',
                         register_addon_url='https://cctrl-tokenprovidermiddleware.cloudandheat.com',
                         login_name='Login   : ',
-                        login_creds={'email': 'CNH_EMAIL',
+                        login_creds={'email': 'CNH_LOGIN',
                                      'pwd': 'CNH_PASSWORD'},
                         package_name='cnh')
     setup_cli(settings)
