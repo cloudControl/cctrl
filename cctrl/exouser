@@ -25,5 +25,6 @@ if __name__ == "__main__":
     settings = Settings(api_url='https://api.app.exo.io',
                         token_source_url="https://portal.exoscale.ch/api/apps/token",
                         ssh_forwarder_url='sshforwarder.app.exo.io',
+                        register_addon_url='https://portal.exoscale.ch',
                         login_name='Email or Organization ID: ')
     setup_cli(settings)
