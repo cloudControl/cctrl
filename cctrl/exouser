@@ -26,5 +26,7 @@ if __name__ == "__main__":
                         token_source_url="https://portal.exoscale.ch/api/apps/token",
                         ssh_forwarder_url='sshforwarder.app.exo.io',
                         register_addon_url='https://portal.exoscale.ch',
-                        login_name='Email or Organization ID: ')
+                        login_name='Email or Organization ID: ',
+                        login_creds={'email': 'EXO_EMAIL',
+                                     'pwd': 'EXO_PASSWORD'})
     setup_cli(settings)

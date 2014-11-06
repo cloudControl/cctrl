@@ -65,14 +65,18 @@ def init_api(settings):
             break
 
         dirname = os.path.dirname(dirname)
-    return cclib.API(token=read_tokenfile(), url=settings.api_url, token_source_url=settings.token_source_url, register_addon_url=settings.register_addon_url, encode_email=settings.encode_email)
+    return cclib.API(token=read_tokenfile(),
+                     url=settings.api_url,
+                     token_source_url=settings.token_source_url,
+                     register_addon_url=settings.register_addon_url,
+                     encode_email=settings.encode_email)
 
 
 def get_email_and_password(settings):
     # check ENV for credentials first
     try:
-        email = os.environ.pop('CCTRL_EMAIL')
-        password = os.environ.pop('CCTRL_PASSWORD')
+        email = os.environ.pop(settings.login_creds['email'])
+        password = os.environ.pop(settings.login_creds['pwd'])
     except KeyError:
         email, password = get_credentials(settings)
     return email, password
