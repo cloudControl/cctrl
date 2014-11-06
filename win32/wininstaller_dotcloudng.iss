@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{86DDE49A-CB27-4B64-A816-887A13C06D58}
 AppName=dotcloudng
-AppVerName=dotcloudng-1.13.2
+AppVerName=dotcloudng-1.14.0
 AppPublisher=cloudControl Inc.
 AppPublisherURL=https://www.dotcloud.com
 AppSupportURL=https://www.dotcloud.com
@@ -17,7 +17,7 @@ DefaultGroupName=dotcloud
 AllowNoIcons=yes
 SourceDir=..\
 OutputDir=win32setup
-OutputBaseFilename=dotcloudng-1.13.2-setup
+OutputBaseFilename=dotcloudng-1.14.0-setup
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
