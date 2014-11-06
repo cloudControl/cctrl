@@ -193,4 +193,13 @@ class UserController(object):
     def registerAddon(self, args):
         file_content = readContentOf(args.manifest)
         email, password = get_email_and_password(self.settings)
-        self.api.register_addon(email, password, json.loads(file_content))
+        try:
+            self.api.register_addon(email, password, json.loads(file_content))
+        except cclib.UnauthorizedError:
+            sys.exit(messages['NotAuthorized'])
+        except cclib.ForbiddenError, e:
+            sys.exit(messages['NotAllowed'])
+        except cclib.ConnectionException:
+            sys.exit(messages['APIUnreachable'])
+        except Exception as e:
+            sys.exit(e)
