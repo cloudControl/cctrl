@@ -7,21 +7,21 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{86DDE49A-CB27-4B64-A816-887A13C06D58}
 AppName=cnh
-AppVerName=cnh-1.14.0
+AppVerName=cnh-1.14.1
 AppPublisher=cloudControl GmbH
 AppPublisherURL=https://www.cloudcontrol.com
-AppSupportURL=https://www.cloudcontrol.com
-AppUpdatesURL=https://www.cloudcontrol.com
+AppSupportURL=https://www.cloudandheat.com
+AppUpdatesURL=https://www.cloudandheat.com
 DefaultDirName={pf}\cnh
-DefaultGroupName=cnh
+DefaultGroupName=cloudandheat
 AllowNoIcons=yes
 SourceDir=..\
 OutputDir=win32setup
-OutputBaseFilename=cnh-1.14.0-setup
+OutputBaseFilename=cnh-1.14.1-setup
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
-InfoAfterFile=win32\readme.txt
+InfoAfterFile=win32\readme_cnh.txt
 
 [Tasks]
 Name: modifypath; Description: &Add application directory to your system path;
@@ -34,8 +34,8 @@ Source: "dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createal
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\{cm:ProgramOnTheWeb,control}"; Filename: "https://www.cloudcontrol.com"
-Name: "{group}\{cm:UninstallProgram,control}"; Filename: "{uninstallexe}"
+Name: "{group}\{cm:ProgramOnTheWeb,cnh}"; Filename: "https://www.cloudandheat.com"
+Name: "{group}\{cm:UninstallProgram,cnh}"; Filename: "{uninstallexe}"
 
 [Code]
 function ModPathDir(): TArrayOfString;

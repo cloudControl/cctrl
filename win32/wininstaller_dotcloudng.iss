@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{86DDE49A-CB27-4B64-A816-887A13C06D58}
 AppName=dotcloudng
-AppVerName=dotcloudng-1.14.0
+AppVerName=dotcloudng-1.14.1
 AppPublisher=cloudControl Inc.
 AppPublisherURL=https://www.dotcloud.com
 AppSupportURL=https://www.dotcloud.com
@@ -17,11 +17,11 @@ DefaultGroupName=dotcloud
 AllowNoIcons=yes
 SourceDir=..\
 OutputDir=win32setup
-OutputBaseFilename=dotcloudng-1.14.0-setup
+OutputBaseFilename=dotcloudng-1.14.1-setup
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
-InfoAfterFile=win32\readme.txt
+InfoAfterFile=win32\readme_dotcloudng.txt
 
 [Tasks]
 Name: modifypath; Description: &Add application directory to your system path;
@@ -34,8 +34,8 @@ Source: "dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createal
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\{cm:ProgramOnTheWeb,control}"; Filename: "https://www.dotcloud.com"
-Name: "{group}\{cm:UninstallProgram,control}"; Filename: "{uninstallexe}"
+Name: "{group}\{cm:ProgramOnTheWeb,dotcloudng}"; Filename: "https://www.dotcloud.com"
+Name: "{group}\{cm:UninstallProgram,dotcloudng}"; Filename: "{uninstallexe}"
 
 [Code]
 function ModPathDir(): TArrayOfString;
