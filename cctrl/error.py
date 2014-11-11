@@ -76,6 +76,7 @@ messages['CommandNotImplemented'] = r'Sorry, this command is not available.'
 messages['ShipAndDeploy'] = r'--ship and --push options cannot be used simultaneously.'
 messages['RegisterDisabled'] = r'You can register on {}.'
 messages['NoVariablesGiven'] = r'You must provide some variables.'
+messages['DuplicatedFlag'] = r'Please, specify a flag only once.'
 
 if sys.platform == 'win32':
     messages['UpdateAvailable'] = r'A newer version is available. Please update.'

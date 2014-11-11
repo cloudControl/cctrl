@@ -42,7 +42,8 @@ from cctrl.output import print_deployment_details, print_app_details,\
     print_worker_list, print_worker_details, print_cronjob_list, \
     print_cronjob_details, print_addon_creds, print_config
 from output import print_user_list_app, print_user_list_deployment
-from cctrl.addonoptionhelpers import parse_additional_addon_options, parse_config_variables
+from cctrl.addonoptionhelpers import parse_additional_addon_options, \
+    parse_config_variables, extract_flag_from_variables
 
 
 class AppsController():
@@ -738,8 +739,11 @@ class AppController():
         if not args.variables:
             raise InputErrorException('NoVariablesGiven')
 
-        variables = parse_config_variables(args.variables, 'add')
-        force = args.force_add
+        args_variables, force = extract_flag_from_variables(args.variables,
+                                                            ('-f', '--force'),
+                                                            args.force_add)
+
+        variables = parse_config_variables(args_variables, 'add')
 
         try:
             self.api.update_addon(
