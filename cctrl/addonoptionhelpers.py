@@ -21,6 +21,7 @@ from os import path
 import re
 import json
 from cctrl.oshelpers import recode_input
+from cctrl.error import InputErrorException
 
 
 def if_file_get_content(value):
@@ -79,3 +80,17 @@ def parse_config_variables(variables, method):
                 result[var.strip()] = 'true'
 
     return json.dumps(result)
+
+
+def extract_flag_from_variables(variables, flag_names, flag_value):
+    flag_found = False
+
+    for flag_name in flag_names:
+        if flag_name in variables:
+            variables.remove(flag_name)
+            flag_found = True
+
+    if flag_value and flag_found:
+        raise InputErrorException('DuplicatedFlag')
+
+    return variables, flag_value or flag_found
