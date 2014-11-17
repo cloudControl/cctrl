@@ -38,7 +38,8 @@ class Settings(object):
                  login_name='Email   : ',
                  login_creds={'email': 'CCTRL_EMAIL',
                               'pwd': 'CCTRL_PASSWORD'},
-                 package_name='cctrl'):
+                 package_name='cctrl',
+                 prefix_project_name=False):
 
         self.ssh_forwarder = ssh_forwarder_url or env.get('SSH_FORWARDER', 'sshforwarder.cloudcontrolled.com')
         self.ssh_forwarder_port = '2222'
@@ -51,3 +52,4 @@ class Settings(object):
         self.login_name = login_name
         self.login_creds = login_creds
         self.package_name = package_name
+        self.prefix_project_name = prefix_project_name

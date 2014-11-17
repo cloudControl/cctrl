@@ -32,5 +32,6 @@ if __name__ == "__main__":
                         login_name='Login   : ',
                         login_creds={'email': 'CNH_LOGIN',
                                      'pwd': 'CNH_PASSWORD'},
-                        package_name='cnh')
+                        package_name='cnh',
+                        prefix_project_name=True)
     setup_cli(settings)

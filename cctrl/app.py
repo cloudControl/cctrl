@@ -930,9 +930,15 @@ class AppController():
 
     def addUser(self, args):
         """
-            Add a user specified by the e-mail address to an application.
+            Add a user specified by the e-mail address to an application or deployment.
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
+
+        if self.settings.prefix_project_name:
+            if len(args.email.split(':')) != 2:
+                prefix = self.api.read_users()[0]['email'].split(':')[0]
+                args.email = '{}:{}'.format(prefix, args.email)
+
         try:
             if deployment_name:
                 self.api.create_deployment_user(app_name, deployment_name, args.email, args.role)
@@ -948,7 +954,7 @@ class AppController():
 
     def removeUser(self, args):
         """
-            Remove a user specified by the user name or email address from an application.
+            Remove a user specified by the user name or email address from an application or deployment.
         """
         app_name, deployment_name = self.parse_app_deployment_name(args.name)
         if '@' in args.username:
