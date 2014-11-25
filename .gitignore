@@ -1,5 +1,5 @@
-cctrl.egg-info/
-dotcloudng.egg-info/
-cnh.egg-info/
+*.egg-info/
+*.egg/
 htmlcov/
 .cache/
+dist/
