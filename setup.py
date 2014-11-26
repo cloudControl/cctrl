@@ -92,7 +92,7 @@ setup(
     ],
     install_requires=required,
     tests_require=['mock'],
-    test_suite='test',
+    test_suite='tests',
     **extra_options
 )
 
@@ -119,7 +119,7 @@ setup(
     ],
     install_requires=required,
     tests_require=['mock'],
-    test_suite='test',
+    test_suite='tests',
     **extra_options
 )
 
@@ -146,6 +146,6 @@ setup(
     ],
     install_requires=required,
     tests_require=['mock'],
-    test_suite='test',
+    test_suite='tests',
     **extra_options
 )
