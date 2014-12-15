@@ -55,7 +55,7 @@ class list_action(argparse.Action):
         parser.exit()
 
 
-def parse_cmdline(app):
+def parse_cmdline(app, settings):
     """
         We parse the commandline using argparse from
         http://code.google.com/p/argparse/.
@@ -220,8 +220,8 @@ def parse_cmdline(app):
 
     addUser_subparser = subparsers.add_parser(
         'user.add',
-        help="add user by email")
-    addUser_subparser.add_argument('email')
+        help="add user by {}".format(settings.login_help_name))
+    addUser_subparser.add_argument('email', metavar=settings.login_help_name)
     addUser_subparser.add_argument(
         '--role',
         action="store",
@@ -233,8 +233,8 @@ def parse_cmdline(app):
 
     removeUser_subparser = subparsers.add_parser(
         'user.remove',
-        help="remove user by username or email")
-    removeUser_subparser.add_argument('username', help='username or email')
+        help="remove user by username or {}".format(settings.login_help_name))
+    removeUser_subparser.add_argument('username', help='username or {}'.format(settings.login_help_name))
     removeUser_subparser.set_defaults(func=app.removeUser)
 
     showConfig_subparser = subparsers.add_parser('config', help="list config vars")
@@ -468,7 +468,7 @@ def setup_cli(settings):
     api = common.init_api(settings)
     try:
         app = AppController(api, settings)
-        parse_cmdline(app)
+        parse_cmdline(app, settings)
     except KeyboardInterrupt:
         pass
     finally:

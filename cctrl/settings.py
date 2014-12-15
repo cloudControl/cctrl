@@ -36,6 +36,7 @@ class Settings(object):
                  user_registration_url='https://www.cloudcontrol.com',
                  register_addon_url=None,
                  login_name='Email   : ',
+                 login_help_name='email',
                  login_creds={'email': 'CCTRL_EMAIL',
                               'pwd': 'CCTRL_PASSWORD'},
                  package_name='cctrl',
@@ -50,6 +51,7 @@ class Settings(object):
         self.user_registration_url = user_registration_url
         self.register_addon_url = register_addon_url
         self.login_name = login_name
+        self.login_help_name = login_help_name
         self.login_creds = login_creds
         self.package_name = package_name
         self.prefix_project_name = prefix_project_name
