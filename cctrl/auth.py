@@ -93,17 +93,16 @@ def delete_tokenfile():
     return False
 
 
-def get_credentials(settings, create=False):
-    """
-        We use this to ask the user for his credentials in case we have no
-        valid token.
-        If create is true, the user is asked twice for the password,
-        to make sure, that no typing error occurred. This is done three times
-        after that a PasswordsDontMatchException is thrown.
-    """
+def get_email(settings):
     sys.stderr.write(settings.login_name)
     sys.stderr.flush()
+
     email = raw_input()
+
+    return email
+
+
+def get_password(create=False):
     password = None
     for i in range(3):
         password = recode_input(getpass('Password: '))
@@ -117,4 +116,21 @@ def get_credentials(settings, create=False):
                 break
         else:
             break
+
+    return password
+
+
+def get_credentials(settings, create=False):
+    """
+        We use this to ask the user for his credentials in case we have no
+        valid token.
+        If create is true, the user is asked twice for the password,
+        to make sure, that no typing error occurred. This is done three times
+        after that a PasswordsDontMatchException is thrown.
+    """
+
+    email = get_email();
+
+    password = get_password(create)
+
     return email, password

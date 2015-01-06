@@ -22,7 +22,7 @@ from cctrl.settings import VERSION
 
 from pycclib import cclib
 from cctrl.error import InputErrorException, messages
-from cctrl.auth import get_credentials, update_tokenfile, delete_tokenfile, read_tokenfile
+from cctrl.auth import get_email, get_password, update_tokenfile, delete_tokenfile, read_tokenfile
 from cctrl.app import ParseAppDeploymentName
 
 
@@ -76,9 +76,14 @@ def get_email_and_password(settings):
     # check ENV for credentials first
     try:
         email = os.environ.pop(settings.login_creds['email'])
+    except KeyError:
+        email = get_email(settings)
+
+    try:
         password = os.environ.pop(settings.login_creds['pwd'])
     except KeyError:
-        email, password = get_credentials(settings)
+        password = get_password()
+
     return email, password
 
 
