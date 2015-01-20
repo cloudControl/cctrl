@@ -14,6 +14,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
+import os
+import sys
+
 from __builtin__ import open, raw_input, range
 from exceptions import ImportError, ValueError
 
@@ -28,17 +31,53 @@ try:
 except ImportError:
     import simplejson as json
 
-from cctrl.error import messages, PasswordsDontMatchException
+from getpass import getpass
+from pycclib import cclib
+
+from cctrl.oshelpers import recode_input
+from cctrl.keyhelpers import get_default_ssh_key_path, \
+    get_public_key_fingerprint, sign_token
+from cctrl.error import SignatureException, InputErrorException, \
+    PublicKeyException, messages, PasswordsDontMatchException
 
 
 def create_config_dir(settings):
     if os.path.isdir(settings.home_path):
         return
     elif os.path.isfile(settings.home_path):
-        print 'Error: ' + settings.home_path + ' is a file, not a directory.'
+        print >> sys.stderr, 'Error: ' + settings.home_path + ' is a file, not a directory.'
         sys.exit(1)
     else:
         os.mkdir(settings.home_path)
+
+
+def create_token(api, settings, email, password):
+    while True:
+        try:
+            if settings.ssh_auth and password is None:
+                key_path = get_configfile(settings).get('ssh_path',
+                                                        get_default_ssh_key_path())
+                fingerprint = get_public_key_fingerprint(key_path)
+                if not fingerprint:
+                    raise PublicKeyException('PublicKeyNotFound')
+
+                ssh_token = api.create_ssh_token()
+                signature = sign_token(key_path, fingerprint, ssh_token)
+                return api.create_token_ssh_auth(email,
+                                                 ssh_token,
+                                                 signature,
+                                                 fingerprint)
+            else:
+                return api.create_token_basic_auth(email, password)
+
+        except (cclib.APIException, SignatureException, PublicKeyException) as e:
+            if password is not None:
+                sys.exit(messages['NotAuthorized'])
+
+            print >> sys.stderr, str(e) + " " + messages['NotAuthorizedPublicKey']
+            password = get_password_env(settings)
+            if not password:
+                password = get_password()
 
 
 def update_tokenfile(api, settings):
@@ -97,17 +136,25 @@ def delete_tokenfile(settings):
     return False
 
 
-def set_configfile(settings, email):
+def set_configfile(settings, email=None, ssh_auth=None, ssh_path=None):
     create_config_dir(settings)
+    config = ConfigParser.ConfigParser()
+    config.read(settings.config_path)
 
-    config = configparser.ConfigParser()
-    config.read(settings.config_file)
-    config.set('user', 'email', email)
+    if not config.has_section('user'):
+        config.add_section('user')
 
-    with open(settings.config_file, 'w') as configfile:
+    if email:
+        config.set('user', 'email', email)
+
+    if ssh_auth is not None:
+        config.set('user', 'ssh_auth', ssh_auth)
+
+    if ssh_path:
+        config.set('user', 'ssh_path', ssh_path)
+
+    with open(settings.config_path, 'w') as configfile:
         config.write(configfile)
-
-    return True
 
 
 def get_configfile(settings):
@@ -119,12 +166,15 @@ def get_configfile(settings):
 
 
 def get_email_and_password(settings):
-    email = get_email_env(settings)
-    if not email:
-        email = get_email(settings)
+    email = get_email_env(settings) or \
+        get_configfile(settings).get('email') or \
+        get_email(settings)
+
+    if get_configfile(settings).get('ssh_auth'):
+        return email, None
 
     password = get_password_env(settings)
-    if not password:
+    if password is None:
         password = get_password()
 
     return email, password
@@ -135,7 +185,9 @@ def get_email(settings):
     sys.stderr.flush()
 
     email = raw_input()
-    set_configfile(settings, email)
+    set_configfile(settings, email=email)
+    print >> sys.stderr, '{} is set as your default e-mail address. '\
+        'You can always change it at {}.'.format(email, settings.config_path)
     return email
 
 
@@ -145,7 +197,6 @@ def get_email_env(settings):
     except KeyError:
         return None
 
-    set_configfile(settings, email)
     return email
 
 
@@ -156,7 +207,7 @@ def get_password(create=False):
         if create:
             password2 = recode_input(getpass('Password (again): '))
             if password != password2:
-                print messages['PasswordsDontMatch']
+                print >> sys.stderr, messages['PasswordsDontMatch']
                 if i == 2:
                     raise PasswordsDontMatchException()
             else:
@@ -190,3 +241,33 @@ def get_credentials(settings, create=False):
     password = get_password(create)
 
     return email, password
+
+
+def ask_for_ssh_auth(settings):
+    if settings.ssh_auth:
+        confirmation = raw_input('It is now possible to login using your public key. '
+                                 'Do you want to use it as default login method? '
+                                 'Type "Yes" without the quotes to proceed: ')
+        ssh_auth = confirmation == "Yes"
+        set_configfile(settings, ssh_auth=ssh_auth)
+        if ssh_auth and 'ssh_path' not in get_configfile(settings):
+                ask_for_ssh_key_path(settings)
+
+        print >> sys.stderr, 'You can change your decision by manually editing the configuration file located '\
+            'at {}.\n'.format(settings.config_path)
+
+
+def ask_for_ssh_key_path(settings, retry=3):
+    while retry > 0:
+        default_path = get_default_ssh_key_path()
+        path = raw_input('Set ssh key path ({0}):'.format(default_path))
+        key_path = path if path else default_path
+
+        if os.path.isfile(key_path):
+            set_configfile(settings, ssh_path=key_path)
+            return True
+
+        print >> sys.stderr, 'File does not exist: {}'.format(key_path)
+        retry = retry - 1
+
+    raise InputErrorException('PublicKeyNotFound')

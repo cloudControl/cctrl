@@ -5,3 +5,4 @@ htmlcov/
 dist/
 .vagrant/
 .coverage
+build

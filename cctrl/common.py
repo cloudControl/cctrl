@@ -18,14 +18,14 @@
 import sys
 import os
 
-from cctrl.settings import VERSION
-
 from pycclib import cclib
-from cctrl.error import InputErrorException, messages
-from cctrl.auth import update_tokenfile, delete_tokenfile, \
-    read_tokenfile, get_email_and_password
 
+from cctrl.error import InputErrorException, messages
+from cctrl.settings import VERSION
 from cctrl.app import ParseAppDeploymentName
+from cctrl.auth import update_tokenfile, delete_tokenfile, \
+    read_tokenfile, get_email_and_password, \
+    get_configfile, ask_for_ssh_auth, create_token
 
 
 def check_for_updates(package_name, latest_version_str, our_version_str=VERSION):
@@ -74,31 +74,31 @@ def init_api(settings):
                      encode_email=settings.encode_email)
 
 
+def execute_command(api, command, settings):
+    while True:
+        try:
+            command()
+            break
+        except (cclib.TokenRequiredError, cclib.UnauthorizedError):
+            if 'ssh_auth' not in get_configfile(settings):
+                ask_for_ssh_auth(settings)
+
+            email, password = get_email_and_password(settings)
+            create_token(api, settings, email, password)
+        except ParseAppDeploymentName:
+            sys.exit(messages['InvalidAppOrDeploymentName'])
+
+
 def execute_with_authenticated_user(api, command, settings):
     while True:
         try:
-            try:
-                command()
-            except (cclib.TokenRequiredError, cclib.UnauthorizedError):
-                email, password = get_email_and_password(settings)
-                try:
-                    api.create_token(email, password)
-                except cclib.UnauthorizedError:
-                    sys.exit(messages['NotAuthorized'])
-                else:
-                    pass
-            except ParseAppDeploymentName:
-                sys.exit(messages['InvalidAppOrDeploymentName'])
-            else:
-                break
+            execute_command(api, command, settings)
+            break
         except cclib.ForbiddenError, e:
             sys.exit(messages['NotAllowed'])
         except cclib.ConnectionException:
             sys.exit(messages['APIUnreachable'])
-        except (cclib.BadRequestError, cclib.ConflictDuplicateError,
-                cclib.GoneError, cclib.InternalServerError,
-                cclib.NotImplementedError, cclib.ThrottledError,
-                InputErrorException), e:
+        except (cclib.APIException, InputErrorException) as e:
             sys.exit(e)
 
 

@@ -15,21 +15,23 @@
     limitations under the License.
 """
 
-import os
 import sys
 import json
 
-from cctrl.error import PasswordsDontMatchException, InputErrorException, messages
-from cctrl.auth import get_credentials
 from pycclib.cclib import GoneError, NotImplementedError, ForbiddenError
-from cctrl.output import print_keys
 from pycclib.cclib import ConflictDuplicateError
+from pycclib import cclib
+
+from cctrl.error import PasswordsDontMatchException, InputErrorException, \
+    messages
+from cctrl.auth import get_credentials, set_configfile
+from cctrl.output import print_keys
+from cctrl.common import get_email_and_password
+
 from output import print_key
 from oshelpers import readContentOf
 from keyhelpers import is_key_valid, ask_user_to_use_default_ssh_public_key, \
-    create_new_default_ssh_keys
-from pycclib import cclib
-from cctrl.common import get_email_and_password
+    create_new_default_ssh_keys, get_default_ssh_key_path
 
 
 class UserController(object):
@@ -120,10 +122,7 @@ class UserController(object):
         """
             Add a given public key to cloudControl user account.
         """
-        if sys.platform == 'win32':
-            default_key_path = os.path.expanduser('~') + "/.ssh/id_rsa.pub"
-        else:
-            default_key_path = os.getenv("HOME") + "/.ssh/id_rsa.pub"
+        default_key_path = get_default_ssh_key_path()
 
         # Possibility #1: User is providing a non-default SSH key
         key_to_read = args.public_key
@@ -144,6 +143,9 @@ class UserController(object):
 
         # Good, we have the key! Now, read the content of the key!
         public_rsa_key_content = readContentOf(key_to_read)
+
+        # Store key path in config so we know it for ssh auth
+        set_configfile(self.settings, None, None, key_to_read)
 
         # Add public RSA-key to cloudControl user account
         try:
