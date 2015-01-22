@@ -129,7 +129,7 @@ def get_credentials(settings, create=False):
         after that a PasswordsDontMatchException is thrown.
     """
 
-    email = get_email();
+    email = get_email(settings)
 
     password = get_password(create)
 
