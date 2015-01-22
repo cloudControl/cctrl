@@ -472,4 +472,4 @@ def setup_cli(settings):
     except KeyboardInterrupt:
         pass
     finally:
-        common.shutdown(api)
+        common.shutdown(api, settings)

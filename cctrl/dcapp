@@ -26,5 +26,6 @@ if __name__ == "__main__":
                         ssh_forwarder_url='sshforwarder.dotcloudapp.com',
                         login_creds={'email': 'DC_EMAIL',
                                      'pwd': 'DC_PASSWORD'},
-                        package_name='dotcloudng')
+                        package_name='dotcloudng',
+                        home_path='.dotcloudapp.com')
     setup_cli(settings)

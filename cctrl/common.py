@@ -65,7 +65,7 @@ def init_api(settings):
             break
 
         dirname = os.path.dirname(dirname)
-    return cclib.API(token=read_tokenfile(),
+    return cclib.API(token=read_tokenfile(settings),
                      url=settings.api_url,
                      token_source_url=settings.token_source_url,
                      register_addon_url=settings.register_addon_url,
@@ -134,12 +134,12 @@ def run(args, api, settings):
     execute_with_authenticated_user(api, (lambda: args.func(args)), settings)
 
 
-def shutdown(api):
+def shutdown(api, settings):
     """
         shutdown handles updating or deleting the token file on disk each time
         cctrl finishes or gets interrupted.
     """
     if api.check_token():
-        update_tokenfile(api)
+        update_tokenfile(api, settings)
     else:
-        delete_tokenfile()
+        delete_tokenfile(settings)
