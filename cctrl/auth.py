@@ -28,10 +28,9 @@ except ImportError:
     import simplejson as json
 
 from cctrl.error import messages, PasswordsDontMatchException
-from cctrl.settings import TOKEN_FILE_PATH, HOME_PATH
 
 
-def update_tokenfile(api):
+def update_tokenfile(api, settings):
     """
         Because it is a real pain we don't want to ask developers for their
         username and password every time they call a method.
@@ -42,19 +41,19 @@ def update_tokenfile(api):
         request resets the expiration time.
     """
     if api.check_token():
-        write_tokenfile(api)
+        write_tokenfile(api, settings)
         return True
     return False
 
 
-def read_tokenfile():
+def read_tokenfile(settings):
     """
-        Read the token from the token_file in TOKEN_FILE_PATH specified in
+        Read the token from the token_path specified in
         cctrl.settings
     """
     token = None
-    if os.path.exists(TOKEN_FILE_PATH):
-        token_file = open(TOKEN_FILE_PATH, "r")
+    if os.path.exists(settings.token_path):
+        token_file = open(settings.token_path, "r")
         try:
             token = json.load(token_file)
         except ValueError:
@@ -63,32 +62,32 @@ def read_tokenfile():
     return token
 
 
-def write_tokenfile(api):
+def write_tokenfile(api, settings):
     """
         This method checks, if the .cloudControl directory inside the
         users home exists or is a file. If not, we create it and then
         write the token file.
     """
-    if os.path.isdir(HOME_PATH):
+    if os.path.isdir(settings.home_path):
         pass
-    elif os.path.isfile(HOME_PATH):
-        print 'Error: ' + HOME_PATH + ' is a file, not a directory.'
+    elif os.path.isfile(settings.home_path):
+        print 'Error: ' + settings.home_path + ' is a file, not a directory.'
         sys.exit(1)
     else:
-        os.mkdir(HOME_PATH)
+        os.mkdir(settings.home_path)
 
-    tokenfile = open(TOKEN_FILE_PATH, "w")
-    json.dump(api.get_token(), tokenfile)
-    tokenfile.close()
+    token_file = open(settings.token_path, "w")
+    json.dump(api.get_token(), token_file)
+    token_file.close()
     return True
 
 
-def delete_tokenfile():
+def delete_tokenfile(settings):
     """
         We delete the tokenfile if we don't have a valid token to save.
     """
-    if os.path.exists(TOKEN_FILE_PATH):
-        os.remove(TOKEN_FILE_PATH)
+    if os.path.exists(settings.token_path):
+        os.remove(settings.token_path)
         return True
     return False
 

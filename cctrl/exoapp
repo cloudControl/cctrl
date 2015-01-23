@@ -27,5 +27,6 @@ if __name__ == "__main__":
                         ssh_forwarder_url='sshforwarder.app.exo.io',
                         login_name='Email or Organization ID: ',
                         login_creds={'email': 'EXO_EMAIL',
-                                     'pwd': 'EXO_PASSWORD'})
+                                     'pwd': 'EXO_PASSWORD'},
+                        home_path='.app.exo.io')
     setup_cli(settings)
