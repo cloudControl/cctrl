@@ -24,8 +24,7 @@ from cctrl.error import InputErrorException, messages
 from cctrl.settings import VERSION
 from cctrl.app import ParseAppDeploymentName
 from cctrl.auth import update_tokenfile, delete_tokenfile, \
-    read_tokenfile, get_email_and_password, \
-    get_configfile, ask_for_ssh_auth, create_token
+    read_tokenfile, get_email_and_password, create_token
 
 
 def check_for_updates(package_name, latest_version_str, our_version_str=VERSION):
@@ -80,9 +79,6 @@ def execute_command(api, command, settings):
             command()
             break
         except (cclib.TokenRequiredError, cclib.UnauthorizedError):
-            if 'ssh_auth' not in get_configfile(settings):
-                ask_for_ssh_auth(settings)
-
             email, password = get_email_and_password(settings)
             create_token(api, settings, email, password)
         except ParseAppDeploymentName:

@@ -15,6 +15,7 @@
     limitations under the License.
 """
 
+import os
 import sys
 import json
 
@@ -24,7 +25,7 @@ from pycclib import cclib
 
 from cctrl.error import PasswordsDontMatchException, InputErrorException, \
     messages
-from cctrl.auth import get_credentials, set_configfile
+from cctrl.auth import get_credentials, set_user_config, get_user_config
 from cctrl.output import print_keys
 from cctrl.common import get_email_and_password
 
@@ -129,13 +130,13 @@ class UserController(object):
         if not is_key_valid(key_to_read):
 
             # Possibility #2: Try the default RSA public key
-            print "Key '{0}' seems to be invalid or not found!".format(key_to_read)
+            print >> sys.stderr, "Key '{0}' seems to be invalid or not found!".format(key_to_read)
             ask_user_to_use_default_ssh_public_key()
 
             # Possibility #3: All failed! Let's just create new keys for user!
             if not is_key_valid(default_key_path):
                 if key_to_read != default_key_path:
-                    print "Default key '{0}' seems to be invalid or not found!".format(default_key_path)
+                    print >> sys.stderr, "Default key '{0}' seems to be invalid or not found!".format(default_key_path)
                 create_new_default_ssh_keys()
 
             # We've filtered all cases: the key must be the default one!
@@ -143,9 +144,6 @@ class UserController(object):
 
         # Good, we have the key! Now, read the content of the key!
         public_rsa_key_content = readContentOf(key_to_read)
-
-        # Store key path in config so we know it for ssh auth
-        set_configfile(self.settings, None, None, key_to_read)
 
         # Add public RSA-key to cloudControl user account
         try:
@@ -205,3 +203,56 @@ class UserController(object):
             sys.exit(messages['APIUnreachable'])
         except Exception as e:
             sys.exit(e)
+
+    def setup(self, args):
+        user_config = get_user_config(self.settings)
+        ssh_key_path = self._get_setup_ssh_key_path(user_config, args)
+        if not is_key_valid(ssh_key_path):
+            # If given key path is not default and does not exist
+            # we raise an error
+            if ssh_key_path != get_default_ssh_key_path():
+                raise InputErrorException('WrongPublicKey')
+
+            # If given key path was the default one, we create the key
+            # pair for the user
+            print >> sys.stderr, "Key '{0}' seems to be invalid or not found!".format(ssh_key_path)
+            create_new_default_ssh_keys()
+
+        ssh_key_content = readContentOf(ssh_key_path)
+
+        ssh_auth = self._get_setup_ssh_auth(self.settings, user_config, args)
+
+        if args.email:
+            set_user_config(self.settings, email=args.email)
+
+        try:
+            users = self.api.read_users()
+            self.api.create_user_key(
+                users[0]['username'],
+                ssh_key_content)
+
+        except ConflictDuplicateError:
+            # Key already added, nothing to do.
+            pass
+
+        set_user_config(self.settings,
+                        ssh_auth=ssh_auth,
+                        ssh_path=ssh_key_path)
+
+    def _get_setup_ssh_key_path(self, user_config, args):
+        if args.ssh_key_path:
+            return os.path.abspath(args.ssh_key_path)
+
+        if user_config.get('ssh_path'):
+            return user_config.get('ssh_path')
+
+        return get_default_ssh_key_path()
+
+    def _get_setup_ssh_auth(self, settings, user_config, args):
+        if not settings.ssh_auth:
+            return False
+
+        if args.ssh_auth:
+            return args.ssh_auth == 'yes'
+
+        return user_config.get('ssh_auth', True)

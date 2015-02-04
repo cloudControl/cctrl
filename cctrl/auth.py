@@ -22,8 +22,6 @@ from exceptions import ImportError, ValueError
 
 import ConfigParser
 from getpass import getpass
-import sys
-import os
 from cctrl.oshelpers import recode_input
 
 try:
@@ -31,13 +29,11 @@ try:
 except ImportError:
     import simplejson as json
 
-from getpass import getpass
 from pycclib import cclib
 
-from cctrl.oshelpers import recode_input
 from cctrl.keyhelpers import get_default_ssh_key_path, \
     get_public_key_fingerprint, sign_token
-from cctrl.error import SignatureException, InputErrorException, \
+from cctrl.error import SignatureException, \
     PublicKeyException, messages, PasswordsDontMatchException
 
 
@@ -54,12 +50,12 @@ def create_config_dir(settings):
 def create_token(api, settings, email, password):
     while True:
         try:
-            if settings.ssh_auth and password is None:
-                key_path = get_configfile(settings).get('ssh_path',
-                                                        get_default_ssh_key_path())
+            if get_user_config(settings).get('ssh_auth') and password is None:
+                key_path = get_user_config(settings).get('ssh_path',
+                                                         get_default_ssh_key_path())
                 fingerprint = get_public_key_fingerprint(key_path)
                 if not fingerprint:
-                    raise PublicKeyException('PublicKeyNotFound')
+                    raise PublicKeyException('WrongPublicKey')
 
                 ssh_token = api.create_ssh_token()
                 signature = sign_token(key_path, fingerprint, ssh_token)
@@ -136,7 +132,7 @@ def delete_tokenfile(settings):
     return False
 
 
-def set_configfile(settings, email=None, ssh_auth=None, ssh_path=None):
+def set_user_config(settings, email=None, ssh_auth=None, ssh_path=None):
     create_config_dir(settings)
     config = ConfigParser.ConfigParser()
     config.read(settings.config_path)
@@ -153,24 +149,29 @@ def set_configfile(settings, email=None, ssh_auth=None, ssh_path=None):
     if ssh_path:
         config.set('user', 'ssh_path', ssh_path)
 
-    with open(settings.config_path, 'w') as configfile:
-        config.write(configfile)
+    with open(settings.config_path, 'w') as user_config:
+        config.write(user_config)
 
 
-def get_configfile(settings):
+def get_user_config(settings):
     config = ConfigParser.ConfigParser()
     config.read(settings.config_path)
     if config.has_section('user'):
-        return dict(config.items('user'))
+        cf = dict(config.items('user'))
+        if 'ssh_auth' in cf:
+            cf['ssh_auth'] = config.getboolean('user', 'ssh_auth')
+
+        return cf
+
     return {}
 
 
 def get_email_and_password(settings):
     email = get_email_env(settings) or \
-        get_configfile(settings).get('email') or \
+        get_user_config(settings).get('email') or \
         get_email(settings)
 
-    if get_configfile(settings).get('ssh_auth'):
+    if get_user_config(settings).get('ssh_auth'):
         return email, None
 
     password = get_password_env(settings)
@@ -185,9 +186,7 @@ def get_email(settings):
     sys.stderr.flush()
 
     email = raw_input()
-    set_configfile(settings, email=email)
-    print >> sys.stderr, '{0} is set as your default e-mail address. '\
-        'You can always change it at {1}.'.format(email, settings.config_path)
+    set_user_config(settings, email=email)
     return email
 
 
@@ -241,33 +240,3 @@ def get_credentials(settings, create=False):
     password = get_password(create)
 
     return email, password
-
-
-def ask_for_ssh_auth(settings):
-    if settings.ssh_auth:
-        confirmation = raw_input('It is now possible to login using your public key. '
-                                 'Do you want to use it as default login method? '
-                                 'Type "Yes" without the quotes to proceed: ')
-        ssh_auth = confirmation == "Yes"
-        set_configfile(settings, ssh_auth=ssh_auth)
-        if ssh_auth and 'ssh_path' not in get_configfile(settings):
-                ask_for_ssh_key_path(settings)
-
-        print >> sys.stderr, 'You can change your decision by manually editing the configuration file located '\
-            'at {0}.\n'.format(settings.config_path)
-
-
-def ask_for_ssh_key_path(settings, retry=3):
-    while retry > 0:
-        default_path = get_default_ssh_key_path()
-        path = raw_input('Set ssh key path ({0}):'.format(default_path))
-        key_path = path if path else default_path
-
-        if os.path.isfile(key_path):
-            set_configfile(settings, ssh_path=key_path)
-            return True
-
-        print >> sys.stderr, 'File does not exist: {0}'.format(key_path)
-        retry = retry - 1
-
-    raise InputErrorException('PublicKeyNotFound')

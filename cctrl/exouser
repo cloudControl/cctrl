@@ -28,5 +28,7 @@ if __name__ == "__main__":
                         register_addon_url='https://portal.exoscale.ch',
                         login_name='Email or Organization ID: ',
                         login_creds={'email': 'EXO_EMAIL',
-                                     'pwd': 'EXO_PASSWORD'})
+                                     'pwd': 'EXO_PASSWORD'},
+                        home_path='.app.exo.io',
+                        ssh_auth=False)
     setup_cli(settings)
