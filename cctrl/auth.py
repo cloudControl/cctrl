@@ -186,8 +186,8 @@ def get_email(settings):
 
     email = raw_input()
     set_configfile(settings, email=email)
-    print >> sys.stderr, '{} is set as your default e-mail address. '\
-        'You can always change it at {}.'.format(email, settings.config_path)
+    print >> sys.stderr, '{0} is set as your default e-mail address. '\
+        'You can always change it at {1}.'.format(email, settings.config_path)
     return email
 
 
@@ -254,7 +254,7 @@ def ask_for_ssh_auth(settings):
                 ask_for_ssh_key_path(settings)
 
         print >> sys.stderr, 'You can change your decision by manually editing the configuration file located '\
-            'at {}.\n'.format(settings.config_path)
+            'at {0}.\n'.format(settings.config_path)
 
 
 def ask_for_ssh_key_path(settings, retry=3):
@@ -267,7 +267,7 @@ def ask_for_ssh_key_path(settings, retry=3):
             set_configfile(settings, ssh_path=key_path)
             return True
 
-        print >> sys.stderr, 'File does not exist: {}'.format(key_path)
+        print >> sys.stderr, 'File does not exist: {0}'.format(key_path)
         retry = retry - 1
 
     raise InputErrorException('PublicKeyNotFound')

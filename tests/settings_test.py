@@ -1,8 +1,14 @@
-from unittest import TestCase
+import sys
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 from cctrl.settings import Settings
 
 
-class TestSettings(TestCase):
+class TestSettings(unittest.TestCase):
 
     def test_api_url_set_by_argument(self):
         test_env = {'CCTRL_API_URL': "any.env_api.url"}

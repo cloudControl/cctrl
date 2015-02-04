@@ -1,9 +1,16 @@
 import os
 import binascii
-import unittest
+import sys
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 from mock import patch, call, Mock, DEFAULT
 from cctrl.keyhelpers import get_public_key_fingerprint, sign_token
 import struct
+
 
 @patch.multiple(
     '__builtin__',
@@ -19,7 +26,6 @@ import struct
 class KeyHelpersTestCase(unittest.TestCase):
     TEST_PUB_KEY = '''ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCpnGl7MiSArN350FHyQ+ZdgXlvMoCjPbghWStCnETpMimWe6VBNn4cmdfqc/wIJIWKW0WkndUAWkCaTG/1BAtDtxCPnrncwAqJxGsIsP14GPcsRMEfkYdStTQDyrAw3r1lFj8sxAvhtbxIzyfADrIbWh9Vu2RSZ1/oeKxncD6bNN7UPLmVd83hINjZZx/2AtbC19aVJ9ZV4QvsUUjYZVgPVMtu//8PtoSVOj+6GXZFzT1b85XIWxm7fi5iwA9p4Qbki7HcdVsfHpuJgM/bWyLBZ0bQQaY0UCsBEwD5Lq9wMlHYNna7POSvFPjZXpr/gzoQU7AFL6hjIRD7vVyNpn07 mw@cloudcontrol.de'''
     TEST_FINGERPRINT = '4a:4c:5b:3e:47:21:d5:7f:c9:8c:d9:2e:a7:22:73:65'
-
 
     def test_get_public_key_fingerprint(self, open, **kwargs):
         open.return_value.read.return_value = self.TEST_PUB_KEY
@@ -64,4 +70,3 @@ class KeyHelpersTestCase(unittest.TestCase):
 
         result = sign_token(None, '4a:4c:5b:3e:47:21:d5:7f:c9:8c:d9:2e:a7:22:73:65', 'somedata')
         self.assertEqual(content.encode('base64').strip(), result)
-

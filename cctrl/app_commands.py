@@ -220,7 +220,7 @@ def parse_cmdline(app, settings):
 
     addUser_subparser = subparsers.add_parser(
         'user.add',
-        help="add user by {}".format(settings.login_help_name))
+        help="add user by {0}".format(settings.login_help_name))
     addUser_subparser.add_argument('email', metavar=settings.login_help_name)
     addUser_subparser.add_argument(
         '--role',
@@ -233,8 +233,8 @@ def parse_cmdline(app, settings):
 
     removeUser_subparser = subparsers.add_parser(
         'user.remove',
-        help="remove user by username or {}".format(settings.login_help_name))
-    removeUser_subparser.add_argument('username', help='username or {}'.format(settings.login_help_name))
+        help="remove user by username or {0}".format(settings.login_help_name))
+    removeUser_subparser.add_argument('username', help='username or {0}'.format(settings.login_help_name))
     removeUser_subparser.set_defaults(func=app.removeUser)
 
     showConfig_subparser = subparsers.add_parser('config', help="list config vars")

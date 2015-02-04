@@ -1,8 +1,13 @@
-import unittest
+import sys
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 from mock import patch, call, Mock
 from cctrl.error import InputErrorException
 from cctrl.auth import ask_for_ssh_key_path
-from cctrl.keyhelpers import get_default_ssh_key_path
 
 
 class AuthTestCase(unittest.TestCase):

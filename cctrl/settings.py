@@ -54,7 +54,7 @@ class Settings(object):
         self.login_creds = login_creds
         self.package_name = package_name
         self.prefix_project_name = prefix_project_name
-        self.home_path = os.path.abspath(os.path.expanduser('~/{}'.format(home_path)))
+        self.home_path = os.path.abspath(os.path.expanduser('~/{0}'.format(home_path)))
         self.token_path = os.path.join(self.home_path, 'token.json')
         self.config_path = os.path.join(self.home_path, 'user.cfg')
         self.ssh_auth = ssh_auth
