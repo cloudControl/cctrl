@@ -22,7 +22,9 @@ from cctrl.settings import VERSION
 
 from pycclib import cclib
 from cctrl.error import InputErrorException, messages
-from cctrl.auth import get_email, get_password, update_tokenfile, delete_tokenfile, read_tokenfile
+from cctrl.auth import update_tokenfile, delete_tokenfile, \
+    read_tokenfile, get_email_and_password
+
 from cctrl.app import ParseAppDeploymentName
 
 
@@ -72,21 +74,6 @@ def init_api(settings):
                      encode_email=settings.encode_email)
 
 
-def get_email_and_password(settings):
-    # check ENV for credentials first
-    try:
-        email = os.environ.pop(settings.login_creds['email'])
-    except KeyError:
-        email = get_email(settings)
-
-    try:
-        password = os.environ.pop(settings.login_creds['pwd'])
-    except KeyError:
-        password = get_password()
-
-    return email, password
-
-
 def execute_with_authenticated_user(api, command, settings):
     while True:
         try:
@@ -108,8 +95,9 @@ def execute_with_authenticated_user(api, command, settings):
             sys.exit(messages['NotAllowed'])
         except cclib.ConnectionException:
             sys.exit(messages['APIUnreachable'])
-        except (cclib.BadRequestError, cclib.ConflictDuplicateError, cclib.GoneError,
-                cclib.InternalServerError, cclib.NotImplementedError, cclib.ThrottledError,
+        except (cclib.BadRequestError, cclib.ConflictDuplicateError,
+                cclib.GoneError, cclib.InternalServerError,
+                cclib.NotImplementedError, cclib.ThrottledError,
                 InputErrorException), e:
             sys.exit(e)
 

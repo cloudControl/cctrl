@@ -17,6 +17,7 @@
 from __builtin__ import open, raw_input, range
 from exceptions import ImportError, ValueError
 
+import ConfigParser
 from getpass import getpass
 import sys
 import os
@@ -28,6 +29,16 @@ except ImportError:
     import simplejson as json
 
 from cctrl.error import messages, PasswordsDontMatchException
+
+
+def create_config_dir(settings):
+    if os.path.isdir(settings.home_path):
+        return
+    elif os.path.isfile(settings.home_path):
+        print 'Error: ' + settings.home_path + ' is a file, not a directory.'
+        sys.exit(1)
+    else:
+        os.mkdir(settings.home_path)
 
 
 def update_tokenfile(api, settings):
@@ -68,13 +79,7 @@ def write_tokenfile(api, settings):
         users home exists or is a file. If not, we create it and then
         write the token file.
     """
-    if os.path.isdir(settings.home_path):
-        pass
-    elif os.path.isfile(settings.home_path):
-        print 'Error: ' + settings.home_path + ' is a file, not a directory.'
-        sys.exit(1)
-    else:
-        os.mkdir(settings.home_path)
+    create_config_dir(settings)
 
     token_file = open(settings.token_path, "w")
     json.dump(api.get_token(), token_file)
@@ -92,12 +97,55 @@ def delete_tokenfile(settings):
     return False
 
 
+def set_configfile(settings, email):
+    create_config_dir(settings)
+
+    config = configparser.ConfigParser()
+    config.read(settings.config_file)
+    config.set('user', 'email', email)
+
+    with open(settings.config_file, 'w') as configfile:
+        config.write(configfile)
+
+    return True
+
+
+def get_configfile(settings):
+    config = ConfigParser.ConfigParser()
+    config.read(settings.config_path)
+    if config.has_section('user'):
+        return dict(config.items('user'))
+    return {}
+
+
+def get_email_and_password(settings):
+    email = get_email_env(settings)
+    if not email:
+        email = get_email(settings)
+
+    password = get_password_env(settings)
+    if not password:
+        password = get_password()
+
+    return email, password
+
+
 def get_email(settings):
     sys.stderr.write(settings.login_name)
     sys.stderr.flush()
 
     email = raw_input()
+    set_configfile(settings, email)
+    return email
 
+
+def get_email_env(settings):
+    try:
+        email = os.getenv(settings.login_creds['email'])
+    except KeyError:
+        return None
+
+    set_configfile(settings, email)
     return email
 
 
@@ -115,6 +163,15 @@ def get_password(create=False):
                 break
         else:
             break
+
+    return password
+
+
+def get_password_env(settings):
+    try:
+        password = os.getenv(settings.login_creds['pwd'])
+    except KeyError:
+        return None
 
     return password
 
