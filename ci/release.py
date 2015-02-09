@@ -32,7 +32,8 @@ def dist():
                     '--formats=gztar',
                     'upload'])
     except OSError as e:
-        print e
+        cleanup()
+        sys.exit(e)
 
 
 def cleanup():
