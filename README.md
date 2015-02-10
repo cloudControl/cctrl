@@ -37,3 +37,25 @@ To install `cctrl`:
 To upgrade `cctrl` (non-windows compatible):
 
     $ (sudo) pip install cctrl --upgrade
+
+
+Vagrant Support
+---------------
+
+This project includes Vagrant support, so you can start an Ubuntu virtual machine
+with your local `cctrl` version installed and ready to use. It might be also useful
+for Windows users, so they can have a more Unix-like experience.
+
+To start a `cctrl` Vagrant box you need to be inside the project directory and follow
+these steps:
+
+	$ vagrant up
+	$ vagrant ssh
+	$ cctrlapp -h
+
+If you're working on project development and want to update your changes, run:
+
+	$ vagrant provision
+
+You can find documentation on Vagrant installation and configuration on their [official
+site](http://docs.vagrantup.com/v2/installation/index.html).
