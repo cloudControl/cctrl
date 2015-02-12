@@ -1,4 +1,10 @@
-import unittest
+import sys
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 from mock import patch, call, Mock
 from cctrl.error import InputErrorException
 from cctrl.app import AppController
@@ -26,14 +32,14 @@ class AppControllerTestCase(unittest.TestCase):
         with self.assertRaises(InputErrorException) as ctx:
             AppController(None, Settings())._get_size_from_memory('0.7')
         self.assertEqual(
-            '[ERROR] Memory size should be an integer between 128 and 1024 MB',
+            '[ERROR] Memory size should be an integer between 128 and 1024 MB.',
             str(ctx.exception))
 
     def test_get_size_from_memory_unrecognized_unit(self):
         with self.assertRaises(InputErrorException) as ctx:
             AppController(None, Settings())._get_size_from_memory('4kb')
         self.assertEqual(
-            '[ERROR] Memory size should be an integer between 128 and 1024 MB',
+            '[ERROR] Memory size should be an integer between 128 and 1024 MB.',
             str(ctx.exception))
 
     @patch('cctrl.app.check_call')

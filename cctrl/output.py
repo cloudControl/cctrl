@@ -501,7 +501,7 @@ def print_config(config, key=None):
     if key and key in config:
         print config.get(key)
     elif key:
-        print '[ERROR] Key `{}` not found.'.format(key)
+        print '[ERROR] Key `{0}` not found.'.format(key)
     else:
         for key in sorted(config):
             print u'{0}={1}'.format(key, pipes.quote(config.get(key) or ''))

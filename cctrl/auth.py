@@ -14,12 +14,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
+import os
+import sys
+
 from __builtin__ import open, raw_input, range
 from exceptions import ImportError, ValueError
 
+import ConfigParser
 from getpass import getpass
-import sys
-import os
 from cctrl.oshelpers import recode_input
 
 try:
@@ -27,7 +29,51 @@ try:
 except ImportError:
     import simplejson as json
 
-from cctrl.error import messages, PasswordsDontMatchException
+from pycclib import cclib
+
+from cctrl.keyhelpers import get_default_ssh_key_path, \
+    get_public_key_fingerprint, sign_token
+from cctrl.error import SignatureException, \
+    PublicKeyException, messages, PasswordsDontMatchException
+
+
+def create_config_dir(settings):
+    if os.path.isdir(settings.home_path):
+        return
+    elif os.path.isfile(settings.home_path):
+        print >> sys.stderr, 'Error: ' + settings.home_path + ' is a file, not a directory.'
+        sys.exit(1)
+    else:
+        os.mkdir(settings.home_path)
+
+
+def create_token(api, settings, email, password):
+    while True:
+        try:
+            if get_user_config(settings).get('ssh_auth') and password is None:
+                key_path = get_user_config(settings).get('ssh_path',
+                                                         get_default_ssh_key_path())
+                fingerprint = get_public_key_fingerprint(key_path)
+                if not fingerprint:
+                    raise PublicKeyException('WrongPublicKey')
+
+                ssh_token = api.create_ssh_token()
+                signature = sign_token(key_path, fingerprint, ssh_token)
+                return api.create_token_ssh_auth(email,
+                                                 ssh_token,
+                                                 signature,
+                                                 fingerprint)
+            else:
+                return api.create_token_basic_auth(email, password)
+
+        except (cclib.APIException, SignatureException, PublicKeyException) as e:
+            if password is not None:
+                sys.exit(messages['NotAuthorized'])
+
+            print >> sys.stderr, str(e) + " " + messages['NotAuthorizedPublicKey']
+            password = get_password_env(settings)
+            if not password:
+                password = get_password()
 
 
 def update_tokenfile(api, settings):
@@ -68,13 +114,7 @@ def write_tokenfile(api, settings):
         users home exists or is a file. If not, we create it and then
         write the token file.
     """
-    if os.path.isdir(settings.home_path):
-        pass
-    elif os.path.isfile(settings.home_path):
-        print 'Error: ' + settings.home_path + ' is a file, not a directory.'
-        sys.exit(1)
-    else:
-        os.mkdir(settings.home_path)
+    create_config_dir(settings)
 
     token_file = open(settings.token_path, "w")
     json.dump(api.get_token(), token_file)
@@ -92,11 +132,69 @@ def delete_tokenfile(settings):
     return False
 
 
+def set_user_config(settings, email=None, ssh_auth=None, ssh_path=None):
+    create_config_dir(settings)
+    config = ConfigParser.ConfigParser()
+    config.read(settings.config_path)
+
+    if not config.has_section('user'):
+        config.add_section('user')
+
+    if email:
+        config.set('user', 'email', email)
+
+    if ssh_auth is not None:
+        config.set('user', 'ssh_auth', ssh_auth)
+
+    if ssh_path:
+        config.set('user', 'ssh_path', ssh_path)
+
+    with open(settings.config_path, 'w') as user_config:
+        config.write(user_config)
+
+
+def get_user_config(settings):
+    config = ConfigParser.ConfigParser()
+    config.read(settings.config_path)
+    if config.has_section('user'):
+        cf = dict(config.items('user'))
+        if 'ssh_auth' in cf:
+            cf['ssh_auth'] = config.getboolean('user', 'ssh_auth')
+
+        return cf
+
+    return {}
+
+
+def get_email_and_password(settings):
+    email = get_email_env(settings) or \
+        get_user_config(settings).get('email') or \
+        get_email(settings)
+
+    if get_user_config(settings).get('ssh_auth'):
+        return email, None
+
+    password = get_password_env(settings)
+    if password is None:
+        password = get_password()
+
+    return email, password
+
+
 def get_email(settings):
     sys.stderr.write(settings.login_name)
     sys.stderr.flush()
 
     email = raw_input()
+    set_user_config(settings, email=email)
+    return email
+
+
+def get_email_env(settings):
+    try:
+        email = os.getenv(settings.login_creds['email'])
+    except KeyError:
+        return None
 
     return email
 
@@ -108,13 +206,22 @@ def get_password(create=False):
         if create:
             password2 = recode_input(getpass('Password (again): '))
             if password != password2:
-                print messages['PasswordsDontMatch']
+                print >> sys.stderr, messages['PasswordsDontMatch']
                 if i == 2:
                     raise PasswordsDontMatchException()
             else:
                 break
         else:
             break
+
+    return password
+
+
+def get_password_env(settings):
+    try:
+        password = os.getenv(settings.login_creds['pwd'])
+    except KeyError:
+        return None
 
     return password
 

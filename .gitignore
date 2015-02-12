@@ -4,3 +4,5 @@ htmlcov/
 .cache/
 dist/
 .vagrant/
+.coverage
+build

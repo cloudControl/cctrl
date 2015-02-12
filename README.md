@@ -8,10 +8,8 @@ and users hosted on platforms compatible with [cloudControl](https://www.cloudco
 Dependencies
 ------------
 
- * python 2.6.x and later
- * python modules:
-    * argparse
-    * pycclib
+ * python 2.6.x or 2.7.x
+ * pip
 
 
 Installation
@@ -37,6 +35,34 @@ To install `cctrl`:
 To upgrade `cctrl` (non-windows compatible):
 
     $ (sudo) pip install cctrl --upgrade
+
+
+To check successful installation of `cctrl`:
+
+    $ cctrlapp -v
+    cctrlapp 1.x.x using pycclib 1.x.x
+
+
+Configuration
+-------------
+
+If you don't have an account yet, you can create it with this command:
+
+    $ cctrluser create
+
+Once you're done with installation and already have an account, you just
+need to run one more command to get your setup ready:
+
+    $ cctrluser setup
+
+This command will save your email and the SSH public key you will use
+to authenticate and to push with. See `cctrluser setup -h` for further
+setup information.
+
+Usage
+-----
+
+See `cctrlapp -h` to learn about its usage and available commands.
 
 
 Vagrant Support

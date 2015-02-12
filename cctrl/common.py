@@ -18,12 +18,13 @@
 import sys
 import os
 
-from cctrl.settings import VERSION
-
 from pycclib import cclib
+
 from cctrl.error import InputErrorException, messages
-from cctrl.auth import get_email, get_password, update_tokenfile, delete_tokenfile, read_tokenfile
+from cctrl.settings import VERSION
 from cctrl.app import ParseAppDeploymentName
+from cctrl.auth import update_tokenfile, delete_tokenfile, \
+    read_tokenfile, get_email_and_password, create_token
 
 
 def check_for_updates(package_name, latest_version_str, our_version_str=VERSION):
@@ -72,45 +73,28 @@ def init_api(settings):
                      encode_email=settings.encode_email)
 
 
-def get_email_and_password(settings):
-    # check ENV for credentials first
-    try:
-        email = os.environ.pop(settings.login_creds['email'])
-    except KeyError:
-        email = get_email(settings)
-
-    try:
-        password = os.environ.pop(settings.login_creds['pwd'])
-    except KeyError:
-        password = get_password()
-
-    return email, password
+def execute_command(api, command, settings):
+    while True:
+        try:
+            command()
+            break
+        except (cclib.TokenRequiredError, cclib.UnauthorizedError):
+            email, password = get_email_and_password(settings)
+            create_token(api, settings, email, password)
+        except ParseAppDeploymentName:
+            sys.exit(messages['InvalidAppOrDeploymentName'])
 
 
 def execute_with_authenticated_user(api, command, settings):
     while True:
         try:
-            try:
-                command()
-            except (cclib.TokenRequiredError, cclib.UnauthorizedError):
-                email, password = get_email_and_password(settings)
-                try:
-                    api.create_token(email, password)
-                except cclib.UnauthorizedError:
-                    sys.exit(messages['NotAuthorized'])
-                else:
-                    pass
-            except ParseAppDeploymentName:
-                sys.exit(messages['InvalidAppOrDeploymentName'])
-            else:
-                break
+            execute_command(api, command, settings)
+            break
         except cclib.ForbiddenError, e:
             sys.exit(messages['NotAllowed'])
         except cclib.ConnectionException:
             sys.exit(messages['APIUnreachable'])
-        except (cclib.BadRequestError, cclib.ConflictDuplicateError, cclib.GoneError,
-                cclib.InternalServerError, cclib.NotImplementedError, cclib.ThrottledError,
-                InputErrorException), e:
+        except (cclib.APIException, InputErrorException) as e:
             sys.exit(e)
 
 

@@ -32,5 +32,7 @@ if __name__ == "__main__":
                         login_creds={'email': 'CNH_LOGIN',
                                      'pwd': 'CNH_PASSWORD'},
                         package_name='cnh',
-                        prefix_project_name=True)
+                        prefix_project_name=True,
+                        home_path='.cnh-apps.com',
+                        ssh_auth=False)
     setup_cli(settings)

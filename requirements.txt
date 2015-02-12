@@ -1,2 +1,3 @@
-pycclib==1.5.5
+pycclib>=1.6.0
 argparse==1.2.2
+paramiko>=1.15.2

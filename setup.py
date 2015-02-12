@@ -24,8 +24,9 @@ if sys.version_info < (2, 6):
 else:
     required = []
 
-required.append('pycclib>=1.5.4')
+required.append('pycclib>=1.6.0')
 required.append('argparse>=1.1')
+required.append('paramiko>=1.15.2')
 
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/exoapp', 'cctrl/exouser', 'cctrl/dcapp', 'cctrl/dcuser', 'cctrl/cnhapp', 'cctrl/cnhuser']
 

@@ -72,6 +72,27 @@ def parse_cmdline(user):
         help="the password")
     create_subparser.set_defaults(func=user.create)
 
+    setup_subparser = subparsers.add_parser('setup', help="setup user")
+    setup_subparser.add_argument(
+        "--email",
+        action="store",
+        dest="email",
+        help="user email")
+    setup_subparser.add_argument(
+        "--ssh-auth",
+        action='store',
+        choices=['yes', 'no'],
+        dest="ssh_auth",
+        default=None,
+        help="disable ssh public key auth")
+    setup_subparser.add_argument(
+        "--ssh-key-path",
+        action="store",
+        dest="ssh_key_path",
+        default=None,
+        help="path of the default public key")
+    setup_subparser.set_defaults(func=user.setup)
+
     activate_subparser = subparsers.add_parser(
         'activate',
         help="activate user")

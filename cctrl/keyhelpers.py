@@ -17,11 +17,18 @@
 """
 import os
 import sys
+import base64
+import hashlib
 import commands
 
 from subprocess import call
-from error import InputErrorException
+from error import InputErrorException, SignatureException
 from oshelpers import readContentOf, isValidFile
+
+import paramiko.agent
+from paramiko.rsakey import RSAKey
+from paramiko.ssh_exception import PasswordRequiredException
+from paramiko.message import Message
 
 
 def is_key_valid(key):
@@ -32,7 +39,7 @@ def is_key_valid(key):
         return False
 
     file_content = readContentOf(key)
-    if file_content == None:
+    if not file_content:
         return False
 
     # File read! Now check if it's RSA encrypted ...
@@ -47,17 +54,14 @@ def generate_rsa_keys():
         Create new set of SSH keys via shell with 'ssh-keygen'
         or, for win32, via paramiko
     """
-    if sys.platform == 'win32':
-        ssh_path = os.path.expanduser('~') + "/.ssh"
-    else:
-        ssh_path = os.getenv("HOME") + "/.ssh"
+    ssh_path = get_default_ssh_dir()
 
     # If we're on Windows, we need to take a different approach
     if sys.platform == 'win32':
         return generate_rsa_key_manually(ssh_path)
 
     # Check if default keys already exist. If yes, bail out!
-    if os.path.exists(ssh_path + "/id_rsa.pub"):
+    if os.path.exists(get_default_ssh_key_path()):
         return False
 
     # Check if "ssh-keygen" is installed. If not, stop right here!
@@ -158,10 +162,7 @@ def ask_user_to_use_default_ssh_public_key():
         Ask the user if the default public SSH-key (RSA)
         shall be used.
     """
-    if sys.platform == 'win32':
-        default_rsa_public_key = os.path.expanduser('~')
-    else:
-        default_rsa_public_key = os.getenv("HOME") + "/.ssh/id_rsa.pub"
+    default_rsa_public_key = get_default_ssh_key_path()
 
     # Check first if we actually have a default SSH public key.
     # If we don't then simply return nothing ("")
@@ -175,3 +176,66 @@ def ask_user_to_use_default_ssh_public_key():
         raise InputErrorException('SecurityQuestionDenied')
 
     return 0
+
+
+def get_public_key_fingerprint(key_path):
+    if not key_path:
+        key_path = get_default_ssh_key_path()
+
+    try:
+        public_key = open(key_path).read()
+    except IOError:
+        return None
+
+    key = base64.b64decode(public_key.strip().split()[1].encode('ascii'))
+    fp_plain = hashlib.md5(key).hexdigest()
+    return ':'.join(a + b for a, b in zip(fp_plain[::2], fp_plain[1::2]))
+
+
+def get_default_ssh_dir():
+    return os.path.join(os.path.expanduser('~'), ".ssh")
+
+
+def get_default_ssh_key_path():
+    return get_default_ssh_dir() + "/id_rsa.pub"
+
+
+def get_key_from_agent(fingerprint):
+    a = paramiko.agent.Agent()
+    for key in a.get_keys():
+        fp = base64.b16encode(key.get_fingerprint())
+        if fp == fingerprint.replace(':', '').upper():
+            return key
+    return None
+
+
+def sign_token(key_path, fingerprint, data):
+    # from agent
+    pkey = get_key_from_agent(fingerprint)
+    if not pkey:
+        # or from file (without passphrase)
+        # assuming '.pub' file extension
+        if not os.path.exists(key_path[:-4]):
+            raise SignatureException('WrongKeyPath')
+        try:
+            pkey = RSAKey.from_private_key_file(key_path[:-4])
+        except PasswordRequiredException:
+            raise SignatureException('EncryptedKey')
+
+    if not pkey:
+        raise SignatureException('KeyNotFound')
+
+    try:
+        # paramiko is inconsistent here in that the agent's key
+        # returns Message objects for 'sign_ssh_data' whereas RSAKey
+        # objects returns byte strings.
+        # Workaround: cast both return values to string and build a
+        # new Message object
+        s = str(pkey.sign_ssh_data(data))
+        m = Message(s)
+        m.rewind()
+        if not m.get_string() == 'ssh-rsa':
+            raise SignatureException('RSAKeyRequired')
+        return base64.b64encode(m.get_string())
+    except Exception:
+        raise SignatureException('SignatureCreateFailure')

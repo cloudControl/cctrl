@@ -37,7 +37,7 @@ messages['PermissionDenied'] = r'You are not allowed to push to this repository.
 messages['SecurityQuestionDenied'] = r'Action canceled on user request.'
 messages['WrongAddon'] = r'This addon is unknown for this app_name/deployment_name.'
 messages['DuplicateAddon'] = r'You can not add the same addon option twice.'
-messages['InvalidAddon'] = r'This is not a valid addon name. Check the list of available addons with {} app_name/deployment_name addon.list'.format(os.path.basename(sys.argv[0]))
+messages['InvalidAddon'] = r'This is not a valid addon name. Check the list of available addons with {0} app_name/deployment_name addon.list .'.format(os.path.basename(sys.argv[0]))
 messages['ForbiddenAddon'] = 'You are not allowed to perform this action.\nIf you are trying to use a Beta addon, you can request access from the addon page.'
 messages['WrongPubKeyName'] = r'The public key file must be named "id_rsa.pub".'
 messages['NoSuchKeyFile'] = r'No such key file. Please check your input.'
@@ -63,44 +63,69 @@ messages['CreatingAppAsDefaultRepoType'] = r'Using default "Git" as repository t
 messages['DeleteAppsBeforeUser'] = r'There are still applications associated with this user account. Undeploy and/or delete applications before deleting user.'
 messages['NoSuchFile'] = r'File not found.'
 messages['APIUnreachable'] = r'Could not connect to API...'
-messages['NoBuildpackURL'] = r'You need to provide a buildpack URL for "custom" application type'
-messages['NoCustomApp'] = r'You can only provide a buildpack URL if the app type is "custom"'
+messages['NoBuildpackURL'] = r'You need to provide a buildpack URL for "custom" application type.'
+messages['NoCustomApp'] = r'You can only provide a buildpack URL if the app type is "custom".'
 messages['NoValidBuildpackURL'] = r'The buildpack URL provided is not valid. Please try again.'
-messages['AmbiguousSize'] = r'You can only specify one of --size or --memory'
-messages['InvalidMemory'] = r'Memory size should be an integer between 128 and 1024 MB'
-messages['InvalidSize'] = r'Size should be an integer between 1 and 8'
+messages['AmbiguousSize'] = r'You can only specify one of --size or --memory.'
+messages['InvalidMemory'] = r'Memory size should be an integer between 128 and 1024 MB.'
+messages['InvalidSize'] = r'Size should be an integer between 1 and 8.'
 messages['NoPreviousVersionFound'] = r'Previous version not found.'
 messages['ClearCacheFailed'] = r'Clear buildpack cache failed.'
 messages['DeploymentFailed'] = r'Deployment failed.'
 messages['CommandNotImplemented'] = r'Sorry, this command is not available.'
 messages['ShipAndDeploy'] = r'--ship and --push options cannot be used simultaneously.'
-messages['RegisterDisabled'] = r'You can register on {}.'
+messages['RegisterDisabled'] = r'You can register on {0}.'
 messages['NoVariablesGiven'] = r'You must provide some variables.'
 messages['DuplicatedFlag'] = r'Please, specify a flag only once.'
+messages['NotAuthorizedPublicKey'] = r'Public Key authentication failed. Trying with password.'
+messages['WrongPublicKey'] = r'Public Key not found or invalid.'
+messages['WrongKeyPath'] = r'Wrong Private Key path.'
+messages['EncryptedKey'] = r'Private Key file is encrypted, please check if the ssh-agent is running.'
+messages['KeyNotFound'] = r'No Private Key found.'
+messages['SignatureCreateFailure'] = r'Signature could not be created.'
+messages['RSAKeyRequired'] = r'Currently we support RSA keys only.'
 
 if sys.platform == 'win32':
     messages['UpdateAvailable'] = r'A newer version is available. Please update.'
     messages['UpdateRequired'] = r'A newer version is required. You need to upgrade before using this program.'
 else:
-    messages['UpdateAvailable'] = r'A newer version is available. To upgrade run: (sudo) pip install {} --upgrade'
-    messages['UpdateRequired'] = r'A newer version is required. You need to upgrade before using this program. To upgrade run: (sudo) pip install {} --upgrade'
+    messages['UpdateAvailable'] = r'A newer version is available. To upgrade run: (sudo) pip install {0} --upgrade'
+    messages['UpdateRequired'] = r'A newer version is required. You need to upgrade before using this program. To upgrade run: (sudo) pip install {0} --upgrade'
 
 
-class InputErrorException(Exception):
+class CctrlException(Exception):
+    def __init__(self, error_key):
+        self.error_message = messages[error_key]
+
+    def __str__(self):
+        return '[ERROR]' + ' ' + self.error_message
+
+
+class InputErrorException(CctrlException):
     """
         This exception is raised if for some reason someone put something in we
         could not understand at all.
     """
-    def __init__(self, errorKey):
-        self.error_message = messages[errorKey]
-
-    def __str__(self):
-        return '[ERROR]' + ' ' + self.error_message
+    pass
 
 
 class PasswordsDontMatchException(Exception):
     """
         This exception is raised if the password and the password check weren't
         equal for three times.
+    """
+    pass
+
+
+class PublicKeyException(CctrlException):
+    """
+        This exception is raised if the Public Key is not found
+    """
+    pass
+
+
+class SignatureException(CctrlException):
+    """
+        This exception is raised if the signature cannot be created
     """
     pass

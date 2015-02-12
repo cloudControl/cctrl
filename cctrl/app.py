@@ -758,7 +758,7 @@ class AppController():
             self.api.create_addon(app_name, deployment_name, CONFIG_ADDON, variables)
         except ThrottledError as te:
             # Overwrite the variable if didn't force, but type Yes
-            question = raw_input('{} Do you really want to overwrite it? '
+            question = raw_input('{0} Do you really want to overwrite it? '
                                  'Type "Yes" without the quotes to proceed: '.format(te.message))
             if question.lower() == 'yes':
                 self.api.update_addon(
@@ -937,7 +937,7 @@ class AppController():
         if self.settings.prefix_project_name:
             if len(args.email.split(':')) != 2:
                 prefix = self.api.read_users()[0]['email'].split(':')[0]
-                args.email = '{}:{}'.format(prefix, args.email)
+                args.email = '{0}:{1}'.format(prefix, args.email)
 
         try:
             if deployment_name:
@@ -1145,7 +1145,7 @@ class AppController():
 
         if args.ship:
             print
-            print "Deploying newest version. Press Ctrl+C to open {} in your browser.".format(deployment['name'])
+            print "Deploying newest version. Press Ctrl+C to open {0} in your browser.".format(deployment['name'])
             self.redeploy(deployment)
 
             try:
@@ -1157,7 +1157,7 @@ class AppController():
 
     def _clear_cache(self, app_name, deployment_name, deployment):
         subdomain = self._get_deployment_url(deployment).split('.', 1)[1]
-        host_name = '{}@{}'.format(app_name, subdomain)
+        host_name = '{0}@{1}'.format(app_name, subdomain)
 
         cmd = ssh_cmd(host_name, 'delete-cache', deployment_name)
 
