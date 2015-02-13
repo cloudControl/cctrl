@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.16.0
+
+* ade3edf - Vagrant: Run tests when starting box
+* ec91895 - Add changelog file
+* 165df99 - Update README.md
+* 34cc09c - Introduce setup command to handle user config
+* 25a155d - Make string formatting compatible with python 2.6
+* 17a70ab - Introduce SSH public key authentication
+* 281305a - Introduce config file
+* 53a26f3 - Add Vagrant support
+* f9cc9e7 - ci: Exit with error if dist upload fails
+
 ## v1.15.2
 
 * e4a5141 - Fix sshforwarder url for cnhapp
