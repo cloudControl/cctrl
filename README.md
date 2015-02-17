@@ -9,6 +9,7 @@ Dependencies
 ------------
 
  * python 2.6.x or 2.7.x
+ * python-setuptools
  * pip
 
 
