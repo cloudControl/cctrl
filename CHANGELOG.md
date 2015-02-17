@@ -1,6 +1,15 @@
 # Changelog
 
-## v1.16.0
+All notable changes to this project will be documented in this file.
+This project adheres to [Semantic Versioning](http://semver.org/).
+
+## [Unreleased][unreleased]
+
+* 23aa70a - Deprecate ez_setup.py file
+* c0318e2 - Add VersionEye support
+* ba2d6fa - Upgrade requirements.txt
+
+## [v1.16.0]
 
 * ade3edf - Vagrant: Run tests when starting box
 * ec91895 - Add changelog file
@@ -78,3 +87,6 @@
 * 078051c - Automate new version release via Jenkins 
 * c257751 - Update win32 install documentation 
 
+
+[unreleased]: https://github.com/cloudControl/cctrl/compare/v1.16.0...HEAD
+[v1.16.0]: https://github.com/cloudControl/cctrl/compare/v1.15.2...v1.16.0
