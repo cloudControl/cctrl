@@ -7,15 +7,9 @@
 
 import os
 import sys
+from setuptools import setup, find_packages
 from cctrl.version import __version__
 
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    import ez_setup
-
-    ez_setup.use_setuptools()
-    from setuptools import setup, find_packages
 
 execfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'cctrl', 'version.py'))
 
