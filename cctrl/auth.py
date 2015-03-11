@@ -16,12 +16,13 @@
 """
 import os
 import sys
-
 from __builtin__ import open, raw_input, range
 from exceptions import ImportError, ValueError
 
 import ConfigParser
+from ConfigParser import NoOptionError
 from getpass import getpass
+
 from cctrl.oshelpers import recode_input
 
 try:
@@ -140,7 +141,13 @@ def set_user_config(settings, email=None, ssh_auth=None, ssh_path=None):
     if not config.has_section('user'):
         config.add_section('user')
 
-    if email:
+    try:
+        current_email = config.get('user', 'email')
+    except NoOptionError:
+        current_email = None
+
+    if email and email != current_email:
+        delete_tokenfile(settings)
         config.set('user', 'email', email)
 
     if ssh_auth is not None:
