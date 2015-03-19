@@ -130,13 +130,13 @@ class UserController(object):
         if not is_key_valid(key_to_read):
 
             # Possibility #2: Try the default RSA public key
-            print >> sys.stderr, "Key '{0}' seems to be invalid or not found!".format(key_to_read)
+            print >> sys.stderr, "Key '{0}' seems to not be a RSA public key or not found!".format(key_to_read)
             ask_user_to_use_default_ssh_public_key()
 
             # Possibility #3: All failed! Let's just create new keys for user!
             if not is_key_valid(default_key_path):
                 if key_to_read != default_key_path:
-                    print >> sys.stderr, "Default key '{0}' seems to be invalid or not found!".format(default_key_path)
+                    print >> sys.stderr, "Default key '{0}' seems to not be a RSA public key or not found!".format(default_key_path)
                 create_new_default_ssh_keys()
 
             # We've filtered all cases: the key must be the default one!
@@ -215,7 +215,7 @@ class UserController(object):
 
             # If given key path was the default one, we create the key
             # pair for the user
-            print >> sys.stderr, "Key '{0}' seems to be invalid or not found!".format(ssh_key_path)
+            print >> sys.stderr, "Key '{0}' seems to not be a RSA public key or not found!".format(ssh_key_path)
             create_new_default_ssh_keys()
 
         ssh_key_content = readContentOf(ssh_key_path)
