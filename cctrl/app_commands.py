@@ -44,14 +44,18 @@ class list_action(argparse.Action):
 
     def __call__(self, parser, namespace, value, option_string=None):
         try:
-            common.check_for_updates(self.settings.package_name, self.api.check_versions()['cctrl'])
+            if self.settings.check_for_updates:
+                common.check_for_updates(self.settings.package_name,
+                                         self.api.check_versions()['cctrl'])
         except KeyError:
             pass
         except ConnectionException:
             pass
 
         apps = AppsController(self.api)
-        common.execute_with_authenticated_user(self.api, lambda: apps.list(), self.settings)
+        common.execute_with_authenticated_user(self.api,
+                                               lambda: apps.list(),
+                                               self.settings)
         parser.exit()
 
 

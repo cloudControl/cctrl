@@ -39,11 +39,14 @@ class Settings(object):
                  package_name='cctrl',
                  prefix_project_name=False,
                  home_path='.cloudControl',
-                 ssh_auth=True):
+                 ssh_auth=True,
+                 check_for_updates=True):
 
-        self.ssh_forwarder = ssh_forwarder_url or env.get('SSH_FORWARDER', 'sshforwarder.cloudcontrolled.com')
+        self.ssh_forwarder = ssh_forwarder_url or env.get('SSH_FORWARDER',
+                                                          'sshforwarder.cloudcontrolled.com')
         self.ssh_forwarder_port = '2222'
-        self.api_url = api_url or env.get('CCTRL_API_URL', 'https://api.cloudcontrolled.com')
+        self.api_url = api_url or env.get('CCTRL_API_URL',
+                                          'https://api.cloudcontrolled.com')
         self.token_source_url = token_source_url or self.api_url + '/token/'
         self.encode_email = encode_email
         self.user_registration_enabled = user_registration_enabled
@@ -58,3 +61,4 @@ class Settings(object):
         self.token_path = os.path.join(self.home_path, 'token.json')
         self.config_path = os.path.join(self.home_path, 'user.cfg')
         self.ssh_auth = ssh_auth
+        self.check_for_updates = check_for_updates

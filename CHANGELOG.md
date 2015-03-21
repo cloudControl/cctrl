@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+* 8318e62 - Logout user when setup email differs
+* a0addbe - Add setting to enable/disable version checks
 * 23aa70a - Deprecate ez_setup.py file
 * c0318e2 - Add VersionEye support
 * ba2d6fa - Upgrade requirements.txt

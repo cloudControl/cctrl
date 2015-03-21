@@ -59,3 +59,12 @@ class TestSettings(unittest.TestCase):
         test_env = {'SSH_FORWARDER': "my.ssh_forwarder.url"}
         settings = Settings(env=test_env)
         self.assertEqual('my.ssh_forwarder.url', settings.ssh_forwarder)
+
+    def test_check_for_updates_default(self):
+        settings = Settings(env={})
+        self.assertTrue(settings.check_for_updates)
+
+    def test_check_for_updates_set_by_argument(self):
+        settings = Settings(api_url='any.api.url',
+                            check_for_updates=False)
+        self.assertFalse(settings.check_for_updates)
