@@ -33,6 +33,5 @@ if __name__ == "__main__":
                                      'pwd': 'CNH_PASSWORD'},
                         package_name='cnh',
                         prefix_project_name=True,
-                        home_path='.cnh-apps.com',
-                        ssh_auth=False)
+                        home_path='.cnh-apps.com')
     setup_cli(settings)
