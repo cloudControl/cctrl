@@ -3,11 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased][unreleased]
+## [v1.16.1]
 
+* a44f042 - Enable ssh authentication on Cloud&Heat
 * 8318e62 - Logout user when setup email differs
 * a0addbe - Add setting to enable/disable version checks
-* 23aa70a - Deprecate ez_setup.py file
+* 07ae1f8 - Better message for invalid key
+* f975a3b - Deprecate ez_setup.py file
 * c0318e2 - Add VersionEye support
 * ba2d6fa - Upgrade requirements.txt
 
@@ -90,5 +92,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * c257751 - Update win32 install documentation 
 
 
-[unreleased]: https://github.com/cloudControl/cctrl/compare/v1.16.0...HEAD
+[unreleased]: https://github.com/cloudControl/cctrl/compare/v1.16.1...HEAD
+[v1.16.1]: https://github.com/cloudControl/cctrl/compare/v1.16.0...v1.16.1
 [v1.16.0]: https://github.com/cloudControl/cctrl/compare/v1.15.2...v1.16.0
