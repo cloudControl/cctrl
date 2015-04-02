@@ -1,4 +1,4 @@
-cctrl [![Build Status](https://travis-ci.org/cloudControl/cctrl.svg?branch=master)](https://travis-ci.org/cloudControl/cctrl)[![PyPI version](https://badge.fury.io/py/cctrl.svg)](http://badge.fury.io/py/cctrl)[![Dependency Status](https://www.versioneye.com/user/projects/54e202066a183a9022000011/badge.svg?style=flat)](https://www.versioneye.com/user/projects/54e202066a183a9022000011)
+cctrl [![Build Status](https://travis-ci.org/cloudControl/cctrl.svg?branch=master)](https://travis-ci.org/cloudControl/cctrl)[![PyPI version](https://badge.fury.io/py/cctrl.svg)](http://badge.fury.io/py/cctrl)[![Dependency Status](https://www.versioneye.com/user/projects/551cff633661f134fe000410/badge.svg?style=flat)](https://www.versioneye.com/user/projects/551cff633661f134fe000410)
 =====
 
 `cctrl` is a set of command line utilities to help you create and manage applications
