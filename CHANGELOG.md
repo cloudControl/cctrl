@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+* b984048 - Add requirements_tests.txt to VersionEye
+
 ## [v1.16.1]
 
 * a44f042 - Enable ssh authentication on Cloud&Heat
