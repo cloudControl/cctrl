@@ -1,26 +1,17 @@
-# -*- coding: utf-8 -*-
-"""
-    setup script for cloudControl command line utilities
-
-    usage: sudo python setup.py install
-"""
-
 import os
 import sys
 from setuptools import setup, find_packages
-from cctrl.version import __version__
 
 
 execfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'cctrl', 'version.py'))
 
-if sys.version_info < (2, 6):
-    required = ['simplejson']
-else:
-    required = []
+required = [
+    'pycclib>=1.6.0',
+    'paramiko>=1.15.2,<2',
+]
 
-required.append('pycclib>=1.6.0')
-required.append('argparse>=1.1')
-required.append('paramiko>=1.15.2')
+if sys.version_info < (2, 7):
+    required.append('argparse')
 
 srcscripts = ['cctrl/cctrlapp', 'cctrl/cctrluser', 'cctrl/exoapp', 'cctrl/exouser', 'cctrl/dcapp', 'cctrl/dcuser', 'cctrl/cnhapp', 'cctrl/cnhuser']
 
