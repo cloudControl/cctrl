@@ -3,9 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [v1.16.2]
 
-* b984048 - Add requirements_tests.txt to VersionEye
+* Add requirements_tests.txt to VersionEye
+* Remove cnh and dotcloudng scripts
 
 ## [v1.16.1]
 
@@ -94,8 +95,3 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * 078051c - Automate new version release via Jenkins 
 * c257751 - Update win32 install documentation 
-
-
-[unreleased]: https://github.com/cloudControl/cctrl/compare/v1.16.1...HEAD
-[v1.16.1]: https://github.com/cloudControl/cctrl/compare/v1.16.0...v1.16.1
-[v1.16.0]: https://github.com/cloudControl/cctrl/compare/v1.15.2...v1.16.0
