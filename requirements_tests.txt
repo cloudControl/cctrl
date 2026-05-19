@@ -1,6 +1,6 @@
 -r requirements.txt
 mock==1.0.1
-pytest==2.7.0
+pytest==9.0.3
 pytest-pep8==1.0.6
 pytest-cov==1.8.1
 python-coveralls==2.5.0
